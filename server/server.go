@@ -1,0 +1,107 @@
+package server
+
+import (
+	"html/template"
+	"io"
+	"net/http"
+
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"github.com/soprasteria/dad/server/auth"
+	"github.com/soprasteria/dad/server/controllers"
+	"github.com/spf13/viper"
+)
+
+// JSON type
+type JSON map[string]interface{}
+
+// Template : template struct
+type Template struct {
+	Templates *template.Template
+}
+
+// Render : render template
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.Templates.ExecuteTemplate(w, name, data)
+}
+
+//New instane of the server
+func New(version string) {
+
+	engine := echo.New()
+	authC := controllers.Auth{}
+
+	engine.Use(middleware.Logger())
+	engine.Use(middleware.Recover())
+	engine.Use(middleware.Gzip())
+
+	t := &Template{Templates: template.Must(template.ParseFiles("./client/dist/index.tmpl"))}
+	engine.Renderer = t
+
+	engine.GET("/ping", pong)
+
+	authAPI := engine.Group("/auth")
+	{
+		authAPI.Use(sessionMongo) // Enrich echo context with connexion to mongo API
+		authAPI.POST("/login", authC.Login)
+		authAPI.GET("/*", GetIndex(version))
+	}
+
+	api := engine.Group("/api")
+	{
+		api.Use(sessionMongo) // Enrich echo context with connexion to mongo API
+		config := middleware.JWTConfig{
+			Claims:     &auth.MyCustomClaims{},
+			SigningKey: []byte(viper.GetString("auth.jwt-secrett")),
+			ContextKey: "user-token",
+		}
+		api.Use(middleware.JWTWithConfig(config)) // Enrich echo context with JWT
+		api.Use(getAuhenticatedUser)              // Enrich echo context with authenticated user (fetched from JWT token)
+
+		// usersAPI := api.Group("/users")
+		// {
+		// 	// No "isAdmin" middleware on users because users can delete/modify themselves
+		// 	// Rights are implemented in each controller
+		// 	usersAPI.GET("", usersC.GetAll)
+		// 	userAPI := usersAPI.Group("/:id")
+		// 	{
+		// 		userAPI.Use(isValidID("id"))
+		// 		userAPI.GET("", usersC.Get, users.RetrieveUser)
+		// 		userAPI.DELETE("", usersC.Delete)
+		// 		userAPI.PUT("", usersC.Update)
+		// 		userAPI.PUT("/password", usersC.ChangePassword)
+		// 	}
+		// }
+
+		// exportAPI := api.Group("/export")
+		// {
+		// 	exportAPI.GET("", exportC.ExportAll, hasRole(types.AdminRole))
+		// }
+	}
+
+	engine.Static("/js", "client/dist/js")
+	engine.Static("/css", "client/dist/css")
+	engine.Static("/images", "client/dist/images")
+	engine.Static("/fonts", "client/dist/fonts")
+
+	engine.GET("/*", GetIndex(version))
+	if err := engine.Start(":8080"); err != nil {
+		engine.Logger.Fatal(err.Error())
+	}
+}
+
+func pong(c echo.Context) error {
+
+	return c.JSON(http.StatusOK, JSON{
+		"message": "pong",
+	})
+}
+
+// GetIndex handler which render the index.html of mom
+func GetIndex(version string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		data := make(map[string]interface{})
+		data["Version"] = version
+		return c.Render(http.StatusOK, "index", data)
+	}
+}

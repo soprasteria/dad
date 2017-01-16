@@ -171,19 +171,28 @@ gulp.task('dist:server', function(callback) {
   });
 });
 
-
-/*====== Server =========*/
-
-
-
-/*===================== TASKS =====================*/
-
+/*====== Tasks ======*/
 gulp.task('dev', function(callback) {
-  runSequence('clean', 'dist:fonts', 'dist:images', 'client:webpackDevServer', 'server:html', 'server:build', 'server:watch', 'server:spawn', callback);
+  runSequence(
+    'clean',
+    'dist:fonts',
+    'dist:images',
+    'client:webpackDevServer',
+    'server:html',
+    'server:build',
+    'server:watch',
+    'server:spawn',
+    callback
+  );
 });
 
 gulp.task('dist', function(callback) {
-  runSequence('clean', 'dist:client', 'dist:server', callback);
+  runSequence(
+    'clean',
+    'dist:client',
+    'dist:server',
+    callback
+  );
 });
 
 gulp.task('archive', ['dist'], function() {

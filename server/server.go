@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/soprasteria/dad/server/auth"
 	"github.com/soprasteria/dad/server/controllers"
+	"github.com/soprasteria/dad/server/types"
 	"github.com/spf13/viper"
 )
 
@@ -30,6 +31,7 @@ func New(version string) {
 
 	engine := echo.New()
 	authC := controllers.Auth{}
+	usersC := controllers.Users{}
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
@@ -42,6 +44,7 @@ func New(version string) {
 
 	authAPI := engine.Group("/auth")
 	{
+		authAPI.Use(openLDAP)
 		authAPI.Use(sessionMongo) // Enrich echo context with connexion to mongo API
 		authAPI.POST("/login", authC.Login)
 		authAPI.GET("/*", GetIndex(version))
@@ -52,31 +55,22 @@ func New(version string) {
 		api.Use(sessionMongo) // Enrich echo context with connexion to mongo API
 		config := middleware.JWTConfig{
 			Claims:     &auth.MyCustomClaims{},
-			SigningKey: []byte(viper.GetString("auth.jwt-secrett")),
+			SigningKey: []byte(viper.GetString("auth.jwt-secret")),
 			ContextKey: "user-token",
 		}
 		api.Use(middleware.JWTWithConfig(config)) // Enrich echo context with JWT
 		api.Use(getAuhenticatedUser)              // Enrich echo context with authenticated user (fetched from JWT token)
 
-		// usersAPI := api.Group("/users")
-		// {
-		// 	// No "isAdmin" middleware on users because users can delete/modify themselves
-		// 	// Rights are implemented in each controller
-		// 	usersAPI.GET("", usersC.GetAll)
-		// 	userAPI := usersAPI.Group("/:id")
-		// 	{
-		// 		userAPI.Use(isValidID("id"))
-		// 		userAPI.GET("", usersC.Get, users.RetrieveUser)
-		// 		userAPI.DELETE("", usersC.Delete)
-		// 		userAPI.PUT("", usersC.Update)
-		// 		userAPI.PUT("/password", usersC.ChangePassword)
-		// 	}
-		// }
-
-		// exportAPI := api.Group("/export")
-		// {
-		// 	exportAPI.GET("", exportC.ExportAll, hasRole(types.AdminRole))
-		// }
+		usersAPI := api.Group("/users")
+		{
+			usersAPI.GET("", usersC.GetAll)
+			userAPI := usersAPI.Group("/:id")
+			{
+				userAPI.Use(isValidID("id"))
+				userAPI.GET("", usersC.Get, RetrieveUser)
+				userAPI.DELETE("", usersC.Delete, hasRole(types.AdminRole))
+			}
+		}
 	}
 
 	engine.Static("/js", "client/dist/js")

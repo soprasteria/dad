@@ -101,9 +101,9 @@ gulp.task('server:spawn', function() {
   var length = path_folder.length;
   var app    = path_folder[length - parseInt(1)];
   if (os.platform() == 'win32') {
-    server = child.spawn(app + '.exe', ['serve'], { stdio: 'inherit' });
+    server = child.spawn(app + '.exe', ['serve', '-e', 'dev', '--level', 'debug'], { stdio: 'inherit' });
   } else {
-    server = child.spawn(app, ['serve'], { stdio: 'inherit' });
+    server = child.spawn(app, ['serve', '-e', 'dev', '--level', 'debug'], { stdio: 'inherit' });
   }
 });
 

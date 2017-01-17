@@ -8,14 +8,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/soprasteria/dad/server/types"
 	"github.com/spf13/viper"
-	"golang.org/x/crypto/bcrypt"
-	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 const (
 	authenticationTokenValidity = time.Hour * 24 * 7
-	resetPasswordTokenValidity  = time.Hour * 1
 )
 
 var (
@@ -25,16 +22,12 @@ var (
 	ErrUsernameAlreadyTaken = errors.New("Username already taken")
 	// ErrUsernameAlreadyTakenOnLDAP is an error message when the username is already used by someone else on LDAP
 	ErrUsernameAlreadyTakenOnLDAP = errors.New("Username already taken in the configured LDAP server. Try login instead")
-	// ErrInvalidOldPassword is an error message when the user tries to change his password but the old password does not match the right one
-	ErrInvalidOldPassword = errors.New("Old password is wrong")
-	// ErrTokenInvalid is an error message when a identication token is invalid
-	ErrTokenInvalid = errors.New("Token is invalid or too old. Try resetting your password again")
 )
 
 // Authentication contains all APIs entrypoints needed for authentication
 type Authentication struct {
-	Database *mgo.Database
-	LDAP     *LDAP
+	Users types.UserRepo
+	LDAP  *LDAP
 }
 
 // LoginUserQuery represents connection data
@@ -76,24 +69,11 @@ func createToken(username, secret string, expiresAt time.Time) (string, error) {
 	return signedToken, nil
 }
 
-func protect(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(passwordWithPepper(password)), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hash), nil
-}
-
-func passwordWithPepper(password string) string {
-	return password + viper.GetString("auth.bcrypt-pepper")
-}
-
 // AuthenticateUser authenticates a user
 func (a *Authentication) AuthenticateUser(query *LoginUserQuery) error {
-	user := types.User{}
-	err := a.Database.C("users").Find(bson.M{"username": query.Username}).One(&user)
+	user, err := a.Users.FindByUsername(query.Username)
 	if err != nil || user.ID.Hex() == "" {
-		log.WithError(err).WithField("username", query.Username).Error("Cannot authenticate user, username not found in DB")
+		log.WithError(err).WithField("username", query.Username).Warn("Cannot authenticate user, username not found in DB")
 		return a.authenticateWhenUserNotFound(query)
 	}
 	log.WithField("username", query.Username).Debug("User found in DB")
@@ -121,7 +101,7 @@ func (a *Authentication) authenticateWhenUserFound(user types.User, query *Login
 		if user.ID.Hex() == "" {
 			user.ID = bson.NewObjectId()
 		}
-		_, err = a.Database.C("users").UpsertId(user.ID, bson.M{"$set": user})
+		_, err = a.Users.Save(user)
 		if err != nil {
 			log.WithError(err).WithField("username", user).Error("Failed to save LDAP user in DB")
 			return err
@@ -145,14 +125,14 @@ func (a *Authentication) authenticateWhenUserNotFound(query *LoginUserQuery) err
 			DisplayName: ldapUser.FirstName + " " + ldapUser.LastName,
 			Username:    ldapUser.Username,
 			Email:       ldapUser.Email,
-			Role:        types.UserRole,
+			Role:        types.DefaultRole(),
 			Created:     time.Now(),
 			Updated:     time.Now(),
 		}
 		if user.ID.Hex() == "" {
 			user.ID = bson.NewObjectId()
 		}
-		_, err = a.Database.C("users").UpsertId(user.ID, bson.M{"$set": user})
+		_, err = a.Users.Save(user)
 		return err
 	}
 

@@ -3,12 +3,11 @@ package controllers
 import (
 	"net/http"
 
-	"gopkg.in/mgo.v2"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/soprasteria/dad/server/auth"
-	"github.com/soprasteria/dad/server/users"
+	"github.com/soprasteria/dad/server/mongo"
+	"github.com/soprasteria/dad/server/types"
 )
 
 // Auth contains all login handlers
@@ -17,21 +16,21 @@ type Auth struct {
 
 // Token is a JWT Token
 type Token struct {
-	ID   string         `json:"id_token,omitempty"`
-	User users.UserRest `json:"user,omitempty"`
+	ID   string     `json:"id_token,omitempty"`
+	User types.User `json:"user,omitempty"`
 }
 
 func newAuthAPI(c echo.Context) auth.Authentication {
 	// Handle APIs from Echo context
-	database := c.Get("database").(*mgo.Database)
+	database := c.Get("database").(*mongo.DadMongo)
 	ldapAPI := c.Get("ldap")
 	var ldap *auth.LDAP
 	if ldapAPI != nil {
 		ldap = ldapAPI.(*auth.LDAP)
 	}
 	return auth.Authentication{
-		Database: database,
-		LDAP:     ldap,
+		Users: database.Users,
+		LDAP:  ldap,
 	}
 }
 
@@ -75,8 +74,8 @@ func (a *Auth) Login(c echo.Context) error {
 	}
 
 	// Get the user from database
-	webservice := users.Rest{Database: login.Database}
-	user, err := webservice.GetUserRest(username)
+	database := c.Get("database").(*mongo.DadMongo)
+	user, err := database.Users.FindByUsername(username)
 	if err != nil {
 		log.WithError(err).WithField("username", username).Error("User retrieval failed")
 		return c.String(http.StatusInternalServerError, err.Error())

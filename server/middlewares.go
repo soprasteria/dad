@@ -8,12 +8,10 @@ import (
 	"github.com/soprasteria/dad/server/auth"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
-	"github.com/soprasteria/dad/server/users"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/spf13/viper"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -23,14 +21,17 @@ var NotAuthorized = "API not authorized for user %q"
 // NotValidID is a template string used to report that the id is not valid (i.e. not a valid BSON ID)
 var NotValidID = "ID %q is not valid"
 
+// UserNotFound is a template string used to report that the user cannot be found
+var UserNotFound = "Cannot find user %s"
+
 func sessionMongo(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		database, err := mongo.Get()
+		dadConn, err := mongo.Get()
 		if err != nil {
 			c.Error(err)
 		}
-		defer database.Session.Close()
-		c.Set("database", database)
+		defer dadConn.Session.Close()
+		c.Set("database", dadConn)
 		return next(c)
 	}
 }
@@ -49,13 +50,11 @@ func openLDAP(next echo.HandlerFunc) echo.HandlerFunc {
 		emailAttribute := viper.GetString("ldap.attr.email")
 
 		if address == "" {
-			// Don't use LDAP, no problem
-			log.Info("No LDAP configured")
-			return next(c)
+			panic("No LDAP configured. This application requires to have a LDAP configured")
 		}
 
 		// Enrich the echo context with LDAP configuration
-		log.Info("LDAP configured")
+		log.Info("Connected to LDAP : ", address)
 
 		ldap := auth.NewLDAP(&auth.LDAPConf{
 			LdapServer:   address,
@@ -83,14 +82,13 @@ func getAuhenticatedUser(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Get api from context
 		userToken := c.Get("user-token").(*jwt.Token)
-		database := c.Get("database").(*mgo.Database)
+		database := c.Get("database").(*mongo.DadMongo)
 
 		// Parse the token
 		claims := userToken.Claims.(*auth.MyCustomClaims)
 
 		// Get the user from database
-		webservice := users.Rest{Database: database}
-		user, err := webservice.GetUserRest(claims.Username)
+		user, err := database.Users.FindByUsername(claims.Username)
 		if err != nil {
 			// Will logout the user automatically, as server considers the token to be invalid
 			return c.String(http.StatusUnauthorized, fmt.Sprintf("Your account %q has been removed. Please create a new one.", claims.Username))
@@ -108,7 +106,7 @@ func hasRole(role types.Role) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Get user from context
-			user := c.Get("authuser").(users.UserRest)
+			user := c.Get("authuser").(types.User)
 
 			// Check if the user has at least the required role
 			log.WithFields(log.Fields{
@@ -122,11 +120,11 @@ func hasRole(role types.Role) func(next echo.HandlerFunc) echo.HandlerFunc {
 				if user.Role == types.AdminRole {
 					return next(c)
 				}
-			case types.SupervisorRole:
-				if user.Role == types.AdminRole || user.Role == types.SupervisorRole {
+			case types.RIRole:
+				if user.Role == types.AdminRole || user.Role == types.RIRole {
 					return next(c)
 				}
-			case types.UserRole:
+			case types.CPRole:
 				return next(c)
 			}
 
@@ -149,5 +147,20 @@ func isValidID(id string) func(next echo.HandlerFunc) echo.HandlerFunc {
 
 			return next(c)
 		}
+	}
+}
+
+// RetrieveUser is a middleware setting the user in context
+func RetrieveUser(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		database := c.Get("database").(*mongo.DadMongo)
+		id := c.Param("id")
+		user, err := database.Users.FindByID(id)
+		if err != nil {
+			return c.String(http.StatusNotFound, fmt.Sprintf(UserNotFound, id))
+		}
+
+		c.Set("user", user)
+		return next(c)
 	}
 }

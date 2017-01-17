@@ -144,7 +144,7 @@ gulp.task('dist:copy', function() {
 });
 
 gulp.task('dist:client', function(callback) {
-  runSequence('dist:html', 'dist:fonts', 'dist:images', 'dist:webpack', 'dist:copy', callback);
+  runSequence('dist:fonts', 'dist:images', 'dist:webpack', 'dist:html', 'dist:copy', callback);
 });
 
 gulp.task('dist:server', function(callback) {
@@ -175,8 +175,8 @@ gulp.task('dist:server', function(callback) {
 gulp.task('dev', function(callback) {
   runSequence(
     'clean',
-    'dist:fonts',
     'dist:images',
+    'dist:fonts',
     'client:webpackDevServer',
     'server:html',
     'server:build',

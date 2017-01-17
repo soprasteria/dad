@@ -35,7 +35,7 @@ func New(version string) {
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
-	engine.Use(middleware.Gzip())
+	//engine.Use(middleware.Gzip())
 
 	t := &Template{Templates: template.Must(template.ParseFiles("./client/dist/index.tmpl"))}
 	engine.Renderer = t

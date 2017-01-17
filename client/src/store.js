@@ -32,7 +32,7 @@ const store = createStore(
 
 const authToken = localStorage.getItem('id_token');
 if (authToken) {
-  store.dispatch(AuthThunks.profile());
+  //store.dispatch(AuthThunks.profile());
 }
 
 export { store };

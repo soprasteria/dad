@@ -6,6 +6,7 @@ import { routerMiddleware, routerReducer } from 'react-router-redux';
 
 // Reducers
 import auth from './modules/auth/auth.reducer';
+import users from './modules/users/users.reducer';
 
 // Thunks
 import AuthThunks from './modules/auth/auth.thunk';
@@ -24,6 +25,7 @@ const store = createStore(
   combineReducers(
     {
       auth,
+      users,
       routing: routerReducer,
     }
   ),

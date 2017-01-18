@@ -8,9 +8,9 @@ export const getRoleLabel = role => {
   case AUTH_ADMIN_ROLE:
     return 'Admin';
   case AUTH_RI_ROLE:
-    return 'Supervisor';
+    return 'RI';
   case AUTH_CP_ROLE:
-    return 'User';
+    return 'CP';
   default:
     return 'Unknown';
   }

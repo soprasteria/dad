@@ -1,8 +1,7 @@
 // React
 import React from 'react';
 import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
-import { Input, Dimmer, Loader, Label, Icon } from 'semantic-ui-react';
+import { Input, Dimmer, Loader, Label, Icon, Segment, Card, Container } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
 
 // API Fetching
@@ -15,7 +14,6 @@ import { getFilteredUsers } from '../../modules/users/users.selectors';
 // Components
 import UserCard from './user/user.card.component';
 
-// Style
 import './users.page.scss';
 
 //Site Component using react-leaflet
@@ -25,35 +23,44 @@ class Users extends React.Component {
     this.props.fetchUsers();
   }
 
+  renderCards = (users) => {
+    if (users.length) {
+      return (
+        <Card.Group>
+          {users.map(user => {
+            return (
+              <UserCard user={user} key={user.id} />
+            );
+          })}
+        </Card.Group>
+      );
+    }
+    return <p>No users found.</p>;
+  }
+
   render = () => {
     const { users, filterValue, isFetching, changeFilter } = this.props;
     return (
-      <div className='flex layout vertical start-justified users-page'>
-        <div className='layout horizontal justified users-bar'>
-          <Input icon labelPosition='left corner' className='flex'>
-            <Label corner='left' icon='search' />
-            <DebounceInput
-              placeholder='Search...'
-              minLength={1}
-              debounceTimeout={300}
-              onChange={(event) => changeFilter(event.target.value)}
-              value={filterValue}
-            />
-            <Icon link name='remove' onClick={() => changeFilter('')}/>
-          </Input>
-          <div className='flex-2' />
-        </div>
-        <Scrollbars autoHide className='flex ui dimmable'>
-          <div className='flex layout horizontal center-center wrap user-list'>
-              {isFetching && <Dimmer active><Loader size='large' content='Fetching'/></Dimmer>}
-              {users.map(user => {
-                return (
-                  <UserCard user={user} key={user.id} />
-                );
-              })}
-          </div>
-        </Scrollbars>
-      </div>
+      <Container fluid className='users-page'>
+        <Segment.Group raised>
+          <Segment>
+            <Input fluid icon labelPosition='left corner'>
+              <Label corner='left' icon='search' />
+              <DebounceInput
+                placeholder='Search...'
+                minLength={1}
+                debounceTimeout={300}
+                onChange={(event) => changeFilter(event.target.value)}
+                value={filterValue}
+              />
+              <Icon link name='remove' onClick={() => changeFilter('')}/>
+            </Input>
+          </Segment>
+          <Segment loading={isFetching}>
+            {this.renderCards(users)}
+          </Segment>
+        </Segment.Group>
+      </Container>
     );
   }
 }

@@ -1,0 +1,16 @@
+.user-card {
+  .ui.top.right.attached.button {
+    box-shadow: none !important;
+    left: auto;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    .ui.button {
+      margin: 0;
+      box-shadow: none !important;
+      border-radius: 0 .30em 0 0;
+    }
+  }
+}

@@ -91,7 +91,7 @@ const authReducer = (state = initialState, action) => {
       return state;
     }
   case UsersConstants.USER_DELETED:
-    if (action.removedID === state.user.id) {
+    if (action.id === state.user.id) {
       return {
         isAuthenticated : false,
         user: {},
@@ -101,7 +101,7 @@ const authReducer = (state = initialState, action) => {
       return state;
     }
   case UsersConstants.INVALID_DELETE_USER:
-    if (action.user.id === state.user.id) {
+    if (action.entity.id === state.user.id) {
       return {
         ...state,
         user : { ...state.user, isDeleting: false },
@@ -115,9 +115,9 @@ const authReducer = (state = initialState, action) => {
 };
 
 const authenticatedUserIsFetching = (state, action) => {
-  if (action.user.id === state.user.id) {
+  if (action.entity.id === state.user.id) {
     return {
-      user: { ...action.user, isFetching: true, errorMessage: '' }
+      user: { ...action.entity, isFetching: true, errorMessage: '' }
     };
   } else {
     return {};
@@ -125,9 +125,9 @@ const authenticatedUserIsFetching = (state, action) => {
 };
 
 const authenticatedUserFetchingError = (state, action) => {
-  if (action.user.id === state.user.id) {
+  if (action.entity.id === state.user.id) {
     return {
-      user: { ...action.user, isFetching: false, errorMessage: action.error }
+      user: { ...action.entity, isFetching: false, errorMessage: action.error }
     };
   } else {
     return {};
@@ -135,9 +135,9 @@ const authenticatedUserFetchingError = (state, action) => {
 };
 
 const changeUserIfNeeded = (state, action) => {
-  if (action.user.id === state.user.id) {
+  if (action.entity.id === state.user.id) {
     return {
-      user: { ...action.user, isFetching: false, errorMessage: '' }
+      user: { ...action.entity, isFetching: false, errorMessage: '' }
     };
   } else {
     return {};

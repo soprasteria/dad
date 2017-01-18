@@ -12,8 +12,9 @@ import (
 
 //DadMongo containers all types of Mongo data ready to be used
 type DadMongo struct {
-	Users   types.UserRepo // Repo for accessing users methods
-	Session *mgo.Session   // Cloned session
+	Users    types.UserRepo   // Repo for accessing users methods
+	Entities types.EntityRepo // Repo for accessing entities methods
+	Session  *mgo.Session     // Cloned session
 }
 
 // Session stores mongo session
@@ -52,9 +53,11 @@ func Get() (*DadMongo, error) {
 	}
 
 	users := types.NewUserRepo(database)
+	entities := types.NewEntityRepo(database)
 
 	return &DadMongo{
-		Users:   users,
-		Session: s,
+		Users:    users,
+		Entities: entities,
+		Session:  s,
 	}, nil
 }

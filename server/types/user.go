@@ -31,6 +31,26 @@ func (r Role) IsValid() bool {
 	return r == AdminRole || r == RIRole || r == CPRole
 }
 
+// User model
+type User struct {
+	ID          bson.ObjectId   `bson:"_id,omitempty" json:"id,omitempty"`
+	FirstName   string          `bson:"firstName" json:"firstName"`
+	LastName    string          `bson:"lastName" json:"lastName"`
+	DisplayName string          `bson:"displayName" json:"displayName"`
+	Username    string          `bson:"username" json:"username"`
+	Email       string          `bson:"email" json:"email"`
+	Role        Role            `bson:"role" json:"role"`
+	Created     time.Time       `bson:"created" json:"created"`
+	Updated     time.Time       `bson:"updated" json:"updated"`
+	Projects    []bson.ObjectId `bson:"projects" json:"projects"`
+	Entities    []bson.ObjectId `bson:"entities" json:"entities"`
+}
+
+// GetID gets the ID of the entity
+func (u User) GetID() bson.ObjectId {
+	return u.ID
+}
+
 // IsAdmin checks that the user is an admin, meaning he can do anything on the application.
 func (u User) IsAdmin() bool {
 	return u.Role == AdminRole
@@ -49,21 +69,6 @@ func (u User) IsCP() bool {
 // HasValidRole checks the user has a known role
 func (u User) HasValidRole() bool {
 	return u.Role.IsValid()
-}
-
-// User model
-type User struct {
-	ID          bson.ObjectId   `bson:"_id,omitempty" json:"id,omitempty"`
-	FirstName   string          `bson:"firstName" json:"firstName"`
-	LastName    string          `bson:"lastName" json:"lastName"`
-	DisplayName string          `bson:"displayName" json:"displayName"`
-	Username    string          `bson:"username" json:"username"`
-	Email       string          `bson:"email" json:"email"`
-	Role        Role            `bson:"role" json:"role"`
-	Created     time.Time       `bson:"created" json:"created"`
-	Updated     time.Time       `bson:"updated" json:"updated"`
-	Projects    []bson.ObjectId `bson:"projects" json:"projects"`
-	Entities    []bson.ObjectId `bson:"entities" json:"entities"`
 }
 
 // UserRepo wraps all requests to database for accessing users
@@ -93,7 +98,7 @@ func (s *UserRepo) FindByID(id string) (User, error) {
 // FindByIDBson get the user by its id (as a bson object)
 func (s *UserRepo) FindByIDBson(id bson.ObjectId) (User, error) {
 	if !s.isInitialized() {
-		return User{}, errors.New("Database API is not initialized")
+		return User{}, ErrDatabaseNotInitialiazed
 	}
 	result := User{}
 	err := s.col().FindId(id).One(&result)
@@ -103,7 +108,7 @@ func (s *UserRepo) FindByIDBson(id bson.ObjectId) (User, error) {
 // FindByUsername finds the user with given username
 func (s *UserRepo) FindByUsername(username string) (User, error) {
 	if !s.isInitialized() {
-		return User{}, errors.New("Database API is not initialized")
+		return User{}, ErrDatabaseNotInitialiazed
 	}
 	user := User{}
 	err := s.col().Find(bson.M{"username": username}).One(&user)
@@ -117,7 +122,7 @@ func (s *UserRepo) FindByUsername(username string) (User, error) {
 // FindAll get all users from Dad
 func (s *UserRepo) FindAll() ([]User, error) {
 	if !s.isInitialized() {
-		return []User{}, errors.New("Database API is not initialized")
+		return []User{}, ErrDatabaseNotInitialiazed
 	}
 	users := []User{}
 	err := s.col().Find(bson.M{}).All(&users)
@@ -130,12 +135,13 @@ func (s *UserRepo) FindAll() ([]User, error) {
 // Save updates or create the user in database
 func (s *UserRepo) Save(user User) (User, error) {
 	if !s.isInitialized() {
-		return User{}, errors.New("Database API is not initialized")
+		return User{}, ErrDatabaseNotInitialiazed
 	}
 
 	if user.ID.Hex() == "" {
 		user.ID = bson.NewObjectId()
 	}
+	user.Updated = time.Now()
 
 	_, err := s.col().UpsertId(user.ID, bson.M{"$set": user})
 	return user, err
@@ -143,10 +149,5 @@ func (s *UserRepo) Save(user User) (User, error) {
 
 // Delete the user
 func (s *UserRepo) Delete(id bson.ObjectId) (bson.ObjectId, error) {
-	if !s.isInitialized() {
-		return bson.ObjectIdHex(""), errors.New("Database API is not initialized")
-	}
-
-	err := s.col().RemoveId(id)
-	return id, err
+	return BasicDelete(s, id)
 }

@@ -32,6 +32,7 @@ func New(version string) {
 	engine := echo.New()
 	authC := controllers.Auth{}
 	usersC := controllers.Users{}
+	entitiesC := controllers.Entities{}
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
@@ -69,6 +70,20 @@ func New(version string) {
 				userAPI.Use(isValidID("id"))
 				userAPI.GET("", usersC.Get, RetrieveUser)
 				userAPI.DELETE("", usersC.Delete, hasRole(types.AdminRole))
+				userAPI.PUT("", usersC.Update, hasRole(types.RIRole))
+			}
+		}
+
+		entitiesAPI := api.Group("/entities")
+		{
+			entitiesAPI.GET("", entitiesC.GetAll)
+			entitiesAPI.POST("", entitiesC.Save, hasRole(types.AdminRole))
+			entityAPI := entitiesAPI.Group("/:id")
+			{
+				entityAPI.Use(isValidID("id"))
+				entityAPI.GET("", entitiesC.Get)
+				entityAPI.DELETE("", entitiesC.Delete, hasRole(types.AdminRole))
+				entityAPI.PUT("", entitiesC.Save, hasRole(types.AdminRole))
 			}
 		}
 	}

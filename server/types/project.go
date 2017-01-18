@@ -60,3 +60,16 @@ type Project struct {
 	Created       time.Time     `bson:"created" json:"created"`
 	Updated       time.Time     `bson:"updated" json:"updated"`
 }
+
+// UniqIDs returns the slice of Object id, where an id can appear only once
+func UniqIDs(ids []bson.ObjectId) []bson.ObjectId {
+	result := []bson.ObjectId{}
+	seen := map[bson.ObjectId]bool{}
+	for _, id := range ids {
+		if _, ok := seen[id]; !ok {
+			result = append(result, id)
+			seen[id] = true
+		}
+	}
+	return result
+}

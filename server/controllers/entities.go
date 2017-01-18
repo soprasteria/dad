@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -15,7 +16,7 @@ import (
 type Entities struct {
 }
 
-//GetAll entities from database
+// GetAll entities from database
 func (u *Entities) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	entities, err := database.Entities.FindAll()
@@ -25,7 +26,7 @@ func (u *Entities) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, entities)
 }
 
-//Get entity from database
+// Get entity from database
 func (u *Entities) Get(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
@@ -36,7 +37,7 @@ func (u *Entities) Get(c echo.Context) error {
 	return c.JSON(http.StatusOK, entity)
 }
 
-//Delete entity from database
+// Delete entity from database
 func (u *Entities) Delete(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
@@ -57,8 +58,22 @@ func (u *Entities) Save(c echo.Context) error {
 	// Get entity from body
 	var entity types.Entity
 	err := c.Bind(&entity)
+
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted entity is not valid: %v", err))
+	}
+
+	if entity.Name == "" {
+		err = errors.New("name field cannot be empty")
+	}
+
+	exists, err := database.Entities.Exists(entity.Name)
+	if err != nil {
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Error checking while checking if the entity already exists: %v", err))
+	}
+
+	if exists {
+		return c.String(http.StatusConflict, fmt.Sprintf("Received entity already exists"))
 	}
 
 	if id != "" {
@@ -71,7 +86,7 @@ func (u *Entities) Save(c echo.Context) error {
 
 	entitySaved, err := database.Entities.Save(entity)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save entity to database : %v", err))
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save entity to database: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, entitySaved)

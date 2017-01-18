@@ -61,7 +61,7 @@ func (r *EntityRepo) FindByIDBson(id bson.ObjectId) (Entity, error) {
 	return result, err
 }
 
-// FindAll get all entitys from Dad
+// FindAll get all entities from the database
 func (r *EntityRepo) FindAll() ([]Entity, error) {
 	if !r.isInitialized() {
 		return []Entity{}, ErrDatabaseNotInitialiazed
@@ -82,6 +82,18 @@ func (r *EntityRepo) FindAllByIDBson(ids []bson.ObjectId) ([]Entity, error) {
 		return []Entity{}, errors.New("Can't retrieve all entities")
 	}
 	return entities, nil
+}
+
+// Exists checks if an entity (name) already exists
+func (r *EntityRepo) Exists(name string) (bool, error) {
+	nb, err := r.col().Find(bson.M{
+		"name": name,
+	}).Count()
+
+	if err != nil {
+		return true, err
+	}
+	return nb != 0, nil
 }
 
 // Save updates or create the entity in database

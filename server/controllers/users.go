@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -58,36 +59,44 @@ func (u *Users) Update(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted user is not valid: %v", err))
 	}
+	user.ID = bson.ObjectIdHex(id)
 
-	// Search for user
-	userFromDB, err := database.Users.FindByID(id)
-	if err != nil || userFromDB.ID.Hex() == "" {
-		return c.String(http.StatusNotFound, "User does not exist. Please register user first.")
+	userToUpdate, err := u.updateUserFields(database, user, connectedUser)
+	if err != nil {
+		return c.String(http.StatusNotFound, err.Error())
 	}
 
-	// Update only fields that are not read-only
-
-	// Updates entities, but only keep existing ones
-	// When error occurs, just keep previous ones
-	if connectedUser.IsAdmin() {
-		existingEntities, err := database.Entities.FindAllByIDBson(user.Entities)
-		if err == nil {
-			userFromDB.Entities = types.GetEntitiesIds(existingEntities)
-		}
-
-	}
-	if connectedUser.IsRI() || connectedUser.IsAdmin() {
-		// TODO : check existence of Projects in DB, the same way than for entities
-		userFromDB.Projects = types.UniqIDs(user.Projects)
-	}
-	if connectedUser.IsAdmin() && user.Role.IsValid() {
-		userFromDB.Role = user.Role
-	}
-
-	userSaved, err := database.Users.Save(userFromDB)
+	userSaved, err := database.Users.Save(userToUpdate)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save user to database : %v", err))
 	}
 
 	return c.JSON(http.StatusOK, userSaved)
+}
+
+// Update only fields that are not read-only
+func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.User, connectedUser types.User) (types.User, error) {
+
+	// Search for presence of user
+	userFromDB, err := database.Users.FindByIDBson(userUpdated.GetID())
+	if err != nil || userFromDB.GetID().Hex() == "" {
+		return types.User{}, errors.New("User does not exist. Please register user first.")
+	}
+	// Updates entities, but only keep existing ones
+	// When error occurs, just keep previous ones
+	if connectedUser.IsAdmin() {
+		existingEntities, err := database.Entities.FindAllByIDBson(userUpdated.Entities)
+		if err == nil {
+			userFromDB.Entities = types.GetEntitiesIds(existingEntities)
+		}
+	}
+	if connectedUser.IsRI() || connectedUser.IsAdmin() {
+		// TODO : check existence of Projects in DB, the same way than for entities
+		userFromDB.Projects = types.UniqIDs(userUpdated.Projects)
+	}
+	if connectedUser.IsAdmin() && userUpdated.Role.IsValid() {
+		userFromDB.Role = userUpdated.Role
+	}
+
+	return userFromDB, nil
 }

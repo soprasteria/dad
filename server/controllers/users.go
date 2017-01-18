@@ -7,7 +7,9 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"github.com/soprasteria/dad/server/auth"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
 )
@@ -99,4 +101,16 @@ func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.Use
 	}
 
 	return userFromDB, nil
+}
+
+// Profile returns the profile of the connecter user
+func (u *Users) Profile(c echo.Context) error {
+	database := c.Get("database").(*mongo.DadMongo)
+	userToken := c.Get("user-token").(*jwt.Token)
+	claims := userToken.Claims.(*auth.MyCustomClaims)
+	user, err := database.Users.FindByUsername(claims.Username)
+	if err != nil {
+		return c.String(http.StatusUnauthorized, auth.ErrInvalidCredentials.Error())
+	}
+	return c.JSON(http.StatusOK, user)
 }

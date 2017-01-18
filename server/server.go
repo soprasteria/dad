@@ -61,6 +61,7 @@ func New(version string) {
 		}
 		api.Use(middleware.JWTWithConfig(config)) // Enrich echo context with JWT
 		api.Use(getAuhenticatedUser)              // Enrich echo context with authenticated user (fetched from JWT token)
+		api.GET("/profile", usersC.Profile)
 
 		usersAPI := api.Group("/users")
 		{

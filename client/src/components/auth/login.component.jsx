@@ -48,18 +48,24 @@ class LoginComponent extends React.Component {
     }
   }
 
+  handleChange = (e, { name }) => {
+    const fields = { ...this.state.errors.fields };
+    delete fields[name];
+    this.setState({ errors: { fields, details: [...this.state.errors.details] } });
+  }
+
   render = () => {
     const { isFetching } = this.props;
     const { fields, details } = this.state.errors;
     return (
       <Container text>
-        <Segment className='login-component' padded='very' raised>
+        <Segment className='login-component' padded raised>
           <Header as='h1'>Login</Header>
           <Form error={Boolean(details.length)} onSubmit={this.handleSubmit}>
-            <Form.Input required error={fields['username']} label='Username'
+            <Form.Input required error={fields['username']} label='Username' onChange={this.handleChange}
               type='text' name='username' autoComplete='off' placeholder='LDAP username'
             />
-            <Form.Input required error={fields['password']} label='Password'
+            <Form.Input required error={fields['password']} label='Password' onChange={this.handleChange}
               type='password' name='password' autoComplete='off' placeholder='Password'
             />
             <Message error list={details}/>

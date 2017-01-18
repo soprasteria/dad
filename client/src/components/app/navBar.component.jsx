@@ -34,15 +34,13 @@ class NavBarComponent extends React.Component {
     const isAuthorized = this.isAuthorized;
     return (
       <Menu inverted className='navbar'>
-        <Menu.Item  as={IndexLink} to='/' header>
-          <Icon.Group size='large'>
-            <Icon name='doctor' inverted />
-            <Icon corner inverted name='dashboard' />
-          </Icon.Group>
+        <Menu.Item  as={IndexLink} to='/' header color='blue' active>
+          <Icon name='dashboard' size='large'/>
           <Header.Content>
             D.A.D
           </Header.Content>
         </Menu.Item>
+        {isAuthorized(<Menu.Item active={this.isActiveURL('/users')} as={Link} to='/users'>Users</Menu.Item>)}
         {isAuthorized(
           <Menu.Menu position='right'>
             <Menu.Item as={Dropdown} trigger={this.renderDropdown(isExportFetching)}>
@@ -62,11 +60,11 @@ class NavBarComponent extends React.Component {
 }
 
 NavBarComponent.propTypes = {
-  // logout: React.PropTypes.func.isRequired,
-  // exportDocktor: React.PropTypes.func.isRequired,
-  // auth: React.PropTypes.object.isRequired,
-  // location: React.PropTypes.object.isRequired,
-  // isExportFetching: React.PropTypes.bool.isRequired
+  location: React.PropTypes.object.isRequired,
+  auth: React.PropTypes.object.isRequired,
+  logout: React.PropTypes.func.isRequired,
+  exportDocktor: React.PropTypes.func.isRequired,
+  isExportFetching: React.PropTypes.bool
 };
 
 // Function to map state to container props

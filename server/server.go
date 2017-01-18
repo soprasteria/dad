@@ -33,6 +33,7 @@ func New(version string) {
 	authC := controllers.Auth{}
 	usersC := controllers.Users{}
 	entitiesC := controllers.Entities{}
+	functionnalServicesC := controllers.FunctionnalServices{}
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
@@ -87,6 +88,19 @@ func New(version string) {
 				entityAPI.GET("", entitiesC.Get)
 				entityAPI.DELETE("", entitiesC.Delete, hasRole(types.AdminRole))
 				entityAPI.PUT("", entitiesC.Save, hasRole(types.AdminRole))
+			}
+		}
+
+		functionnalServicesAPI := api.Group("/services")
+		{
+			functionnalServicesAPI.GET("", functionnalServicesC.GetAll)
+			functionnalServicesAPI.POST("", functionnalServicesC.Save, hasRole(types.AdminRole))
+			functionnalServiceAPI := functionnalServicesAPI.Group("/:id")
+			{
+				functionnalServiceAPI.Use(isValidID("id"))
+				functionnalServiceAPI.GET("", functionnalServicesC.Get)
+				functionnalServiceAPI.DELETE("", functionnalServicesC.Delete, hasRole(types.AdminRole))
+				functionnalServiceAPI.PUT("", functionnalServicesC.Save, hasRole(types.AdminRole))
 			}
 		}
 	}

@@ -36,7 +36,7 @@ class NavBarComponent extends React.Component {
       <Menu inverted className='navbar'>
         <Menu.Item  as={IndexLink} to='/' header>
           <Icon.Group size='large'>
-            <Icon name='doctor' />
+            <Icon name='doctor' inverted />
             <Icon corner inverted name='dashboard' />
           </Icon.Group>
           <Header.Content>

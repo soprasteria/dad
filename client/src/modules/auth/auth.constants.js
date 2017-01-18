@@ -1,15 +1,15 @@
 export const AUTH_ADMIN_ROLE = 'admin';
-export const AUTH_SUPERVISOR_ROLE = 'supervisor';
-export const AUTH_USER_ROLE = 'user';
-export const ALL_ROLES = [AUTH_ADMIN_ROLE, AUTH_SUPERVISOR_ROLE, AUTH_USER_ROLE];
+export const AUTH_RI_ROLE = 'ri';
+export const AUTH_CP_ROLE = 'cp';
+export const ALL_ROLES = [AUTH_ADMIN_ROLE, AUTH_RI_ROLE, AUTH_CP_ROLE];
 
 export const getRoleLabel = role => {
   switch (role) {
   case AUTH_ADMIN_ROLE:
     return 'Admin';
-  case AUTH_SUPERVISOR_ROLE:
+  case AUTH_RI_ROLE:
     return 'Supervisor';
-  case AUTH_USER_ROLE:
+  case AUTH_CP_ROLE:
     return 'User';
   default:
     return 'Unknown';
@@ -20,7 +20,7 @@ export const getRoleColor = role => {
   switch (role) {
   case AUTH_ADMIN_ROLE:
     return 'teal';
-  case AUTH_SUPERVISOR_ROLE:
+  case AUTH_RI_ROLE:
     return 'yellow';
   default:
     return null;
@@ -31,9 +31,9 @@ export const getRoleIcon = role => {
   switch (role) {
   case AUTH_ADMIN_ROLE:
     return 'unlock';
-  case AUTH_SUPERVISOR_ROLE:
+  case AUTH_RI_ROLE:
     return 'unlock alternate';
-  case AUTH_USER_ROLE:
+  case AUTH_CP_ROLE:
     return 'lock';
   default:
     return 'warning sign';

@@ -2,13 +2,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-//import AuthPage from '../auth/auth.page';
+import AuthPage from '../auth/login.component';
 
 // HomeComponent displaying either the register/login component or information about Docktor when authenticated
 class HomeComponent extends React.Component {
 
   render = () => {
-    var content = (<div />);
+    const { isAuthenticated } = this.props;
+    var content;
+    if (isAuthenticated) {
+      content = (<div />);
+    } else {
+      content = (<AuthPage/>);
+    }
     return (
       content
     );

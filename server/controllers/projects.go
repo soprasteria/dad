@@ -1,13 +1,15 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
 
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
+	"time"
 
 	"github.com/labstack/echo"
 	"github.com/soprasteria/dad/server/mongo"
@@ -108,27 +110,56 @@ func (u *Projects) Save(c echo.Context) error {
 	// Get project from body
 	var project types.Project
 	var err error
-	err = c.Bind(&project)
 
+	err = c.Bind(&project)
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted project is not valid: %v", err))
 	}
 
-	if project.Name == "" || project.Domain == "" {
-		err = errors.New("name and domain fields cannot be empty")
-	}
-
 	log.WithField("project", project).Info("Received project to save")
 
+	if project.Name == "" || project.Domain == "" {
+		return c.String(http.StatusBadRequest, "The name and domain fields cannot be empty")
+	}
+
+	// If an entity is provided, check it exists in the organization collection
+	if project.Entity.Hex() != "" {
+		organization, err := database.Organizations.FindByIDBson(project.Entity)
+		if err == mgo.ErrNotFound {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The entity %s does not exist", project.Entity))
+		} else if err != nil {
+			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve entity %s from database: %v", project.Entity, err))
+		}
+
+		if organization.Type != types.EntityType {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The organization %s (%s) is not an entity but a %s", organization.Name, project.Entity, organization.Type))
+		}
+	}
+
+	// If a service center is provided, check it exists in the organization collection
+	if project.ServiceCenter.Hex() != "" {
+		organization, err := database.Organizations.FindByIDBson(project.ServiceCenter)
+		if err == mgo.ErrNotFound {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The service center %s does not exist", project.ServiceCenter))
+		} else if err != nil {
+			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve service center %s from database: %v", project.ServiceCenter, err))
+		}
+
+		if organization.Type != types.ServiceCenterType {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The organization %s (%s) is not an service center but a %s", organization.Name, project.ServiceCenter, organization.Type))
+		}
+	}
+
+	// Fill ID, Created and Updated fields
+	project.Updated = time.Now()
 	if id != "" {
 		// Project will be updated
 		project.ID = bson.ObjectIdHex(id)
 	} else {
 		// Project will be created
 		project.ID = ""
+		project.Created = project.Updated
 	}
-
-	// TODO: add check for Entity and ServiceCenter
 
 	projectSaved, err := database.Projects.Save(project)
 	if err != nil {

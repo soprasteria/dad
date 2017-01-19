@@ -34,6 +34,7 @@ func New(version string) {
 	usersC := controllers.Users{}
 	organizationsC := controllers.Organizations{}
 	functionnalServicesC := controllers.FunctionnalServices{}
+	projectsC := controllers.Projects{}
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
@@ -101,6 +102,20 @@ func New(version string) {
 				functionnalServiceAPI.GET("", functionnalServicesC.Get)
 				functionnalServiceAPI.DELETE("", functionnalServicesC.Delete, hasRole(types.AdminRole))
 				functionnalServiceAPI.PUT("", functionnalServicesC.Save, hasRole(types.AdminRole))
+			}
+		}
+
+		projectsAPI := api.Group("/projects")
+		{
+			projectsAPI.Use(getAuhenticatedUser) // The rights are handled in the controller
+			projectsAPI.GET("", projectsC.GetAll)
+			projectsAPI.POST("", projectsC.Save, hasRole(types.RIRole))
+			projectAPI := projectsAPI.Group("/:id")
+			{
+				projectAPI.Use(isValidID("id"))
+				projectAPI.GET("", projectsC.Get)
+				projectAPI.DELETE("", projectsC.Delete, hasRole(types.RIRole))
+				projectAPI.PUT("", projectsC.Save, hasRole(types.RIRole))
 			}
 		}
 	}

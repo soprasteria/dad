@@ -93,7 +93,7 @@ func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.Use
 		}
 	}
 	if connectedUser.IsRI() || connectedUser.IsAdmin() {
-		// TODO : check existence of Projects in DB, the same way than for organizations
+		// TODO: check existence of Projects in DB, the same way than for organizations
 		userFromDB.Projects = types.UniqIDs(userUpdated.Projects)
 	}
 	if connectedUser.IsAdmin() && userUpdated.Role.IsValid() {

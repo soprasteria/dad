@@ -99,6 +99,16 @@ func (r *ProjectRepo) FindAll() ([]Project, error) {
 	return projects, nil
 }
 
+// FindAllByIDBson gets all the projects existing with ids
+func (r *ProjectRepo) FindAllByIDBson(ids []bson.ObjectId) ([]Project, error) {
+	projects := []Project{}
+	err := r.col().Find(bson.M{"_id": bson.M{"$in": ids}}).All(&projects)
+	if err != nil {
+		return []Project{}, errors.New("Can't retrieve all projects")
+	}
+	return projects, nil
+}
+
 // Save updates or create the functionnal service in database
 func (r *ProjectRepo) Save(project Project) (Project, error) {
 	if !r.isInitialized() {

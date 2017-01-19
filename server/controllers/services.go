@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -60,26 +59,25 @@ func (u *FunctionnalServices) Save(c echo.Context) error {
 	// Get functionnal service from body
 	var functionnalService types.FunctionnalService
 	var err error
-	err = c.Bind(&functionnalService)
 
+	err = c.Bind(&functionnalService)
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted functionnal service is not valid: %v", err))
 	}
 
+	log.WithField("functionnalService", functionnalService).Info("Received functionnal service to save")
+
 	if functionnalService.Name == "" || functionnalService.Package == "" {
-		err = errors.New("name and package fields cannot be empty")
+		return c.String(http.StatusBadRequest, "The name and package fields cannot be empty")
 	}
 
 	exists, err := database.FunctionnalServices.Exists(functionnalService.Name, functionnalService.Package)
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Error checking while checking if the functionnal service already exists: %v", err))
 	}
-
 	if exists {
 		return c.String(http.StatusConflict, fmt.Sprintf("Received functionnal service already exists"))
 	}
-
-	log.WithField("functionnalService", functionnalService).Info("Received functionnal service to save")
 
 	if id != "" {
 		// Functionnal service will be updated

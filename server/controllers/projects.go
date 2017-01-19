@@ -39,9 +39,9 @@ func (u *Projects) GetAll(c echo.Context) error {
 	case types.RIRole:
 		// TODO: RI can see their projects and the projects associated to their entities
 	case types.CPRole:
-		// TODO: CP can see their projects only
+		projects, err = database.Projects.FindAllByIDBson(authUser.Projects)
 	default:
-		err = fmt.Errorf("Invalid role %s for user %s", authUser.Role, authUser.Username)
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Invalid role %s for user %s", authUser.Role, authUser.Username))
 	}
 
 	if err != nil {
@@ -74,7 +74,18 @@ func (u *Projects) Get(c echo.Context) error {
 	case types.RIRole:
 		// TODO: RI can see their projects and the projects associated to their entities
 	case types.CPRole:
-		// TODO: CP can see their projects only
+		isAuthorizedToSeeProject := false
+		for _, userProject := range authUser.Projects {
+			if userProject == project.ID {
+				isAuthorizedToSeeProject = true
+				break
+			}
+		}
+		if !isAuthorizedToSeeProject {
+			return c.String(http.StatusForbidden, fmt.Sprintf("User %s is not allowed to see the project %s", authUser.Username, id))
+		}
+	default:
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Invalid role %s for user %s", authUser.Role, authUser.Username))
 	}
 
 	return c.JSON(http.StatusOK, project)

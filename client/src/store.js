@@ -8,6 +8,7 @@ import { routerMiddleware, routerReducer } from 'react-router-redux';
 import auth from './modules/auth/auth.reducer';
 import projects from './modules/projects/projects.reducer';
 import users from './modules/users/users.reducer';
+import organizations from './modules/organizations/organizations.reducer';
 
 // Thunks
 import AuthThunks from './modules/auth/auth.thunk';
@@ -28,6 +29,7 @@ const store = createStore(
       auth,
       projects,
       users,
+      organizations,
       routing: routerReducer,
     }
   ),

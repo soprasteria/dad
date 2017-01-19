@@ -8,6 +8,9 @@ import { ALL_ROLES, getRoleColor, getRoleIcon, getRoleLabel } from '../../../mod
 
 // Thunks / Actions
 import UsersThunks from '../../../modules/users/users.thunks';
+import OrganizationsThunks from '../../../modules/organizations/organizations.thunks';
+
+import { getOrganizationsAsOptions } from '../../../modules/organizations/organizations.selectors';
 
 // Style
 import './user.page.scss';
@@ -27,7 +30,9 @@ class UserComponent extends React.Component {
 
   componentDidMount = () => {
     const { userId } = this.props;
-    this.props.fetchUser(userId);
+    Promise.all([this.props.fetchOrganizations()]).then(()=>{
+      this.props.fetchUser(userId);
+    });
   }
 
   handleChange = (e, { name, value, checked }) => {
@@ -41,7 +46,7 @@ class UserComponent extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     const stateUser = this.state.user;
-    const user = { ...stateUser, projects: [...stateUser.projects], entities: [...stateUser.entities] };
+    const user = { ...stateUser, projects: [...stateUser.projects], organizations: [...stateUser.organizations] };
     this.props.onSave(user);
   }
 
@@ -71,7 +76,7 @@ class UserComponent extends React.Component {
   }
 
   render = () => {
-    const { isFetching, projects, entities } = this.props;
+    const { isFetching, projects, organizations, isOrganizationsFetching } = this.props;
     const { user } = this.state;
     return (
       <Container className='user-page'>
@@ -85,19 +90,19 @@ class UserComponent extends React.Component {
           <Divider hidden/>
           <Form onSubmit={this.handleSubmit}>
             <Form.Group widths='two' >
-              <Form.Input readOnly label='Username' defaultValue={user.username || ''}
+              <Form.Input readOnly label='Username' value={user.username || ''} onChange={this.handleChange}
                 type='text' name='username' autoComplete='off' placeholder='Username'
               />
-              <Form.Input readOnly label='Email Address' defaultValue={user.email || ''}
+              <Form.Input readOnly label='Email Address' value={user.email || ''} onChange={this.handleChange}
                   type='text' name='email' autoComplete='off' placeholder='A valid email address'
               />
             </Form.Group>
 
             <Form.Group widths='two'>
-              <Form.Input readOnly label='First Name' defaultValue={user.firstName || ''}
+              <Form.Input readOnly label='First Name' value={user.firstName || ''} onChange={this.handleChange}
                 type='text' name='firstName' autoComplete='off' placeholder='First Name'
               />
-              <Form.Input readOnly label='Last Name' defaultValue={user.lastName || ''}
+              <Form.Input readOnly label='Last Name' value={user.lastName || ''} onChange={this.handleChange}
                   type='text' name='lastName' autoComplete='off' placeholder='Last Name'
               />
             </Form.Group>
@@ -126,8 +131,8 @@ class UserComponent extends React.Component {
               <Form.Field width='two'>
                 <Label size='large' className='form-label' content='Entities' />
               </Form.Field>
-              <Form.Dropdown width='fourteen' placeholder='Select entities' fluid multiple search selection
-                name='entities' options={entities} value={user.entities || []} onChange={this.handleChange}
+              <Form.Dropdown width='fourteen' placeholder='Select organizations' fluid multiple search selection loading={isOrganizationsFetching}
+                name='organizations' options={organizations} value={user.organizations || []} onChange={this.handleChange}
               />
             </Form.Group>
 
@@ -145,9 +150,11 @@ UserComponent.propTypes = {
   user: React.PropTypes.object,
   isFetching: React.PropTypes.bool,
   projects: React.PropTypes.array,
-  entities: React.PropTypes.array,
+  organizations: React.PropTypes.array,
+  isOrganizationsFetching: React.PropTypes.bool,
   userId: React.PropTypes.string.isRequired,
   fetchUser: React.PropTypes.func.isRequired,
+  fetchOrganizations: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired
 };
 
@@ -155,19 +162,21 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const users = state.users;
   const user = users.selected;
-  const emptyUser = { projects: [], entities: [] };
+  const emptyUser = { projects: [], organizations: [] };
   const isFetching = paramId && (paramId !== user.id || user.isFetching);
   return {
     user: users.items[user.id] || emptyUser,
     isFetching,
     userId: paramId,
     projects: [{ text: 'Test project', value: '587fe317693c38712351b7cb' } ],
-    entities: [{ text: 'Test entity', value: '587fe317693c38712351b7cb' } ]
+    organizations: getOrganizationsAsOptions(state.organizations.items),
+    isOrganizationsFetching: state.organizations.isFetching
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   fetchUser: id => dispatch(UsersThunks.fetch(id)),
+  fetchOrganizations : () => dispatch(OrganizationsThunks.fetchIfNeeded()),
   onSave: user => dispatch(UsersThunks.save(user, push('/users')))
 });
 

@@ -1,5 +1,17 @@
 .user-card {
-  .ui.top.right.attached.button {
+  .ui.dropdown {
+    .menu {
+      &.visible {
+        top: -5px;
+
+      }
+      & >.item {
+        padding: .65em 1em !important;
+      }
+    }
+  }
+
+  .ui.attached.button {
     box-shadow: none !important;
     left: auto;
     margin: 0;

@@ -12,25 +12,18 @@ import './user.card.component.scss';
 // UserCard Component
 class UserCardComponent extends React.Component {
 
-  state = { isFetching: false }
-
-  componentWillReceiveProps = () => {
-    this.setState({ isFetching: false });
-  }
-
   handleChange = (e, { value }) => {
     const oldUser = this.props.user;
     const userToSave = {
       ...oldUser,
       Role: value
     };
-    this.setState({ isFetching : true });
     this.props.saveUser(userToSave);
   }
 
-  renderDropDown = (user, isFetching) => {
+  renderDropDown = (user) => {
     return (
-      <Button loading={isFetching} color={getRoleColor(user.role)} compact size='small'>
+      <Button loading={user.isFetching} color={getRoleColor(user.role)} compact size='small'>
         <Icon name={getRoleIcon(user.role)}  />
         {getRoleLabel(user.role)}
       </Button>
@@ -38,7 +31,6 @@ class UserCardComponent extends React.Component {
   }
 
   render = () => {
-    const { isFetching } = this.state;
     const user = this.props.user;
     const connectedUser = this.props.auth.user;
     const disabled = connectedUser.role !== AUTH_ADMIN_ROLE;
@@ -47,7 +39,7 @@ class UserCardComponent extends React.Component {
     });
     const canGoToProfile = connectedUser.role === AUTH_ADMIN_ROLE || connectedUser.role === AUTH_RI_ROLE;
     return (
-      <Card className='user-card'>
+      <Card className='user-card' raised>
         <Card.Content>
           {
             canGoToProfile ?
@@ -57,8 +49,8 @@ class UserCardComponent extends React.Component {
             :
               user.displayName
           }
-          <Dropdown trigger={this.renderDropDown(user, isFetching)} compact onChange={this.handleChange} options={options}
-            icon={null} button disabled={disabled} value={user.role} pointing className='tiny top right attached'
+          <Dropdown trigger={this.renderDropDown(user)} compact onChange={this.handleChange} options={options}
+            icon={null} button disabled={disabled} value={user.role} pointing='right' className='tiny attached'
           />
         </Card.Content>
         <Card.Content extra>

@@ -56,7 +56,7 @@ class Users extends React.Component {
               <Icon link name='remove' onClick={() => changeFilter('')}/>
             </Input>
           </Segment>
-          <Segment loading={isFetching} className='scrollable'>
+          <Segment loading={isFetching}>
             {this.renderCards(users)}
           </Segment>
         </Segment.Group>

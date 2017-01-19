@@ -118,7 +118,7 @@ class UserComponent extends React.Component {
                 <Label size='large' className='form-label' content='Projects' />
               </Form.Field>
               <Form.Dropdown width='fourteen' placeholder='Select projects' fluid multiple search selection
-                name='projects' options={projects} value={user.projects} onChange={this.handleChange}
+                name='projects' options={projects} value={user.projects || []} onChange={this.handleChange}
               />
             </Form.Group>
 
@@ -127,7 +127,7 @@ class UserComponent extends React.Component {
                 <Label size='large' className='form-label' content='Entities' />
               </Form.Field>
               <Form.Dropdown width='fourteen' placeholder='Select entities' fluid multiple search selection
-                name='entities' options={entities} value={user.entities} onChange={this.handleChange}
+                name='entities' options={entities} value={user.entities || []} onChange={this.handleChange}
               />
             </Form.Group>
 

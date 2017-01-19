@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { Dropdown, Header, Icon, Menu } from 'semantic-ui-react';
 
 import AuthThunks from '../../modules/auth/auth.thunk';
+import ExportThunks from '../../modules/export/export.thunk';
 import { isRoleAuthorized } from '../../modules/auth/auth.wrappers';
 
 // Style
@@ -30,7 +31,7 @@ class NavBarComponent extends React.Component {
   }
 
   render = () => {
-    const { logout, exportDocktor, isExportFetching } = this.props;
+    const { logout, exportData, isExportFetching } = this.props;
     const isAuthorized = this.isAuthorized;
     return (
       <Menu inverted className='navbar'>
@@ -47,7 +48,7 @@ class NavBarComponent extends React.Component {
             <Menu.Item as={Dropdown} trigger={this.renderDropdown(isExportFetching)}>
               <Dropdown.Menu>
                 {isAuthorized(
-                  <Dropdown.Item onClick={exportDocktor} disabled={isExportFetching}><Icon name='download' />Export</Dropdown.Item>,
+                  <Dropdown.Item onClick={exportData} disabled={isExportFetching}><Icon name='download' />Export</Dropdown.Item>,
                 )}
                 <Dropdown.Item as={Link} to='/settings'><Icon name='settings' />Settings</Dropdown.Item>
                 <Dropdown.Item onClick={logout} ><Icon name='sign out' />Logout</Dropdown.Item>
@@ -64,7 +65,7 @@ NavBarComponent.propTypes = {
   location: React.PropTypes.object.isRequired,
   auth: React.PropTypes.object.isRequired,
   logout: React.PropTypes.func.isRequired,
-  exportDocktor: React.PropTypes.func.isRequired,
+  exportData: React.PropTypes.func.isRequired,
   isExportFetching: React.PropTypes.bool
 };
 
@@ -83,7 +84,7 @@ const mapDispatchToProps = (dispatch) => {
     logout: () => {
       dispatch(AuthThunks.logoutUser());
     },
-    exportDocktor: () => {
+    exportData: () => {
       dispatch(ExportThunks.exportAll());
     }
   };

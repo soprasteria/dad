@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import AuthPage from '../auth/login.component';
 
-// HomeComponent displaying either the register/login component or information about Docktor when authenticated
+// HomeComponent displaying either the register/login component or information about Dad when authenticated
 class HomeComponent extends React.Component {
 
   render = () => {

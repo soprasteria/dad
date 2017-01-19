@@ -35,6 +35,7 @@ func New(version string) {
 	organizationsC := controllers.Organizations{}
 	functionnalServicesC := controllers.FunctionnalServices{}
 	projectsC := controllers.Projects{}
+	exportC := controllers.Export{}
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
@@ -117,6 +118,11 @@ func New(version string) {
 				projectAPI.DELETE("", projectsC.Delete, hasRole(types.RIRole))
 				projectAPI.PUT("", projectsC.Save, hasRole(types.RIRole))
 			}
+		}
+
+		exportAPI := api.Group("/export")
+		{
+			exportAPI.GET("", exportC.ExportAll, hasRole(types.RIRole))
 		}
 	}
 

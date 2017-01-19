@@ -195,6 +195,12 @@
 			"revisionTime": "2016-12-13T09:38:49Z"
 		},
 		{
+			"checksumSHA1": "tl/iOWUYwjMb3roUVOmbFwyQO5k=",
+			"path": "github.com/tealeg/xlsx",
+			"revision": "e0f3d7d6cf84b282edb711bc6a23e8dbbd331a13",
+			"revisionTime": "2016-12-21T20:26:27Z"
+		},
+		{
 			"checksumSHA1": "LTOa3BADhwvT0wFCknPueQALm8I=",
 			"path": "github.com/valyala/bytebufferpool",
 			"revision": "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7",

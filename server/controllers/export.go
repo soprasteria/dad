@@ -18,7 +18,6 @@ type Export struct {
 
 // ExportAll exports all the data as a file
 func (a *Export) ExportAll(c echo.Context) error {
-	fmt.Println("nfjrnreinreinir")
 	database := c.Get("database").(*mongo.DadMongo)
 	exporter := export.Export{Database: database}
 

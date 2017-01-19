@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 import { connect } from 'react-redux';
-import { Card, Container, Icon, Input, Label, Segment } from 'semantic-ui-react';
+import { Button, Card, Container, Icon, Input, Label, Segment } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
 
 // API Fetching
@@ -43,18 +43,19 @@ class Projects extends React.Component {
     return (
       <Container fluid className='projects-page'>
         <Segment.Group raised>
-          <Segment>
-            <Input fluid icon labelPosition='left corner'>
-              <Label corner='left' icon='search' />
-              <DebounceInput
-                placeholder='Search...'
-                minLength={1}
-                debounceTimeout={300}
-                onChange={(event) => changeFilter(event.target.value)}
-                value={filterValue}
-              />
-              <Icon link name='remove' onClick={() => changeFilter('')}/>
-            </Input>
+          <Segment clearing>
+                <Input icon labelPosition='left corner'>
+                  <Label corner='left' icon='search' />
+                  <DebounceInput
+                    placeholder='Search...'
+                    minLength={1}
+                    debounceTimeout={300}
+                    onChange={(event) => changeFilter(event.target.value)}
+                    value={filterValue}
+                  />
+                  <Icon link name='remove' onClick={() => changeFilter('')}/>
+                </Input>
+                <Button content='New Project' icon='plus' labelPosition='left' color='green' floated='right' />
           </Segment>
           <Segment loading={isFetching}>
             {this.renderCards(projects)}

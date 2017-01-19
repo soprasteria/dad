@@ -45,7 +45,7 @@ class ProjectComponent extends React.Component {
   }
 
   render = () => {
-    const { isFetching } = this.props;
+    const { isFetching, serviceCenters, entities, isOrganizationsFetching } = this.props;
     const { project } = this.state;
     return (
       <Container className='project-page'>
@@ -55,9 +55,31 @@ class ProjectComponent extends React.Component {
               <Icon name='arrow left' fitted/>
             </Link>
             {project.name}
+            <Button content='Docktor URL' icon='linkify' labelPosition='left' color='blue' floated='right' />
           </Header>
           <Divider hidden/>
           <Form onSubmit={this.handleSubmit}>
+            <Form.Group widths='two' >
+              <Form.Input readOnly={false} label='Name' value={project.name || ''} onChange={this.handleChange}
+                type='text' name='name' autoComplete='off' placeholder='Project name'
+              />
+              <Form.Input readOnly={false} label='Domain' value={project.domain || ''} onChange={this.handleChange}
+                  type='text' name='domain' autoComplete='off' placeholder='Project domain'
+              />
+            </Form.Group>
+
+            <Form.Input readOnly={false} label='url' value={project.url || ''} onChange={this.handleChange}
+                type='text' name='url' autoComplete='off' placeholder='Docktor group url'
+            />
+
+            <Form.Group widths='two'>
+              <Form.Dropdown readOnly={false} placeholder='Select entity...' fluid search selection loading={isOrganizationsFetching}
+                name='entity' options={entities} value={project.entity || []} onChange={this.handleChange}
+              />
+              <Form.Dropdown readOnly={false} placeholder='Select service center...' fluid search selection loading={isOrganizationsFetching}
+                name='serviceCenter' options={serviceCenters} value={project.serviceCenter || []} onChange={this.handleChange}
+              />
+            </Form.Group>
             <Button fluid color='green' content='Save' loading={isFetching} />
           </Form>
         </Segment>
@@ -69,8 +91,12 @@ class ProjectComponent extends React.Component {
 ProjectComponent.propTypes = {
   project: React.PropTypes.object,
   isFetching: React.PropTypes.bool,
+  entities: React.PropTypes.array,
+  serviceCenters: React.PropTypes.array,
+  isOrganizationsFetching: React.PropTypes.bool,
   projectId: React.PropTypes.string.isRequired,
   fetchProject: React.PropTypes.func.isRequired,
+  fetchOrganizations: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired
 };
 

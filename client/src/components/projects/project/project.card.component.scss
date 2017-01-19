@@ -1,2 +1,13 @@
 .project-card {
+  .link.header {
+    margin: 0;
+    margin-top: .3em;
+    a {
+      overflow: hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+      width:150px;
+      display:inline-block;
+    }
+  }
 }

@@ -12,6 +12,9 @@ export const getFilteredOrganizations = (organizations, filterValue) => {
 
 export const getOrganizationsAsOptions = (organizations) => {
   return Object.values(organizations).map(organization => {
-    return { value: organization.id, text: organization.name } ;
+    let type = organization.type;
+    type = type.charAt(0).toUpperCase() + type.substring(1);
+
+    return { value: organization.id, text: `${type}: ${organization.name}` } ;
   });
 };

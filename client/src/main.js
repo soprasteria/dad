@@ -11,6 +11,8 @@ import { store } from './store';
 // Components
 import App from './components/app/app.layout';
 import Home from './components/app/home.page';
+import ProjectsPage from './components/projects/projects.page';
+import ProjectPage from './components/projects/project/project.page';
 import UsersPage from './components/users/users.page';
 import UserPage from './components/users/user/user.page';
 import { requireAuthorization } from './components/auth/auth.isAuthorized';
@@ -25,6 +27,10 @@ ReactDOM.render(
       <Route path='/' component={App}>
         <IndexRoute component={Home} />
         <Route path='login' component={Home} />
+        <Route path='projects'>
+          <IndexRoute component={requireAuthorization(ProjectsPage)} />
+          <Route path=':id' component={requireAuthorization(ProjectPage)} />
+        </Route>
         <Route path='users'>
           <IndexRoute component={requireAuthorization(UsersPage)} />
           <Route path=':id' component={requireAuthorization(UserPage)} />

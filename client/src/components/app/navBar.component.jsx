@@ -40,6 +40,7 @@ class NavBarComponent extends React.Component {
             D.A.D
           </Header.Content>
         </Menu.Item>
+        {isAuthorized(<Menu.Item active={this.isActiveURL('/projects')} as={Link} to='/projects'>Projects</Menu.Item>)}
         {isAuthorized(<Menu.Item active={this.isActiveURL('/users')} as={Link} to='/users'>Users</Menu.Item>)}
         {isAuthorized(
           <Menu.Menu position='right'>

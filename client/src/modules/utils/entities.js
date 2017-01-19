@@ -1,5 +1,5 @@
 import { withAuth } from '../auth/auth.wrappers';
-import { checkHttpStatus, parseJSON, parseText, handleError } from '../utils/promises';
+import { checkHttpStatus, handleError, parseJSON, parseText } from '../utils/promises';
 
 const getConsts = (entitiesName) => {
   const ENTITIES_NAME = entitiesName.toUpperCase();

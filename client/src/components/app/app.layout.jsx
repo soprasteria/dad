@@ -7,6 +7,7 @@ import NavBar from './navBar.component';
 
 // Style
 import 'semantic-ui-css/semantic.min.css';
+import './common.scss';
 import './flex.scss';
 
 // App Component

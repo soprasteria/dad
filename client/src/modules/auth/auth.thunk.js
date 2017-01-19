@@ -1,6 +1,6 @@
 // Imports for fetch API
 import { withAuth } from '../auth/auth.wrappers';
-import { checkHttpStatus, parseJSON, handleError } from '../utils/promises';
+import { checkHttpStatus, handleError, parseJSON } from '../utils/promises';
 
 // Auth Actions
 import AuthActions from './auth.actions';

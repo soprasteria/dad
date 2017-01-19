@@ -2,9 +2,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Card, Icon, Dropdown, Button } from 'semantic-ui-react';
+import { Button, Card, Dropdown, Icon } from 'semantic-ui-react';
 
-import { AUTH_ADMIN_ROLE, AUTH_RI_ROLE, ALL_ROLES, getRoleLabel, getRoleColor, getRoleIcon } from '../../../modules/auth/auth.constants';
+import { ALL_ROLES, AUTH_ADMIN_ROLE, AUTH_RI_ROLE, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 
 import './user.card.component.scss';

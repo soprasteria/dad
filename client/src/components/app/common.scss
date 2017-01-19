@@ -1,0 +1,18 @@
+body {
+  background-color: rgb(239, 239, 239);
+}
+
+.ui.label.form-label {
+  background-color: #3a6191;
+  color: white;
+  height: 36px;
+  line-height: 36px;
+  padding-bottom: 0;
+  padding-top: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.segment.scrollable {
+  overflow: auto;
+}

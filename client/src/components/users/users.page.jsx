@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 import { connect } from 'react-redux';
-import { Input, Dimmer, Loader, Label, Icon, Segment, Card, Container } from 'semantic-ui-react';
+import { Card, Container, Icon, Input, Label, Segment } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
 
 // API Fetching
@@ -56,7 +56,7 @@ class Users extends React.Component {
               <Icon link name='remove' onClick={() => changeFilter('')}/>
             </Input>
           </Segment>
-          <Segment loading={isFetching}>
+          <Segment loading={isFetching} className='scrollable'>
             {this.renderCards(users)}
           </Segment>
         </Segment.Group>

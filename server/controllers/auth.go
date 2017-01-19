@@ -8,6 +8,7 @@ import (
 	"github.com/soprasteria/dad/server/auth"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
+	"github.com/spf13/viper"
 )
 
 // Auth contains all login handlers
@@ -54,10 +55,13 @@ func (a *Auth) Login(c echo.Context) error {
 	login := newAuthAPI(c)
 
 	// Log in the application
-	err := login.AuthenticateUser(&auth.LoginUserQuery{
-		Username: username,
-		Password: password,
-	})
+	var err error
+	if viper.GetBool("ldap.enable") {
+		err = login.AuthenticateUser(&auth.LoginUserQuery{
+			Username: username,
+			Password: password,
+		})
+	}
 	if err != nil {
 		log.WithError(err).WithField("username", username).Error("User authentication failed")
 		if err == auth.ErrInvalidCredentials {

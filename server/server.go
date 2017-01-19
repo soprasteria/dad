@@ -45,7 +45,9 @@ func New(version string) {
 
 	authAPI := engine.Group("/auth")
 	{
-		authAPI.Use(openLDAP)
+		if viper.GetBool("ldap.enable") {
+			authAPI.Use(openLDAP)
+		}
 		authAPI.Use(sessionMongo) // Enrich echo context with connexion to mongo API
 		authAPI.POST("/login", authC.Login)
 		authAPI.GET("/*", GetIndex(version))

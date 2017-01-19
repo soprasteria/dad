@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 import { connect } from 'react-redux';
-import { Header, Form, Message, Button, Segment, Container } from 'semantic-ui-react';
+import { Button, Container, Form, Header, Message, Segment } from 'semantic-ui-react';
 import Joi from 'joi-browser';
 
 import { parseError } from '../../modules/utils/forms';

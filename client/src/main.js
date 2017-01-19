@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import { IndexRoute, Route, Router, browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 
 // Store
@@ -12,6 +12,7 @@ import { store } from './store';
 import App from './components/app/app.layout';
 import Home from './components/app/home.page';
 import UsersPage from './components/users/users.page';
+import UserPage from './components/users/user/user.page';
 import { requireAuthorization } from './components/auth/auth.isAuthorized';
 
 // Create an enhanced history that syncs navigation events with the store
@@ -26,6 +27,7 @@ ReactDOM.render(
         <Route path='login' component={Home} />
         <Route path='users'>
           <IndexRoute component={requireAuthorization(UsersPage)} />
+          <Route path=':id' component={requireAuthorization(UserPage)} />
         </Route>
       </Route>
     </Router>

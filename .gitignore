@@ -9,3 +9,4 @@ dad.zip
 vendor/*/
 debug
 logs/
+bin/*.csv

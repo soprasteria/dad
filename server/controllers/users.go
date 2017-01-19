@@ -84,16 +84,16 @@ func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.Use
 	if err != nil || userFromDB.GetID().Hex() == "" {
 		return types.User{}, errors.New("User does not exist. Please register user first.")
 	}
-	// Updates entities, but only keep existing ones
+	// Updates organizations, but only keep existing ones
 	// When error occurs, just keep previous ones
 	if connectedUser.IsAdmin() {
-		existingEntities, err := database.Entities.FindAllByIDBson(userUpdated.Entities)
+		existingOrganizations, err := database.Organizations.FindAllByIDBson(userUpdated.Organizations)
 		if err == nil {
-			userFromDB.Entities = types.GetEntitiesIds(existingEntities)
+			userFromDB.Organizations = types.GetOrganizationsIds(existingOrganizations)
 		}
 	}
 	if connectedUser.IsRI() || connectedUser.IsAdmin() {
-		// TODO : check existence of Projects in DB, the same way than for entities
+		// TODO : check existence of Projects in DB, the same way than for organizations
 		userFromDB.Projects = types.UniqIDs(userUpdated.Projects)
 	}
 	if connectedUser.IsAdmin() && userUpdated.Role.IsValid() {

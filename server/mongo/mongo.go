@@ -13,7 +13,7 @@ import (
 //DadMongo containers all types of Mongo data ready to be used
 type DadMongo struct {
 	Users               types.UserRepo               // Repo for accessing users methods
-	Entities            types.EntityRepo             // Repo for accessing entities methods
+	Organizations       types.OrganizationRepo       // Repo for accessing organizations methods
 	FunctionnalServices types.FunctionnalServiceRepo // Repo for accessing functionnal services methods
 	Session             *mgo.Session                 // Cloned session
 }
@@ -54,12 +54,12 @@ func Get() (*DadMongo, error) {
 	}
 
 	users := types.NewUserRepo(database)
-	entities := types.NewEntityRepo(database)
+	organizations := types.NewOrganizationRepo(database)
 	functionnalServices := types.NewFunctionnalServiceRepo(database)
 
 	return &DadMongo{
 		Users:               users,
-		Entities:            entities,
+		Organizations:       organizations,
 		FunctionnalServices: functionnalServices,
 		Session:             s,
 	}, nil

@@ -8,6 +8,17 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Progress maps the progress codes to their string representation
+var Progress = map[int]string{
+	-1: "N/A",
+	0:  "0%",
+	1:  "20%",
+	2:  "40%",
+	3:  "60%",
+	4:  "80%",
+	5:  "100%",
+}
+
 // RichValue is a value with a description
 type RichValue struct {
 	Value       int    `bson:"value" json:"value"`

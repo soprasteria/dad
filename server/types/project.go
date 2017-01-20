@@ -19,17 +19,11 @@ var Progress = map[int]string{
 	5:  "100%",
 }
 
-// RichValue is a value with a description
-type RichValue struct {
-	Value       int    `bson:"value" json:"value"`
-	Description string `bson:"description" json:"description"`
-}
-
 // MatrixLine represents information of a depending on the functional service
 type MatrixLine struct {
 	Service  bson.ObjectId `bson:"service" json:"service"`
-	Progress RichValue     `bson:"progress" json:"progress"`
-	Goal     RichValue     `bson:"goal" json:"goal"`
+	Progress int           `bson:"progress" json:"progress"`
+	Goal     int           `bson:"goal" json:"goal"`
 	Comment  string        `bson:"comment" json:"comment"`
 }
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
-import { Button, Container, Divider, Form, Header, Icon, List, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Header, Icon, Table, Segment } from 'semantic-ui-react';
 import classnames from 'classnames';
 
 import Matrix from './matrix/matrix.component';
@@ -15,6 +15,7 @@ import OrganizationsThunks from '../../../modules/organizations/organizations.th
 import ServicesThunks from '../../../modules/services/services.thunks';
 
 import { getOrganizationsAsOptions, getByType } from '../../../modules/organizations/organizations.selectors';
+import { groupByPackage } from '../../../modules/services/services.selectors';
 
 // Style
 import './project.page.scss';
@@ -60,15 +61,25 @@ class ProjectComponent extends React.Component {
   renderServices = (project, services) => {
     const matrix = {};
     project.matrix.forEach((m) => matrix[m.service] = m);
-    return (
-      <List divided verticalAlign='middle'>
-        {services.map(service => {
-          return (
-            <Matrix matrix={matrix[service.id] || {}} service={service} />
-          );
-        })}
-      </List>
-    );
+    return Object.entries(services).map(([pckg, servicesList]) => {
+      return (
+        <Table key={pckg} celled striped compact>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell width='six'>{pckg}</Table.HeaderCell>
+              <Table.HeaderCell width='two'>Progress</Table.HeaderCell>
+              <Table.HeaderCell width='two'>Goal</Table.HeaderCell>
+              <Table.HeaderCell width='six'>Comment</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {servicesList.map(service => {
+              return <Matrix key={service.id} matrix={matrix[service.id]} service={service} />;
+            })}
+          </Table.Body>
+        </Table>
+      );
+    });
   }
 
   render = () => {
@@ -127,7 +138,7 @@ ProjectComponent.propTypes = {
   entities: React.PropTypes.array,
   serviceCenters: React.PropTypes.array,
   isOrganizationsFetching: React.PropTypes.bool,
-  services: React.PropTypes.array,
+  services: React.PropTypes.object,
   projectId: React.PropTypes.string.isRequired,
   fetchProject: React.PropTypes.func.isRequired,
   fetchOrganizations: React.PropTypes.func.isRequired,
@@ -142,7 +153,7 @@ const mapStateToProps = (state, ownProps) => {
   const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
   const organizations = Object.values(state.organizations.items);
-  const services = Object.values(state.services.items);
+  const services = groupByPackage(state.services.items);
   return {
     project: { ...emptyProject, ...projects.items[project.id] },
     isFetching,

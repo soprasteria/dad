@@ -96,8 +96,8 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 				applicable := false
 				for _, line := range project.Matrix {
 					if line.Service == service.ID {
-						createCell(projectRow, types.Progress[line.Progress.Value])
-						createCell(projectRow, types.Progress[line.Goal.Value])
+						createCell(projectRow, types.Progress[line.Progress])
+						createCell(projectRow, types.Progress[line.Goal])
 						applicable = true
 						break
 					}

@@ -64,6 +64,7 @@
     "classnames": "^2.2.5",
     "joi-browser": "^10.0.6",
     "md5": "^2.2.1",
+    "moment": "^2.17.1",
     "react": "^15.4.2",
     "react-chartjs": "^0.8.0",
     "react-chartjs-2": "^2.0.0",

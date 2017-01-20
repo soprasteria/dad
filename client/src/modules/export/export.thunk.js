@@ -5,6 +5,7 @@ import { download } from '../utils/files';
 // Export actions
 import ExportActions from './export.actions';
 
+import moment from 'moment';
 
 // Calls the API to export data
 const exportAll = () => {
@@ -16,10 +17,9 @@ const exportAll = () => {
     return fetch('/api/export', withAuth({ method:'GET' }))
       .then(checkHttpStatus)
       .then(response => {
-        response.blob().then( blob => {
-          console.log(response);
-          console.log(blob);
-          download(blob, 'deployment-plan.xlsx');
+        response.blob().then(blob => {
+          const currentDate = moment(new Date()).format('YYYY-MM-DD-HH-mm-ss');
+          download(blob, `deployment-plan-${currentDate}.xlsx`);
           dispatch(ExportActions.receiveExportAll());
         });
       })

@@ -10,8 +10,12 @@ export const getFilteredOrganizations = (organizations, filterValue) => {
   }
 };
 
+export const getByType = (organizations, type) => {
+  return organizations.filter(organization => organization.type == type);
+};
+
 export const getOrganizationsAsOptions = (organizations) => {
-  return Object.values(organizations).map(organization => {
+  return organizations.map(organization => {
     let type = organization.type;
     type = type.charAt(0).toUpperCase() + type.substring(1);
 

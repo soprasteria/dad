@@ -9,6 +9,7 @@ import auth from './modules/auth/auth.reducer';
 import projects from './modules/projects/projects.reducer';
 import users from './modules/users/users.reducer';
 import organizations from './modules/organizations/organizations.reducer';
+import services from './modules/services/services.reducer';
 import exportReducer from './modules/export/export.reducer';
 
 // Thunks
@@ -31,6 +32,7 @@ const store = createStore(
       projects,
       users,
       organizations,
+      services,
       export: exportReducer,
       routing: routerReducer,
     }

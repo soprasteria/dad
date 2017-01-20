@@ -164,12 +164,13 @@ const mapStateToProps = (state, ownProps) => {
   const user = users.selected;
   const emptyUser = { projects: [], organizations: [] };
   const isFetching = paramId && (paramId !== user.id || user.isFetching);
+  const organizations = Object.values(state.organizations.items);
   return {
     user: users.items[user.id] || emptyUser,
     isFetching,
     userId: paramId,
     projects: [{ text: 'Test project', value: '587fe317693c38712351b7cb' } ],
-    organizations: getOrganizationsAsOptions(state.organizations.items),
+    organizations: getOrganizationsAsOptions(organizations),
     isOrganizationsFetching: state.organizations.isFetching
   };
 };

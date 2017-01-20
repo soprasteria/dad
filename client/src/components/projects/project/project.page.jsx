@@ -3,10 +3,18 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
-import { Button, Container, Divider, Form, Header, Icon, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Header, Icon, List, Segment } from 'semantic-ui-react';
+import classnames from 'classnames';
+
+import Matrix from './matrix/matrix.component';
+import Box from '../../common/box.component';
 
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
+import OrganizationsThunks from '../../../modules/organizations/organizations.thunks';
+import ServicesThunks from '../../../modules/services/services.thunks';
+
+import { getOrganizationsAsOptions, getByType } from '../../../modules/organizations/organizations.selectors';
 
 // Style
 import './project.page.scss';
@@ -26,7 +34,12 @@ class ProjectComponent extends React.Component {
 
   componentDidMount = () => {
     const { projectId } = this.props;
-    this.props.fetchProject(projectId);
+    Promise.all([
+      this.props.fetchOrganizations(),
+      this.props.fetchServices()
+    ]).then(()=>{
+      this.props.fetchProject(projectId);
+    });
   }
 
   handleChange = (e, { name, value, checked }) => {
@@ -44,9 +57,25 @@ class ProjectComponent extends React.Component {
     this.props.onSave(project);
   }
 
+  renderServices = (project, services) => {
+    const matrix = {};
+    project.matrix.forEach((m) => matrix[m.service] = m);
+    return (
+      <List divided verticalAlign='middle'>
+        {services.map(service => {
+          return (
+            <Matrix matrix={matrix[service.id] || {}} service={service} />
+          );
+        })}
+      </List>
+    );
+  }
+
   render = () => {
-    const { isFetching, serviceCenters, entities, isOrganizationsFetching } = this.props;
+    const { isFetching, serviceCenters, entities, isOrganizationsFetching, services } = this.props;
     const { project } = this.state;
+    const readOnly = false;
+    const classes = classnames({ readonly: readOnly });
     return (
       <Container className='project-page'>
         <Segment loading={isFetching} padded>
@@ -55,33 +84,37 @@ class ProjectComponent extends React.Component {
               <Icon name='arrow left' fitted/>
             </Link>
             {project.name}
-            <Button content='Docktor URL' icon='linkify' labelPosition='left' color='blue' floated='right' />
+            {project.url && <Button as='a' href={project.url} content='URL' icon='linkify' labelPosition='left' color='blue' floated='right' />}
           </Header>
           <Divider hidden/>
-          <Form onSubmit={this.handleSubmit}>
-            <Form.Group widths='two' >
-              <Form.Input readOnly={false} label='Name' value={project.name || ''} onChange={this.handleChange}
-                type='text' name='name' autoComplete='off' placeholder='Project name'
-              />
-              <Form.Input readOnly={false} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                  type='text' name='domain' autoComplete='off' placeholder='Project domain'
-              />
-            </Form.Group>
+          <Box icon='settings' title='Details' stacked>
+            <Form>
+              <Form.Group>
+                <Form.Input readOnly={readOnly} label='Name' value={project.name || ''} onChange={this.handleChange}
+                  type='text' name='name' autoComplete='off' placeholder='Project name' width='four'
+                />
+                <Form.Input readOnly={readOnly} label='Domain' value={project.domain || ''} onChange={this.handleChange}
+                    type='text' name='domain' autoComplete='off' placeholder='Project domain' width='four'
+                />
+                <Form.Input readOnly={readOnly} label='URL' value={project.url || ''} onChange={this.handleChange}
+                    type='text' name='url' autoComplete='off' placeholder='Docktor group url'  width='eight'
+                />
+              </Form.Group>
 
-            <Form.Input readOnly={false} label='url' value={project.url || ''} onChange={this.handleChange}
-                type='text' name='url' autoComplete='off' placeholder='Docktor group url'
-            />
-
-            <Form.Group widths='two'>
-              <Form.Dropdown readOnly={false} placeholder='Select entity...' fluid search selection loading={isOrganizationsFetching}
-                name='entity' options={entities} value={project.entity || []} onChange={this.handleChange}
-              />
-              <Form.Dropdown readOnly={false} placeholder='Select service center...' fluid search selection loading={isOrganizationsFetching}
-                name='serviceCenter' options={serviceCenters} value={project.serviceCenter || []} onChange={this.handleChange}
-              />
-            </Form.Group>
-            <Button fluid color='green' content='Save' loading={isFetching} />
-          </Form>
+              <Form.Group widths='two'>
+                <Form.Dropdown disabled={readOnly} placeholder='Select service center...' fluid search selection loading={isOrganizationsFetching}
+                  label='Service Center' name='serviceCenter' options={serviceCenters} value={project.serviceCenter || ''} onChange={this.handleChange} className={classes}
+                />
+                <Form.Dropdown disabled={readOnly} placeholder='Select entity...' fluid search selection loading={isOrganizationsFetching}
+                  label='Entity' name='entity' options={entities} value={project.entity || ''} onChange={this.handleChange} className={classes}
+                />
+              </Form.Group>
+            </Form>
+          </Box>
+          <Divider hidden/>
+          {this.renderServices(project, services)}
+          <Divider hidden/>
+          <Button fluid color='green' content='Save' loading={isFetching} onClick={this.handleSubmit} />
         </Segment>
       </Container>
     );
@@ -94,9 +127,11 @@ ProjectComponent.propTypes = {
   entities: React.PropTypes.array,
   serviceCenters: React.PropTypes.array,
   isOrganizationsFetching: React.PropTypes.bool,
+  services: React.PropTypes.array,
   projectId: React.PropTypes.string.isRequired,
   fetchProject: React.PropTypes.func.isRequired,
   fetchOrganizations: React.PropTypes.func.isRequired,
+  fetchServices: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired
 };
 
@@ -104,17 +139,25 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
-  const emptyProject = {};
+  const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
+  const organizations = Object.values(state.organizations.items);
+  const services = Object.values(state.services.items);
   return {
-    project: projects.items[project.id] || emptyProject,
+    project: { ...emptyProject, ...projects.items[project.id] },
     isFetching,
-    projectId: paramId
+    projectId: paramId,
+    entities: getOrganizationsAsOptions(getByType(organizations, 'entity')),
+    serviceCenters: getOrganizationsAsOptions(getByType(organizations, 'serviceCenter')),
+    isOrganizationsFetching: state.organizations.isFetching,
+    services
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   fetchProject: id => dispatch(ProjectsThunks.fetch(id)),
+  fetchOrganizations: () => dispatch(OrganizationsThunks.fetchIfNeeded()),
+  fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   onSave: project => dispatch(ProjectsThunks.save(project, push('/projects')))
 });
 

@@ -42,7 +42,6 @@ type User struct {
 	Role        Role            `bson:"role" json:"role"`
 	Created     time.Time       `bson:"created" json:"created"`
 	Updated     time.Time       `bson:"updated" json:"updated"`
-	Projects    []bson.ObjectId `bson:"projects" json:"projects"`
 	Entities    []bson.ObjectId `bson:"entities" json:"entities"`
 }
 

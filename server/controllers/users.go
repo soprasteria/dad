@@ -92,10 +92,6 @@ func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.Use
 			userFromDB.Entities = types.GetEntitiesIds(existingEntities)
 		}
 	}
-	if connectedUser.IsRI() || connectedUser.IsAdmin() {
-		// TODO: check existence of Projects in DB, the same way than for entities
-		userFromDB.Projects = types.UniqIDs(userUpdated.Projects)
-	}
 	if connectedUser.IsAdmin() && userUpdated.Role.IsValid() {
 		userFromDB.Role = userUpdated.Role
 	}

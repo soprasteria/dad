@@ -30,14 +30,15 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 
 	serviceNameRow.SetHeightCM(10)
 
-	createMergedCell(servicePkgRow, "Matrix Maturity", 4)
+	createMergedCell(servicePkgRow, "Matrix Maturity", 5)
 
-	createMergedCell(serviceNameRow, "", 4)
+	createMergedCell(serviceNameRow, "", 5)
 
 	createCell(serviceMaturityRow, "Domain")
 	createCell(serviceMaturityRow, "Project")
 	createCell(serviceMaturityRow, "Business Unit")
 	createCell(serviceMaturityRow, "Service Center")
+	createCell(serviceMaturityRow, "Project Manager")
 
 	services, err := e.Database.FunctionnalServices.FindAll()
 	if err != nil {
@@ -85,10 +86,16 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 			serviceCenter = types.Entity{Name: "N/A"}
 		}
 
+		projectManager, err := e.Database.Users.FindByIDBson(project.ProjectManager)
+		if err != nil {
+			projectManager = types.User{DisplayName: "N/A"}
+		}
+
 		createCell(projectRow, project.Domain)
 		createCell(projectRow, project.Name)
 		createCell(projectRow, businessUnit.Name)
 		createCell(projectRow, serviceCenter.Name)
+		createCell(projectRow, projectManager.DisplayName)
 
 		for _, pkg := range servicesMapSortedKeys {
 			services := servicesMap[pkg]

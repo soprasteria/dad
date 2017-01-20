@@ -46,7 +46,7 @@ class UserComponent extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     const stateUser = this.state.user;
-    const user = { ...stateUser, projects: [...stateUser.projects], entities: [...stateUser.entities] };
+    const user = { ...stateUser, entities: [...stateUser.entities] };
     this.props.onSave(user);
   }
 
@@ -76,7 +76,7 @@ class UserComponent extends React.Component {
   }
 
   render = () => {
-    const { isFetching, projects, entities, isEntitiesFetching } = this.props;
+    const { isFetching, entities, isEntitiesFetching } = this.props;
     const { user } = this.state;
     return (
       <Container className='user-page'>
@@ -120,15 +120,6 @@ class UserComponent extends React.Component {
 
             <Form.Group>
               <Form.Field width='two'>
-                <Label size='large' className='form-label' content='Projects' />
-              </Form.Field>
-              <Form.Dropdown width='fourteen' placeholder='Select projects' fluid multiple search selection
-                name='projects' options={projects} value={user.projects || []} onChange={this.handleChange}
-              />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Field width='two'>
                 <Label size='large' className='form-label' content='Entities' />
               </Form.Field>
               <Form.Dropdown width='fourteen' placeholder='Select entities' fluid multiple search selection loading={isEntitiesFetching}
@@ -149,7 +140,6 @@ class UserComponent extends React.Component {
 UserComponent.propTypes = {
   user: React.PropTypes.object,
   isFetching: React.PropTypes.bool,
-  projects: React.PropTypes.array,
   entities: React.PropTypes.array,
   isEntitiesFetching: React.PropTypes.bool,
   userId: React.PropTypes.string.isRequired,
@@ -162,14 +152,13 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const users = state.users;
   const user = users.selected;
-  const emptyUser = { projects: [], entities: [] };
+  const emptyUser = { entities: [] };
   const isFetching = paramId && (paramId !== user.id || user.isFetching);
   const entities = Object.values(state.entities.items);
   return {
     user: users.items[user.id] || emptyUser,
     isFetching,
     userId: paramId,
-    projects: [{ text: 'Test project', value: '587fe317693c38712351b7cb' } ],
     entities: getEntitiesAsOptions(entities),
     isEntitiesFetching: state.entities.isFetching
   };

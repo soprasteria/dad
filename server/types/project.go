@@ -32,16 +32,17 @@ type Matrix []MatrixLine
 
 // Project represents a Sopra Steria project
 type Project struct {
-	ID            bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
-	Name          string        `bson:"name" json:"name"`
-	Domain        string        `bson:"domain" json:"domain"`
-	BusinessUnit  bson.ObjectId `bson:"businessUnit,omitempty" json:"businessUnit,omitempty"`
-	ServiceCenter bson.ObjectId `bson:"serviceCenter,omitempty" json:"serviceCenter,omitempty"`
-	URL           string        `bson:"url" json:"url"`
-	Matrix        Matrix        `bson:"matrix" json:"matrix"`
-	Description   string        `bson:"description" json:"description"`
-	Created       time.Time     `bson:"created" json:"created"`
-	Updated       time.Time     `bson:"updated" json:"updated"`
+	ID             bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
+	Name           string        `bson:"name" json:"name"`
+	Domain         string        `bson:"domain" json:"domain"`
+	ProjectManager bson.ObjectId `bson:"projectManager,omitempty" json:"projectManager,omitempty"`
+	BusinessUnit   bson.ObjectId `bson:"businessUnit,omitempty" json:"businessUnit,omitempty"`
+	ServiceCenter  bson.ObjectId `bson:"serviceCenter,omitempty" json:"serviceCenter,omitempty"`
+	URL            string        `bson:"url" json:"url"`
+	Matrix         Matrix        `bson:"matrix" json:"matrix"`
+	Description    string        `bson:"description" json:"description"`
+	Created        time.Time     `bson:"created" json:"created"`
+	Updated        time.Time     `bson:"updated" json:"updated"`
 }
 
 // UniqIDs returns the slice of Object id, where an id can appear only once
@@ -98,16 +99,6 @@ func (r *ProjectRepo) FindAll() ([]Project, error) {
 	}
 	projects := []Project{}
 	err := r.col().Find(bson.M{}).All(&projects)
-	if err != nil {
-		return []Project{}, errors.New("Can't retrieve all projects")
-	}
-	return projects, nil
-}
-
-// FindAllByIDBson gets all the projects existing with ids
-func (r *ProjectRepo) FindAllByIDBson(ids []bson.ObjectId) ([]Project, error) {
-	projects := []Project{}
-	err := r.col().Find(bson.M{"_id": bson.M{"$in": ids}}).All(&projects)
 	if err != nil {
 		return []Project{}, errors.New("Can't retrieve all projects")
 	}

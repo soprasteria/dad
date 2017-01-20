@@ -51,7 +51,7 @@ Box.propTypes = {
   children: React.PropTypes.oneOfType([
     React.PropTypes.array,
     React.PropTypes.element
-  ]).isRequired,
+  ]),
   title: React.PropTypes.string,
   className: React.PropTypes.string
 };

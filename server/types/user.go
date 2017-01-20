@@ -15,7 +15,7 @@ type Role string
 const (
 	// AdminRole is an administrator role who can do anything
 	AdminRole Role = "admin"
-	// RIRole is a role who can see projects by organizations
+	// RIRole is a role who can see projects by entities
 	RIRole Role = "ri"
 	// CPRole is a role who can see projects
 	CPRole Role = "cp"
@@ -33,17 +33,17 @@ func (r Role) IsValid() bool {
 
 // User model
 type User struct {
-	ID            bson.ObjectId   `bson:"_id,omitempty" json:"id,omitempty"`
-	FirstName     string          `bson:"firstName" json:"firstName"`
-	LastName      string          `bson:"lastName" json:"lastName"`
-	DisplayName   string          `bson:"displayName" json:"displayName"`
-	Username      string          `bson:"username" json:"username"`
-	Email         string          `bson:"email" json:"email"`
-	Role          Role            `bson:"role" json:"role"`
-	Created       time.Time       `bson:"created" json:"created"`
-	Updated       time.Time       `bson:"updated" json:"updated"`
-	Projects      []bson.ObjectId `bson:"projects" json:"projects"`
-	Organizations []bson.ObjectId `bson:"organizations" json:"organizations"`
+	ID          bson.ObjectId   `bson:"_id,omitempty" json:"id,omitempty"`
+	FirstName   string          `bson:"firstName" json:"firstName"`
+	LastName    string          `bson:"lastName" json:"lastName"`
+	DisplayName string          `bson:"displayName" json:"displayName"`
+	Username    string          `bson:"username" json:"username"`
+	Email       string          `bson:"email" json:"email"`
+	Role        Role            `bson:"role" json:"role"`
+	Created     time.Time       `bson:"created" json:"created"`
+	Updated     time.Time       `bson:"updated" json:"updated"`
+	Projects    []bson.ObjectId `bson:"projects" json:"projects"`
+	Entities    []bson.ObjectId `bson:"entities" json:"entities"`
 }
 
 // GetID gets the ID of the user

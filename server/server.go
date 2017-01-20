@@ -32,7 +32,7 @@ func New(version string) {
 	engine := echo.New()
 	authC := controllers.Auth{}
 	usersC := controllers.Users{}
-	organizationsC := controllers.Organizations{}
+	entitiesC := controllers.Entities{}
 	functionnalServicesC := controllers.FunctionnalServices{}
 	projectsC := controllers.Projects{}
 	exportC := controllers.Export{}
@@ -80,16 +80,16 @@ func New(version string) {
 			}
 		}
 
-		organizationsAPI := api.Group("/organizations")
+		entitiesAPI := api.Group("/entities")
 		{
-			organizationsAPI.GET("", organizationsC.GetAll)
-			organizationsAPI.POST("", organizationsC.Save, hasRole(types.AdminRole))
-			organizationAPI := organizationsAPI.Group("/:id")
+			entitiesAPI.GET("", entitiesC.GetAll)
+			entitiesAPI.POST("", entitiesC.Save, hasRole(types.AdminRole))
+			entityAPI := entitiesAPI.Group("/:id")
 			{
-				organizationAPI.Use(isValidID("id"))
-				organizationAPI.GET("", organizationsC.Get)
-				organizationAPI.DELETE("", organizationsC.Delete, hasRole(types.AdminRole))
-				organizationAPI.PUT("", organizationsC.Save, hasRole(types.AdminRole))
+				entityAPI.Use(isValidID("id"))
+				entityAPI.GET("", entitiesC.Get)
+				entityAPI.DELETE("", entitiesC.Delete, hasRole(types.AdminRole))
+				entityAPI.PUT("", entitiesC.Save, hasRole(types.AdminRole))
 			}
 		}
 

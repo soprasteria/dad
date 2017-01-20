@@ -11,10 +11,10 @@ import Box from '../../common/box.component';
 
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
-import OrganizationsThunks from '../../../modules/organizations/organizations.thunks';
+import EntitiesThunks from '../../../modules/entities/entities.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
 
-import { getOrganizationsAsOptions, getByType } from '../../../modules/organizations/organizations.selectors';
+import { getEntitiesAsOptions, getByType } from '../../../modules/entities/entities.selectors';
 import { groupByPackage } from '../../../modules/services/services.selectors';
 
 // Style
@@ -36,7 +36,7 @@ class ProjectComponent extends React.Component {
   componentDidMount = () => {
     const { projectId } = this.props;
     Promise.all([
-      this.props.fetchOrganizations(),
+      this.props.fetchEntities(),
       this.props.fetchServices()
     ]).then(()=>{
       this.props.fetchProject(projectId);
@@ -83,7 +83,7 @@ class ProjectComponent extends React.Component {
   }
 
   render = () => {
-    const { isFetching, serviceCenters, entities, isOrganizationsFetching, services } = this.props;
+    const { isFetching, serviceCenters, entities, isEntitiesFetching, services } = this.props;
     const { project } = this.state;
     const readOnly = false;
     const classes = classnames({ readonly: readOnly });
@@ -108,15 +108,15 @@ class ProjectComponent extends React.Component {
                     type='text' name='domain' autoComplete='off' placeholder='Project domain' width='four'
                 />
                 <Form.Input readOnly={readOnly} label='URL' value={project.url || ''} onChange={this.handleChange}
-                    type='text' name='url' autoComplete='off' placeholder='Docktor group url'  width='eight'
+                    type='url' name='url' autoComplete='off' placeholder='External reference'  width='eight'
                 />
               </Form.Group>
 
               <Form.Group widths='two'>
-                <Form.Dropdown disabled={readOnly} placeholder='Select service center...' fluid search selection loading={isOrganizationsFetching}
+                <Form.Dropdown disabled={readOnly} placeholder='Select service center...' fluid search selection loading={isEntitiesFetching}
                   label='Service Center' name='serviceCenter' options={serviceCenters} value={project.serviceCenter || ''} onChange={this.handleChange} className={classes}
                 />
-                <Form.Dropdown disabled={readOnly} placeholder='Select business unit...' fluid search selection loading={isOrganizationsFetching}
+                <Form.Dropdown disabled={readOnly} placeholder='Select business unit...' fluid search selection loading={isEntitiesFetching}
                   label='Business Unit' name='businessUnit' options={entities} value={project.businessUnit || ''} onChange={this.handleChange} className={classes}
                 />
               </Form.Group>
@@ -137,11 +137,11 @@ ProjectComponent.propTypes = {
   isFetching: React.PropTypes.bool,
   entities: React.PropTypes.array,
   serviceCenters: React.PropTypes.array,
-  isOrganizationsFetching: React.PropTypes.bool,
+  isEntitiesFetching: React.PropTypes.bool,
   services: React.PropTypes.object,
   projectId: React.PropTypes.string.isRequired,
   fetchProject: React.PropTypes.func.isRequired,
-  fetchOrganizations: React.PropTypes.func.isRequired,
+  fetchEntities: React.PropTypes.func.isRequired,
   fetchServices: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired
 };
@@ -152,22 +152,22 @@ const mapStateToProps = (state, ownProps) => {
   const project = projects.selected;
   const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
-  const organizations = Object.values(state.organizations.items);
+  const entities = Object.values(state.entities.items);
   const services = groupByPackage(state.services.items);
   return {
     project: { ...emptyProject, ...projects.items[project.id] },
     isFetching,
     projectId: paramId,
-    entities: getOrganizationsAsOptions(getByType(organizations, 'businessUnit')),
-    serviceCenters: getOrganizationsAsOptions(getByType(organizations, 'serviceCenter')),
-    isOrganizationsFetching: state.organizations.isFetching,
+    entities: getEntitiesAsOptions(getByType(entities, 'businessUnit')),
+    serviceCenters: getEntitiesAsOptions(getByType(entities, 'serviceCenter')),
+    isEntitiesFetching: state.entities.isFetching,
     services
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   fetchProject: id => dispatch(ProjectsThunks.fetch(id)),
-  fetchOrganizations: () => dispatch(OrganizationsThunks.fetchIfNeeded()),
+  fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   onSave: project => dispatch(ProjectsThunks.save(project, push('/projects')))
 });

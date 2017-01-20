@@ -75,14 +75,14 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 	for _, project := range projects {
 		projectRow := sheet.AddRow()
 
-		businessUnit, err := e.Database.Organizations.FindByIDBson(project.BusinessUnit)
+		businessUnit, err := e.Database.Entities.FindByIDBson(project.BusinessUnit)
 		if err != nil {
-			businessUnit = types.Organization{Name: "N/A"}
+			businessUnit = types.Entity{Name: "N/A"}
 		}
 
-		serviceCenter, err := e.Database.Organizations.FindByIDBson(project.ServiceCenter)
+		serviceCenter, err := e.Database.Entities.FindByIDBson(project.ServiceCenter)
 		if err != nil {
-			serviceCenter = types.Organization{Name: "N/A"}
+			serviceCenter = types.Entity{Name: "N/A"}
 		}
 
 		createCell(projectRow, project.Domain)

@@ -1,17 +1,17 @@
 // import constants
-import OrganizationsConstants from './organizations.constants';
+import EntitiesConstants from './entities.constants';
 import { generateEntitiesActions } from '../utils/entities';
 
 
 // Change filter
 const changeFilter = (filterValue) => {
   return {
-    type: OrganizationsConstants.CHANGE_FILTER,
+    type: EntitiesConstants.CHANGE_FILTER,
     filterValue
   };
 };
 
 export default {
-  ...generateEntitiesActions('organizations'),
+  ...generateEntitiesActions('entities'),
   changeFilter
 };

@@ -133,31 +133,31 @@ func (u *Projects) Save(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "The name and domain fields cannot be empty")
 	}
 
-	// If an business unit is provided, check it exists in the organization collection
+	// If an business unit is provided, check it exists in the entity collection
 	if project.BusinessUnit.Hex() != "" {
-		organization, err := database.Organizations.FindByIDBson(project.BusinessUnit)
+		entity, err := database.Entities.FindByIDBson(project.BusinessUnit)
 		if err == mgo.ErrNotFound {
 			return c.String(http.StatusBadRequest, fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit))
 		} else if err != nil {
 			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve business unit %s from database: %v", project.BusinessUnit, err))
 		}
 
-		if organization.Type != types.BusinessUnitType {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The organization %s (%s) is not an business unit but a %s", organization.Name, project.BusinessUnit, organization.Type))
+		if entity.Type != types.BusinessUnitType {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an business unit but a %s", entity.Name, project.BusinessUnit, entity.Type))
 		}
 	}
 
-	// If a service center is provided, check it exists in the organization collection
+	// If a service center is provided, check it exists in the entity collection
 	if project.ServiceCenter.Hex() != "" {
-		organization, err := database.Organizations.FindByIDBson(project.ServiceCenter)
+		entity, err := database.Entities.FindByIDBson(project.ServiceCenter)
 		if err == mgo.ErrNotFound {
 			return c.String(http.StatusBadRequest, fmt.Sprintf("The service center %s does not exist", project.ServiceCenter))
 		} else if err != nil {
 			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve service center %s from database: %v", project.ServiceCenter, err))
 		}
 
-		if organization.Type != types.ServiceCenterType {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The organization %s (%s) is not an service center but a %s", organization.Name, project.ServiceCenter, organization.Type))
+		if entity.Type != types.ServiceCenterType {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an service center but a %s", entity.Name, project.ServiceCenter, entity.Type))
 		}
 	}
 

@@ -37,8 +37,8 @@ var cfgFile string
 // RootCmd This represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "D.A.D",
-	Short: "Docktor analytics dashboards",
-	Long:  `D.A.D is a web application which manage the  deployment of docktor services`,
+	Short: "Deployment analytics dashboards",
+	Long:  `D.A.D is a web application which manage the  deployment of services`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },

@@ -8,7 +8,7 @@ import { routerMiddleware, routerReducer } from 'react-router-redux';
 import auth from './modules/auth/auth.reducer';
 import projects from './modules/projects/projects.reducer';
 import users from './modules/users/users.reducer';
-import organizations from './modules/organizations/organizations.reducer';
+import entities from './modules/entities/entities.reducer';
 import services from './modules/services/services.reducer';
 import exportReducer from './modules/export/export.reducer';
 
@@ -31,7 +31,7 @@ const store = createStore(
       auth,
       projects,
       users,
-      organizations,
+      entities,
       services,
       export: exportReducer,
       routing: routerReducer,

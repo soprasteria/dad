@@ -88,7 +88,7 @@ func (r *FunctionnalServiceRepo) Save(functionnalService FunctionnalService) (Fu
 	return functionnalService, err
 }
 
-// Delete the entity
+// Delete the functionnal service
 func (r *FunctionnalServiceRepo) Delete(id bson.ObjectId) (bson.ObjectId, error) {
 	return BasicDelete(r, id)
 }

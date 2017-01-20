@@ -89,7 +89,7 @@ func (u *FunctionnalServices) Save(c echo.Context) error {
 
 	functionnalServiceSaved, err := database.FunctionnalServices.Save(functionnalService)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save entity to database: %v", err))
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save functionnal service to database: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, functionnalServiceSaved)

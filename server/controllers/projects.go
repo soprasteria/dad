@@ -133,17 +133,17 @@ func (u *Projects) Save(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "The name and domain fields cannot be empty")
 	}
 
-	// If an entity is provided, check it exists in the organization collection
-	if project.Entity.Hex() != "" {
-		organization, err := database.Organizations.FindByIDBson(project.Entity)
+	// If an business unit is provided, check it exists in the organization collection
+	if project.BusinessUnit.Hex() != "" {
+		organization, err := database.Organizations.FindByIDBson(project.BusinessUnit)
 		if err == mgo.ErrNotFound {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The entity %s does not exist", project.Entity))
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit))
 		} else if err != nil {
-			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve entity %s from database: %v", project.Entity, err))
+			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve business unit %s from database: %v", project.BusinessUnit, err))
 		}
 
-		if organization.Type != types.EntityType {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The organization %s (%s) is not an entity but a %s", organization.Name, project.Entity, organization.Type))
+		if organization.Type != types.BusinessUnitType {
+			return c.String(http.StatusBadRequest, fmt.Sprintf("The organization %s (%s) is not an business unit but a %s", organization.Name, project.BusinessUnit, organization.Type))
 		}
 	}
 

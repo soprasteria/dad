@@ -36,7 +36,7 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 
 	createCell(serviceMaturityRow, "Domain")
 	createCell(serviceMaturityRow, "Project")
-	createCell(serviceMaturityRow, "Entity")
+	createCell(serviceMaturityRow, "Business Unit")
 	createCell(serviceMaturityRow, "Service Center")
 
 	services, err := e.Database.FunctionnalServices.FindAll()
@@ -75,9 +75,9 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 	for _, project := range projects {
 		projectRow := sheet.AddRow()
 
-		entity, err := e.Database.Organizations.FindByIDBson(project.Entity)
+		businessUnit, err := e.Database.Organizations.FindByIDBson(project.BusinessUnit)
 		if err != nil {
-			entity = types.Organization{Name: "N/A"}
+			businessUnit = types.Organization{Name: "N/A"}
 		}
 
 		serviceCenter, err := e.Database.Organizations.FindByIDBson(project.ServiceCenter)
@@ -87,7 +87,7 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 
 		createCell(projectRow, project.Domain)
 		createCell(projectRow, project.Name)
-		createCell(projectRow, entity.Name)
+		createCell(projectRow, businessUnit.Name)
 		createCell(projectRow, serviceCenter.Name)
 
 		for _, pkg := range servicesMapSortedKeys {

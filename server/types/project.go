@@ -35,7 +35,7 @@ type Project struct {
 	ID            bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
 	Name          string        `bson:"name" json:"name"`
 	Domain        string        `bson:"domain" json:"domain"`
-	Entity        bson.ObjectId `bson:"entity,omitempty" json:"entity,omitempty"`
+	BusinessUnit  bson.ObjectId `bson:"businessUnit,omitempty" json:"businessUnit,omitempty"`
 	ServiceCenter bson.ObjectId `bson:"serviceCenter,omitempty" json:"serviceCenter,omitempty"`
 	URL           string        `bson:"url" json:"url"`
 	Matrix        Matrix        `bson:"matrix" json:"matrix"`

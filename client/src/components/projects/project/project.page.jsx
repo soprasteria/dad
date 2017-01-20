@@ -116,8 +116,8 @@ class ProjectComponent extends React.Component {
                 <Form.Dropdown disabled={readOnly} placeholder='Select service center...' fluid search selection loading={isOrganizationsFetching}
                   label='Service Center' name='serviceCenter' options={serviceCenters} value={project.serviceCenter || ''} onChange={this.handleChange} className={classes}
                 />
-                <Form.Dropdown disabled={readOnly} placeholder='Select entity...' fluid search selection loading={isOrganizationsFetching}
-                  label='Entity' name='entity' options={entities} value={project.entity || ''} onChange={this.handleChange} className={classes}
+                <Form.Dropdown disabled={readOnly} placeholder='Select business unit...' fluid search selection loading={isOrganizationsFetching}
+                  label='Business Unit' name='businessUnit' options={entities} value={project.businessUnit || ''} onChange={this.handleChange} className={classes}
                 />
               </Form.Group>
             </Form>
@@ -158,7 +158,7 @@ const mapStateToProps = (state, ownProps) => {
     project: { ...emptyProject, ...projects.items[project.id] },
     isFetching,
     projectId: paramId,
-    entities: getOrganizationsAsOptions(getByType(organizations, 'entity')),
+    entities: getOrganizationsAsOptions(getByType(organizations, 'businessUnit')),
     serviceCenters: getOrganizationsAsOptions(getByType(organizations, 'serviceCenter')),
     isOrganizationsFetching: state.organizations.isFetching,
     services

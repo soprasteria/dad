@@ -46,7 +46,7 @@ type User struct {
 	Organizations []bson.ObjectId `bson:"organizations" json:"organizations"`
 }
 
-// GetID gets the ID of the entity
+// GetID gets the ID of the user
 func (u User) GetID() bson.ObjectId {
 	return u.ID
 }

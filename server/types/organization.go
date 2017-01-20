@@ -11,8 +11,8 @@ import (
 type OrganizationType string
 
 const (
-	// EntityType is the type of organization for entities
-	EntityType OrganizationType = "entity"
+	// BusinessUnitType is the type of organization for business units
+	BusinessUnitType OrganizationType = "businessUnit"
 	// ServiceCenterType is the type of organization for services centers
 	ServiceCenterType OrganizationType = "serviceCenter"
 )

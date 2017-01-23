@@ -2,8 +2,9 @@ package export
 
 import (
 	"bytes"
-
+	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
@@ -74,6 +75,7 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 	// Generate a project row
 	projects, err := e.Database.Projects.FindAll()
 	for _, project := range projects {
+		var comments []string
 		projectRow := sheet.AddRow()
 
 		businessUnit, err := e.Database.Entities.FindByIDBson(project.BusinessUnit)
@@ -97,12 +99,15 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 		createCell(projectRow, serviceCenter.Name)
 		createCell(projectRow, projectManager.DisplayName)
 
+		// Iterate on each service in the correct order
 		for _, pkg := range servicesMapSortedKeys {
 			services := servicesMap[pkg]
 			for _, service := range services {
 				applicable := false
+				// Iterate on the project matrix and print the data for the current service
 				for _, line := range project.Matrix {
 					if line.Service == service.ID {
+						comments = append(comments, fmt.Sprintf("%s: %s: %s", pkg, service.Name, line.Comment))
 						createCell(projectRow, types.Progress[line.Progress])
 						createCell(projectRow, types.Progress[line.Goal])
 						applicable = true
@@ -115,6 +120,7 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 				}
 			}
 		}
+		createCell(projectRow, strings.Join(comments, "\n"))
 	}
 
 	colorRow(servicePkgRow, red, white)

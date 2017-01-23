@@ -168,9 +168,9 @@ func (r *ProjectRepo) FindByEntities(ids []bson.ObjectId) ([]Project, error) {
 	}
 	projects := []Project{}
 	err := r.col().Find(bson.M{
-		"$or": bson.M{
-			"businessUnit":  bson.M{"$in": ids},
-			"serviceCenter": bson.M{"$in": ids},
+		"$or": []bson.M{
+			bson.M{"businessUnit": bson.M{"$in": ids}},
+			bson.M{"serviceCenter": bson.M{"$in": ids}},
 		},
 	}).All(&projects)
 	if err != nil {

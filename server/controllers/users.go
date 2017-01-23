@@ -80,7 +80,8 @@ func (u *Users) Update(c echo.Context) error {
 func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.User, connectedUser types.User) (types.User, error) {
 
 	// Search for presence of user
-	userFromDB, err := database.Users.FindByIDBson(userUpdated.GetID())
+	userID := userUpdated.GetID()
+	userFromDB, err := database.Users.FindByIDBson(&userID)
 	if err != nil || userFromDB.GetID().Hex() == "" {
 		return types.User{}, errors.New("User does not exist. Please register user first.")
 	}

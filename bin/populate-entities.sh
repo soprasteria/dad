@@ -11,7 +11,7 @@ FILE=${3:-entities.csv}
     while read -r name type; do
         fs=$(printf '{"name": "%s", "type": "%s"}' "$name" "$type")
         echo "Sending: $fs"
-        curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$fs"  "$DAD_URL/api/entities"
+        curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$fs"  "$DAD_URL/api/entities/new"
         echo
     done < "$FILE"
 )

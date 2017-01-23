@@ -33,17 +33,17 @@ type Matrix []MatrixLine
 
 // Project represents a Sopra Steria project
 type Project struct {
-	ID             bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
-	Name           string        `bson:"name" json:"name"`
-	Domain         string        `bson:"domain" json:"domain"`
-	ProjectManager bson.ObjectId `bson:"projectManager,omitempty" json:"projectManager,omitempty"`
-	BusinessUnit   bson.ObjectId `bson:"businessUnit,omitempty" json:"businessUnit,omitempty"`
-	ServiceCenter  bson.ObjectId `bson:"serviceCenter,omitempty" json:"serviceCenter,omitempty"`
-	URL            string        `bson:"url" json:"url"`
-	Matrix         Matrix        `bson:"matrix" json:"matrix"`
-	Description    string        `bson:"description" json:"description"`
-	Created        time.Time     `bson:"created" json:"created"`
-	Updated        time.Time     `bson:"updated" json:"updated"`
+	ID             bson.ObjectId  `bson:"_id,omitempty" json:"id,omitempty"`
+	Name           string         `bson:"name" json:"name"`
+	Domain         string         `bson:"domain" json:"domain"`
+	ProjectManager *bson.ObjectId `bson:"projectManager" json:"projectManager"`
+	BusinessUnit   *bson.ObjectId `bson:"businessUnit" json:"businessUnit"`
+	ServiceCenter  *bson.ObjectId `bson:"serviceCenter" json:"serviceCenter"`
+	URL            string         `bson:"url" json:"url"`
+	Matrix         Matrix         `bson:"matrix" json:"matrix"`
+	Description    string         `bson:"description" json:"description"`
+	Created        time.Time      `bson:"created" json:"created"`
+	Updated        time.Time      `bson:"updated" json:"updated"`
 }
 
 // Projects represents a slice of Project

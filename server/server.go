@@ -83,7 +83,7 @@ func New(version string) {
 		entitiesAPI := api.Group("/entities")
 		{
 			entitiesAPI.GET("", entitiesC.GetAll)
-			entitiesAPI.POST("", entitiesC.Save, hasRole(types.AdminRole))
+			entitiesAPI.POST("/new", entitiesC.Save, hasRole(types.AdminRole))
 			entityAPI := entitiesAPI.Group("/:id")
 			{
 				entityAPI.Use(isValidID("id"))
@@ -96,7 +96,7 @@ func New(version string) {
 		functionnalServicesAPI := api.Group("/services")
 		{
 			functionnalServicesAPI.GET("", functionnalServicesC.GetAll)
-			functionnalServicesAPI.POST("", functionnalServicesC.Save, hasRole(types.AdminRole))
+			functionnalServicesAPI.POST("/new", functionnalServicesC.Save, hasRole(types.AdminRole))
 			functionnalServiceAPI := functionnalServicesAPI.Group("/:id")
 			{
 				functionnalServiceAPI.Use(isValidID("id"))
@@ -110,7 +110,7 @@ func New(version string) {
 		{
 			projectsAPI.Use(getAuhenticatedUser) // The rights are handled in the controller
 			projectsAPI.GET("", projectsC.GetAll)
-			projectsAPI.POST("", projectsC.Save, hasRole(types.RIRole))
+			projectsAPI.POST("/new", projectsC.Save, hasRole(types.RIRole))
 			projectAPI := projectsAPI.Group("/:id")
 			{
 				projectAPI.Use(isValidID("id"))

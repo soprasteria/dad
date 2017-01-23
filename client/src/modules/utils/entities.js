@@ -196,18 +196,21 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
       lastUpdated: action.receivedAt
     };
   case CONST_REQUEST_ENTITY:
-    const requestEntityItems = { ...state.items };
-    return {
-      ...state,
-      items: {
+    let requestEntityItems = { ...state.items };
+    if (action.id) {
+      requestEntityItems = {
         ...requestEntityItems,
         [action.id]: { ...requestEntityItems[action.id], isFetching: true },
-      },
+      };
+    }
+    return {
+      ...state,
+      items: requestEntityItems,
       selected : {
         ...state.selected,
         isFetching: true,
         didInvalidate: false,
-        id: action.id
+        id: action.id || ''
       }
     };
   case CONST_RECEIVE_ENTITY:
@@ -228,13 +231,16 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
   case CONST_SAVE_ENTITY:
   case CONST_DELETE_ENTITY:
     const idModifyEntity = action.id || action.entity.id;
-    const modifyEntityItems = { ...state.items };
-    return {
-      ...state,
-      items: {
+    let modifyEntityItems = { ...state.items };
+    if (idModifyEntity) {
+      modifyEntityItems = {
         ...modifyEntityItems,
         [idModifyEntity]: { ...modifyEntityItems[idModifyEntity], isFetching: true },
-      },
+      };
+    }
+    return {
+      ...state,
+      items: modifyEntityItems,
       selected: {
         ...state.selected,
         isFetching: true,
@@ -273,13 +279,16 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
   case CONST_INVALID_ENTITY:
   case CONST_INVALID_SAVE_ENTITY:
   case CONST_INVALID_DELETE_ENTITY:
-    const invalidEntityItems = { ...state.items };
-    return {
-      ...state,
-      items: {
+    let invalidEntityItems = { ...state.items };
+    if (action.entity.id) {
+      invalidEntityItems = {
         ...invalidEntityItems,
         [action.entity.id]: { ...invalidEntityItems[action.entity.id], isFetching: true },
-      },
+      };
+    }
+    return {
+      ...state,
+      items: invalidEntityItems,
       selected : {
         ...state.selected,
         isFetching: false,

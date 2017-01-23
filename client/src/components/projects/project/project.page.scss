@@ -14,8 +14,11 @@
       padding-left: 0 !important;
       margin-left: 1em !important;
       border: none !important;
-      border-bottom: 1px solid rgba(34, 36, 38, .15) !important;
-      border-radius: 0 !important;
+      input {
+        border-bottom: 1px solid rgba(34, 36, 38, .15) !important;
+        border-radius: 0 !important;
+        padding: .5em 0 !important
+      }
       i {
         &.dropdown.icon {
           display: none;

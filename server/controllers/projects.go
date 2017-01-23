@@ -33,7 +33,8 @@ func (u *Projects) GetAll(c echo.Context) error {
 	projects, err := database.Projects.FindForUser(authUser)
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error while retrieving all functionnal services")
+		log.WithError(err).Error("Error while retrieving projects")
+		return c.String(http.StatusInternalServerError, "Error while retrieving projects")
 	}
 	return c.JSON(http.StatusOK, projects)
 }
@@ -136,7 +137,7 @@ func (u *Projects) Save(c echo.Context) error {
 	}
 
 	// If an business unit is provided, check it exists in the entity collection
-	if project.BusinessUnit.Hex() != "" {
+	if project.BusinessUnit != nil {
 		entity, err := database.Entities.FindByIDBson(project.BusinessUnit)
 		if err == mgo.ErrNotFound {
 			return c.String(http.StatusBadRequest, fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit))
@@ -150,7 +151,7 @@ func (u *Projects) Save(c echo.Context) error {
 	}
 
 	// If a service center is provided, check it exists in the entity collection
-	if project.ServiceCenter.Hex() != "" {
+	if project.ServiceCenter != nil {
 		entity, err := database.Entities.FindByIDBson(project.ServiceCenter)
 		if err == mgo.ErrNotFound {
 			return c.String(http.StatusBadRequest, fmt.Sprintf("The service center %s does not exist", project.ServiceCenter))

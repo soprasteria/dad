@@ -17,6 +17,9 @@ import UsersPage from './components/users/users.page';
 import UserPage from './components/users/user/user.page';
 import { requireAuthorization } from './components/auth/auth.isAuthorized';
 
+// Constants
+import { AUTH_ADMIN_ROLE, AUTH_RI_ROLE } from './modules/auth/auth.constants';
+
 // Create an enhanced history that syncs navigation events with the store
 const history = syncHistoryWithStore(browserHistory, store);
 
@@ -29,6 +32,7 @@ ReactDOM.render(
         <Route path='login' component={Home} />
         <Route path='projects'>
           <IndexRoute component={requireAuthorization(ProjectsPage)} />
+          <Route path='new' component={requireAuthorization(ProjectPage, [AUTH_ADMIN_ROLE, AUTH_RI_ROLE])} />
           <Route path=':id' component={requireAuthorization(ProjectPage)} />
         </Route>
         <Route path='users'>

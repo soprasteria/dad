@@ -11,7 +11,7 @@ FILE=${3:-functionnal-services.csv}
     while read -r package name; do
         fs=$(printf '{"name": "%s", "package": "%s"}' "$name" "$package")
         echo "Sending: $fs"
-        curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$fs"  "$DAD_URL/api/services"
+        curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$fs"  "$DAD_URL/api/services/new"
         echo
     done < "$FILE"
 )

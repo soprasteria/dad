@@ -1,6 +1,6 @@
 // React
 import React from 'react';
-
+import DebounceInput from 'react-debounce-input';
 import { Form, Table } from 'semantic-ui-react';
 
 import { options } from '../../../../modules/services/services.constants';
@@ -10,43 +10,40 @@ import './matrix.component.scss';
 // Matrix Component Component
 class Matrix extends React.Component {
 
-  state = { matrix : {} }
-
-  componentWillMount = () => {
-    this.setState({ matrix : { ...this.props.matrix } });
-  }
-
-  componentWillReceiveProps = (nextProps) => {
-    this.setState({ matrix : { ...nextProps.matrix } });
-  }
-
   handleChange = (e, { name, value }) => {
-    this .setState({ matrix: { ...this.state.matrix, [name]:value } });
+    this.props.onChange(this.props.serviceId, { ...this.props.matrix, [name]:value });
+  }
+
+  handleChangeComment = ({ target }) => {
+    this.props.onChange(this.props.serviceId, { ...this.props.matrix, comment:target.value });
   }
 
   render = () => {
-    const { service } = this.props;
-    const { matrix } = this.state;
+    const { service, matrix } = this.props;
+    matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
+    matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
     return (
       <Table.Row>
         <Table.Cell>{service.name}</Table.Cell>
         <Table.Cell>
           <Form>
             <Form.Dropdown placeholder='Progress' fluid selection name='progress'
-              options={options} value={matrix.progress || -1} onChange={this.handleChange}
+              options={options} value={matrix.progress} onChange={this.handleChange}
             />
           </Form>
         </Table.Cell>
         <Table.Cell>
           <Form>
             <Form.Dropdown placeholder='Goal' fluid selection name='goal'
-              options={options} value={matrix.goal || -1} onChange={this.handleChange}
+              options={options} value={matrix.goal} onChange={this.handleChange}
             />
           </Form>
         </Table.Cell>
         <Table.Cell>
           <Form>
-            <Form.TextArea placeholder='Add a comment' name='comment' autoHeight value={matrix.comment} onChange={this.handleChange} />
+            <DebounceInput debounceTimeout={600} element={Form.TextArea} autoHeight
+              placeholder='Add a comment' name='comment' value={matrix.comment} onChange={this.handleChangeComment}
+            />
           </Form>
         </Table.Cell>
       </Table.Row>
@@ -55,8 +52,10 @@ class Matrix extends React.Component {
 }
 
 Matrix.propTypes = {
+  serviceId: React.PropTypes.string,
   matrix: React.PropTypes.object,
-  service: React.PropTypes.object
+  service: React.PropTypes.object,
+  onChange: React.PropTypes.func
 };
 
 export default Matrix;

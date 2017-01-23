@@ -59,11 +59,12 @@ func (r *EntityRepo) isInitialized() bool {
 
 // FindByID get the entity by its id (string version)
 func (r *EntityRepo) FindByID(id string) (Entity, error) {
-	return r.FindByIDBson(bson.ObjectIdHex(id))
+	objectID := bson.ObjectIdHex(id)
+	return r.FindByIDBson(&objectID)
 }
 
 // FindByIDBson get the entity by its id (as a bson object)
-func (r *EntityRepo) FindByIDBson(id bson.ObjectId) (Entity, error) {
+func (r *EntityRepo) FindByIDBson(id *bson.ObjectId) (Entity, error) {
 	if !r.isInitialized() {
 		return Entity{}, ErrDatabaseNotInitialiazed
 	}

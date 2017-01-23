@@ -1,6 +1,7 @@
 // React
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { Button, Card, Container, Icon, Input, Label, Segment } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
 
@@ -55,7 +56,7 @@ class Projects extends React.Component {
                   />
                   <Icon link name='remove' onClick={() => changeFilter('')}/>
                 </Input>
-                <Button content='New Project' icon='plus' labelPosition='left' color='green' floated='right' />
+                <Button as={Link} content='New Project' icon='plus' labelPosition='left' color='green' floated='right' to={'/projects/new'} />
           </Segment>
           <Segment loading={isFetching}>
             {this.renderCards(projects)}

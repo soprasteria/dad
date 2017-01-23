@@ -91,11 +91,12 @@ func (s *UserRepo) isInitialized() bool {
 
 // FindByID get the user by its id (string version)
 func (s *UserRepo) FindByID(id string) (User, error) {
-	return s.FindByIDBson(bson.ObjectIdHex(id))
+	objectID := bson.ObjectIdHex(id)
+	return s.FindByIDBson(&objectID)
 }
 
 // FindByIDBson get the user by its id (as a bson object)
-func (s *UserRepo) FindByIDBson(id bson.ObjectId) (User, error) {
+func (s *UserRepo) FindByIDBson(id *bson.ObjectId) (User, error) {
 	if !s.isInitialized() {
 		return User{}, ErrDatabaseNotInitialiazed
 	}

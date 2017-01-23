@@ -15,10 +15,10 @@ export const getByType = (entities, type) => {
 };
 
 export const getEntitiesAsOptions = (entities) => {
-  return entities.map(entity => {
+  return [{ value: '', text:'Empty' }].concat(entities.map(entity => {
     let type = entity.type;
     type = type.charAt(0).toUpperCase() + type.substring(1);
 
     return { value: entity.id, text: `${type}: ${entity.name}` } ;
-  });
+  }));
 };

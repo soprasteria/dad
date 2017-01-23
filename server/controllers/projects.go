@@ -30,22 +30,10 @@ func (u *Projects) GetAll(c echo.Context) error {
 		"role":     authUser.Role,
 	}).Info("User trying to retrieve all projects")
 
-	var projects []types.Project
-	var err error
-
-	switch authUser.Role {
-	case types.AdminRole:
-		projects, err = database.Projects.FindAll()
-	case types.RIRole:
-		// TODO: RI can see their projects and the projects associated to their entities
-	case types.CPRole:
-		// TODO
-	default:
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Invalid role %s for user %s", authUser.Role, authUser.Username))
-	}
+	projects, err := database.Projects.FindForUser(authUser)
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error while retreiving all functionnal services")
+		return c.String(http.StatusInternalServerError, "Error while retrieving all functionnal services")
 	}
 	return c.JSON(http.StatusOK, projects)
 }
@@ -68,15 +56,13 @@ func (u *Projects) Get(c echo.Context) error {
 		return c.String(http.StatusNotFound, fmt.Sprintf("Project not found %v", id))
 	}
 
-	switch authUser.Role {
-	case types.AdminRole:
-		// No verification, Admin can see everything
-	case types.RIRole:
-		// TODO: RI can see their projects and the projects associated to their entities
-	case types.CPRole:
-		// TODO
-	default:
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Invalid role %s for user %s", authUser.Role, authUser.Username))
+	userProjects, err := database.Projects.FindForUser(authUser)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username))
+	}
+
+	if !userProjects.ContainsBsonID(project.ID) {
+		return c.String(http.StatusForbidden, fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID))
 	}
 
 	return c.JSON(http.StatusOK, project)
@@ -94,7 +80,14 @@ func (u *Projects) Delete(c echo.Context) error {
 		"projectID": id,
 	}).Info("User trying to delete a project")
 
-	// TODO: privileges handling
+	userProjects, err := database.Projects.FindForUser(authUser)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username))
+	}
+
+	if !userProjects.ContainsBsonID(bson.ObjectIdHex(id)) {
+		return c.String(http.StatusForbidden, fmt.Sprintf("User %s cannot delete the project %s", authUser.Username, id))
+	}
 
 	res, err := database.Projects.Delete(bson.ObjectIdHex(id))
 	if err != nil {
@@ -108,6 +101,24 @@ func (u *Projects) Delete(c echo.Context) error {
 func (u *Projects) Save(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
+
+	authUser := c.Get("authuser").(types.User)
+	log.WithFields(log.Fields{
+		"username":  authUser.Username,
+		"role":      authUser.Role,
+		"projectID": id,
+	}).Info("User trying to save a project")
+
+	if id != "" {
+		userProjects, err := database.Projects.FindForUser(authUser)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username))
+		}
+
+		if !userProjects.ContainsBsonID(bson.ObjectIdHex(id)) {
+			return c.String(http.StatusForbidden, fmt.Sprintf("User %s cannot update the project %s", authUser.Username, id))
+		}
+	}
 
 	// Get project from body
 	var project types.Project

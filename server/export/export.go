@@ -16,8 +16,11 @@ type Export struct {
 	Database *mongo.DadMongo
 }
 
-//ExportAll exports all business data as a file
-func (e *Export) ExportAll() (*bytes.Reader, error) {
+func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
+	services, err := e.Database.FunctionnalServices.FindAll()
+	if err != nil {
+		return nil, err
+	}
 
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("Plan de déploiement")
@@ -40,11 +43,6 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 	createCell(serviceMaturityRow, "Business Unit")
 	createCell(serviceMaturityRow, "Service Center")
 	createCell(serviceMaturityRow, "Project Manager")
-
-	services, err := e.Database.FunctionnalServices.FindAll()
-	if err != nil {
-		return nil, err
-	}
 
 	// Build a map of services indexed by their package name
 	servicesMap := make(map[string][]types.FunctionnalService)
@@ -73,7 +71,6 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 	}
 
 	// Generate a project row
-	projects, err := e.Database.Projects.FindAll()
 	for _, project := range projects {
 		var comments []string
 		projectRow := sheet.AddRow()
@@ -136,4 +133,9 @@ func (e *Export) ExportAll() (*bytes.Reader, error) {
 		return nil, err
 	}
 	return bytes.NewReader(b.Bytes()), nil
+}
+
+//Export exports some business data as a file
+func (e *Export) Export(projects []types.Project) (*bytes.Reader, error) {
+	return e.generateXlsx(projects)
 }

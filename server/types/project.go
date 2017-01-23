@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -43,6 +44,19 @@ type Project struct {
 	Description    string        `bson:"description" json:"description"`
 	Created        time.Time     `bson:"created" json:"created"`
 	Updated        time.Time     `bson:"updated" json:"updated"`
+}
+
+// Projects represents a slice of Project
+type Projects []Project
+
+// ContainsBsonID checks that a list of projects contains a certain ObjectID
+func (projects Projects) ContainsBsonID(id bson.ObjectId) bool {
+	for _, project := range projects {
+		if project.ID == id {
+			return true
+		}
+	}
+	return false
 }
 
 // UniqIDs returns the slice of Object id, where an id can appear only once
@@ -101,6 +115,79 @@ func (r *ProjectRepo) FindAll() ([]Project, error) {
 	err := r.col().Find(bson.M{}).All(&projects)
 	if err != nil {
 		return []Project{}, errors.New("Can't retrieve all projects")
+	}
+	return projects, nil
+}
+
+func removeDuplicates(projects []Project) []Project {
+	seen := map[bson.ObjectId]bool{}
+	result := []Project{}
+
+	for _, project := range projects {
+		if !seen[project.ID] {
+			seen[project.ID] = true
+			result = append(result, project)
+		}
+	}
+	return result
+}
+
+// FindForUser returns the projects associated to a user, handling their rights
+func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
+	var projects []Project
+	var err error
+
+	switch user.Role {
+	case AdminRole:
+		projects, err = r.FindAll()
+	case RIRole:
+		projects, err = r.FindByEntities(user.Entities)
+		if err != nil {
+			return nil, err
+		}
+
+		projectsByPM, err := r.FindByProjectManager(user.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		projects = removeDuplicates(append(projects, projectsByPM...))
+	case CPRole:
+		projects, err = r.FindByProjectManager(user.ID)
+	default:
+		return nil, fmt.Errorf("Invalid role %s for user %s", user.Role, user.Username)
+	}
+
+	return projects, err
+}
+
+// FindByEntities get all projects with a matching businessUnit or serviceCenter
+func (r *ProjectRepo) FindByEntities(ids []bson.ObjectId) ([]Project, error) {
+	if !r.isInitialized() {
+		return []Project{}, ErrDatabaseNotInitialiazed
+	}
+	projects := []Project{}
+	err := r.col().Find(bson.M{
+		"$or": bson.M{
+			"businessUnit":  bson.M{"$in": ids},
+			"serviceCenter": bson.M{"$in": ids},
+		},
+	}).All(&projects)
+	if err != nil {
+		return []Project{}, fmt.Errorf("Can't retrieve projects for entities %v", ids)
+	}
+	return projects, nil
+}
+
+// FindByProjectManager get all projects with a specific project manager
+func (r *ProjectRepo) FindByProjectManager(id bson.ObjectId) ([]Project, error) {
+	if !r.isInitialized() {
+		return []Project{}, ErrDatabaseNotInitialiazed
+	}
+	projects := []Project{}
+	err := r.col().Find(bson.M{"projectManager": id}).All(&projects)
+	if err != nil {
+		return []Project{}, fmt.Errorf("Can't retrieve projects for project manager %s", id)
 	}
 	return projects, nil
 }

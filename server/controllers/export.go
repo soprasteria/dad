@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/soprasteria/dad/server/export"
 	"github.com/soprasteria/dad/server/mongo"
+	"github.com/soprasteria/dad/server/types"
 )
 
 // Export contains all handlers for exporting data as CSV/XSLX...
@@ -21,8 +23,21 @@ func (a *Export) ExportAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	exporter := export.Export{Database: database}
 
-	data, err := exporter.ExportAll()
+	authUser := c.Get("authuser").(types.User)
+	log.WithFields(log.Fields{
+		"username": authUser.Username,
+		"role":     authUser.Role,
+	}).Info("User trying to perform a data export")
+
+	projects, err := database.Projects.FindForUser(authUser)
 	if err != nil {
+		log.WithError(err).Error("Error while retrieving a user's projects")
+		return c.String(http.StatusInternalServerError, "Cannot export DAD data in a file")
+	}
+
+	data, err := exporter.Export(projects)
+	if err != nil {
+		log.WithError(err).Error("Error occurred during the data export")
 		return c.String(http.StatusInternalServerError, "Cannot export DAD data in a file")
 	}
 

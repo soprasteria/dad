@@ -122,7 +122,8 @@ func New(version string) {
 
 		exportAPI := api.Group("/export")
 		{
-			exportAPI.GET("", exportC.ExportAll, hasRole(types.RIRole))
+			exportAPI.Use(getAuhenticatedUser)
+			exportAPI.GET("", exportC.ExportAll)
 		}
 	}
 

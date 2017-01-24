@@ -32,13 +32,13 @@ func (a *Export) ExportAll(c echo.Context) error {
 	projects, err := database.Projects.FindForUser(authUser)
 	if err != nil {
 		log.WithError(err).Error("Error while retrieving a user's projects")
-		return c.String(http.StatusInternalServerError, "Cannot export DAD data in a file")
+		return c.JSON(http.StatusInternalServerError, types.NewErr("Cannot export DAD data in a file"))
 	}
 
 	data, err := exporter.Export(projects)
 	if err != nil {
 		log.WithError(err).Error("Error occurred during the data export")
-		return c.String(http.StatusInternalServerError, "Cannot export DAD data in a file")
+		return c.JSON(http.StatusInternalServerError, types.NewErr("Cannot export DAD data in a file"))
 	}
 
 	return serveContent(c, data, fmt.Sprintf("DAD-Export-%s.xlsx", time.Now()), time.Now())

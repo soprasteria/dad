@@ -34,7 +34,7 @@ func (u *Projects) GetAll(c echo.Context) error {
 
 	if err != nil {
 		log.WithError(err).Error("Error while retrieving projects")
-		return c.String(http.StatusInternalServerError, "Error while retrieving projects")
+		return c.JSON(http.StatusInternalServerError, types.NewErr("Error while retrieving projects"))
 	}
 	return c.JSON(http.StatusOK, projects)
 }
@@ -54,16 +54,16 @@ func (u *Projects) Get(c echo.Context) error {
 
 	project, err := database.Projects.FindByID(id)
 	if err != nil || project.ID.Hex() == "" {
-		return c.String(http.StatusNotFound, fmt.Sprintf("Project not found %v", id))
+		return c.JSON(http.StatusNotFound, types.NewErr(fmt.Sprintf("Project not found %v", id)))
 	}
 
 	userProjects, err := database.Projects.FindForUser(authUser)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
 	}
 
 	if !userProjects.ContainsBsonID(project.ID) {
-		return c.String(http.StatusForbidden, fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID))
+		return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID)))
 	}
 
 	return c.JSON(http.StatusOK, project)
@@ -83,16 +83,16 @@ func (u *Projects) Delete(c echo.Context) error {
 
 	userProjects, err := database.Projects.FindForUser(authUser)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
 	}
 
 	if !userProjects.ContainsBsonID(bson.ObjectIdHex(id)) {
-		return c.String(http.StatusForbidden, fmt.Sprintf("User %s cannot delete the project %s", authUser.Username, id))
+		return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot delete the project %s", authUser.Username, id)))
 	}
 
 	res, err := database.Projects.Delete(bson.ObjectIdHex(id))
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while removing project: %v", err))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while removing project: %v", err)))
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -113,11 +113,11 @@ func (u *Projects) Save(c echo.Context) error {
 	if id != "" {
 		userProjects, err := database.Projects.FindForUser(authUser)
 		if err != nil {
-			return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username))
+			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
 		}
 
 		if !userProjects.ContainsBsonID(bson.ObjectIdHex(id)) {
-			return c.String(http.StatusForbidden, fmt.Sprintf("User %s cannot update the project %s", authUser.Username, id))
+			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot update the project %s", authUser.Username, id)))
 		}
 	}
 
@@ -127,30 +127,30 @@ func (u *Projects) Save(c echo.Context) error {
 
 	err = c.Bind(&project)
 	if err != nil {
-		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted project is not valid: %v", err))
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
 	}
 
 	log.WithField("project", project).Info("Received project to save")
 
 	if project.Name == "" || project.Domain == "" {
-		return c.String(http.StatusBadRequest, "The name and domain fields cannot be empty")
+		return c.JSON(http.StatusBadRequest, types.NewErr("The name and domain fields cannot be empty"))
 	}
 
 	if project.BusinessUnit == "" && project.ServiceCenter == "" {
-		return c.String(http.StatusBadRequest, "At least one of the business unit and service center fields is mandatory")
+		return c.JSON(http.StatusBadRequest, types.NewErr("At least one of the business unit and service center fields is mandatory"))
 	}
 
 	// If an business unit is provided, check it exists in the entity collection
 	if project.BusinessUnit != "" {
 		entity, err := database.Entities.FindByID(project.BusinessUnit)
 		if err == mgo.ErrNotFound {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit))
+			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit)))
 		} else if err != nil {
-			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve business unit %s from database: %v", project.BusinessUnit, err))
+			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to retrieve business unit %s from database: %v", project.BusinessUnit, err)))
 		}
 
 		if entity.Type != types.BusinessUnitType {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an business unit but a %s", entity.Name, project.BusinessUnit, entity.Type))
+			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The entity %s (%s) is not an business unit but a %s", entity.Name, project.BusinessUnit, entity.Type)))
 		}
 	}
 
@@ -158,13 +158,13 @@ func (u *Projects) Save(c echo.Context) error {
 	if project.ServiceCenter != "" {
 		entity, err := database.Entities.FindByID(project.ServiceCenter)
 		if err == mgo.ErrNotFound {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The service center %s does not exist", project.ServiceCenter))
+			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The service center %s does not exist", project.ServiceCenter)))
 		} else if err != nil {
-			return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve service center %s from database: %v", project.ServiceCenter, err))
+			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to retrieve service center %s from database: %v", project.ServiceCenter, err)))
 		}
 
 		if entity.Type != types.ServiceCenterType {
-			return c.String(http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an service center but a %s", entity.Name, project.ServiceCenter, entity.Type))
+			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The entity %s (%s) is not an service center but a %s", entity.Name, project.ServiceCenter, entity.Type)))
 		}
 	}
 
@@ -181,7 +181,7 @@ func (u *Projects) Save(c echo.Context) error {
 
 	projectSaved, err := database.Projects.Save(project)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save project to database: %v", err))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to save project to database: %v", err)))
 	}
 
 	return c.JSON(http.StatusOK, projectSaved)

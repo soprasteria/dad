@@ -5,6 +5,11 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// ErrorMsg is a json formated error
+type ErrorMsg struct {
+	Message string `json:"message"`
+}
+
 // IsDatabase is an interface representing a database accessing mongod documents
 type IsDatabase interface {
 	col() *mgo.Collection
@@ -24,4 +29,9 @@ func BasicDelete(collection IsDatabase, id bson.ObjectId) (bson.ObjectId, error)
 
 	err := collection.col().RemoveId(id)
 	return id, err
+}
+
+// NewErr is a function used to format errors into json
+func NewErr(message string) ErrorMsg {
+	return ErrorMsg{Message: message}
 }

@@ -23,7 +23,7 @@ func (u *Users) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	users, err := database.Users.FindAll()
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error while retreiving all users")
+		return c.JSON(http.StatusInternalServerError, types.NewErr("Error while retreiving all users"))
 	}
 	return c.JSON(http.StatusOK, users)
 }
@@ -41,7 +41,7 @@ func (u *Users) Delete(c echo.Context) error {
 
 	res, err := database.Users.Delete(bson.ObjectIdHex(id))
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while removing user: %v", err))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while removing user: %v", err)))
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -59,18 +59,18 @@ func (u *Users) Update(c echo.Context) error {
 	var user types.User
 	err := c.Bind(&user)
 	if err != nil {
-		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted user is not valid: %v", err))
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted user is not valid: %v", err)))
 	}
 	user.ID = bson.ObjectIdHex(id)
 
 	userToUpdate, err := u.updateUserFields(database, user, connectedUser)
 	if err != nil {
-		return c.String(http.StatusNotFound, err.Error())
+		return c.JSON(http.StatusNotFound, types.NewErr(err.Error()))
 	}
 
 	userSaved, err := database.Users.Save(userToUpdate)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save user to database : %v", err))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to save user to database : %v", err)))
 	}
 
 	return c.JSON(http.StatusOK, userSaved)
@@ -112,7 +112,7 @@ func (u *Users) Profile(c echo.Context) error {
 	claims := userToken.Claims.(*auth.MyCustomClaims)
 	user, err := database.Users.FindByUsername(claims.Username)
 	if err != nil {
-		return c.String(http.StatusUnauthorized, auth.ErrInvalidCredentials.Error())
+		return c.JSON(http.StatusUnauthorized, types.NewErr(auth.ErrInvalidCredentials.Error()))
 	}
 	return c.JSON(http.StatusOK, user)
 }

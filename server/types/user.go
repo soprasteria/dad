@@ -91,6 +91,9 @@ func (s *UserRepo) isInitialized() bool {
 
 // FindByID get the user by its id (string version)
 func (s *UserRepo) FindByID(id string) (User, error) {
+	if !bson.IsObjectIdHex(id) {
+		return User{}, ErrInvalidUserID
+	}
 	objectID := bson.ObjectIdHex(id)
 	return s.FindByIDBson(&objectID)
 }

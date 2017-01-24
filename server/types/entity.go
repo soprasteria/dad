@@ -59,6 +59,9 @@ func (r *EntityRepo) isInitialized() bool {
 
 // FindByID get the entity by its id (string version)
 func (r *EntityRepo) FindByID(id string) (Entity, error) {
+	if !bson.IsObjectIdHex(id) {
+		return Entity{}, ErrInvalidEntityID
+	}
 	return r.FindByIDBson(bson.ObjectIdHex(id))
 }
 

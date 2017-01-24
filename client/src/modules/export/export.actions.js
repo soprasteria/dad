@@ -21,6 +21,9 @@ const receiveExportAll = () => {
 const invalidRequestExportAll = (error) => {
   return {
     type: ExportConstants.EXPORT_ALL_INVALID_REQUEST,
+    title: 'Impossible to export projects',
+    message: error,
+    level: 'error',
     error
   };
 };

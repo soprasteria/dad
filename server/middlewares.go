@@ -91,7 +91,7 @@ func getAuhenticatedUser(next echo.HandlerFunc) echo.HandlerFunc {
 		user, err := database.Users.FindByUsername(claims.Username)
 		if err != nil {
 			// Will logout the user automatically, as server considers the token to be invalid
-			return c.String(http.StatusUnauthorized, fmt.Sprintf("Your account %q has been removed. Please create a new one.", claims.Username))
+			return c.JSON(http.StatusUnauthorized, types.NewErr(fmt.Sprintf("Your account %q has been removed. Please create a new one.", claims.Username)))
 		}
 
 		c.Set("authuser", user)
@@ -129,7 +129,7 @@ func hasRole(role types.Role) func(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			// Refuse connection otherwise
-			return c.String(http.StatusForbidden, fmt.Sprintf(NotAuthorized, user.Username))
+			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf(NotAuthorized, user.Username)))
 		}
 	}
 }
@@ -142,7 +142,7 @@ func isValidID(id string) func(next echo.HandlerFunc) echo.HandlerFunc {
 			idHex := c.Param(id)
 
 			if !bson.IsObjectIdHex(idHex) {
-				return c.String(http.StatusBadRequest, fmt.Sprintf(NotValidID, idHex))
+				return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf(NotValidID, idHex)))
 			}
 
 			return next(c)
@@ -157,7 +157,7 @@ func RetrieveUser(next echo.HandlerFunc) echo.HandlerFunc {
 		id := c.Param("id")
 		user, err := database.Users.FindByID(id)
 		if err != nil {
-			return c.String(http.StatusNotFound, fmt.Sprintf(UserNotFound, id))
+			return c.JSON(http.StatusNotFound, types.NewErr(fmt.Sprintf(UserNotFound, id)))
 		}
 
 		c.Set("user", user)

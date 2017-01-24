@@ -22,7 +22,7 @@ func (u *FunctionalServices) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	functionalServices, err := database.FunctionalServices.FindAll()
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error while retreiving all functional services")
+		return c.JSON(http.StatusInternalServerError, types.NewErr("Error while retreiving all functional services"))
 	}
 	return c.JSON(http.StatusOK, functionalServices)
 }
@@ -33,7 +33,7 @@ func (u *FunctionalServices) Get(c echo.Context) error {
 	id := c.Param("id")
 	functionalService, err := database.FunctionalServices.FindByID(id)
 	if err != nil || functionalService.ID.Hex() == "" {
-		return c.String(http.StatusNotFound, fmt.Sprintf("Functional service not found %v", id))
+		return c.JSON(http.StatusNotFound, types.NewErr(fmt.Sprintf("Functional service not found %v", id)))
 	}
 	return c.JSON(http.StatusOK, functionalService)
 }
@@ -45,7 +45,7 @@ func (u *FunctionalServices) Delete(c echo.Context) error {
 
 	res, err := database.FunctionalServices.Delete(bson.ObjectIdHex(id))
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while removing functional service: %v", err))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while removing functional service: %v", err)))
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -62,21 +62,21 @@ func (u *FunctionalServices) Save(c echo.Context) error {
 
 	err = c.Bind(&functionalService)
 	if err != nil {
-		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted functional service is not valid: %v", err))
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted functional service is not valid: %v", err)))
 	}
 
 	log.WithField("functionalService", functionalService).Info("Received functional service to save")
 
 	if functionalService.Name == "" || functionalService.Package == "" {
-		return c.String(http.StatusBadRequest, "The name and package fields cannot be empty")
+		return c.JSON(http.StatusBadRequest, types.NewErr("The name and package fields cannot be empty"))
 	}
 
 	exists, err := database.FunctionalServices.Exists(functionalService.Name, functionalService.Package)
 	if err != nil {
-		return c.String(http.StatusBadRequest, fmt.Sprintf("Error checking while checking if the functional service already exists: %v", err))
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Error checking while checking if the functional service already exists: %v", err)))
 	}
 	if exists {
-		return c.String(http.StatusConflict, fmt.Sprintf("Received functional service already exists"))
+		return c.JSON(http.StatusConflict, types.NewErr(fmt.Sprintf("Received functional service already exists")))
 	}
 
 	if id != "" {
@@ -89,7 +89,7 @@ func (u *FunctionalServices) Save(c echo.Context) error {
 
 	functionalServiceSaved, err := database.FunctionalServices.Save(functionalService)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save functional service to database: %v", err))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to save functional service to database: %v", err)))
 	}
 
 	return c.JSON(http.StatusOK, functionalServiceSaved)

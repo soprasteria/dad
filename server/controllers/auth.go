@@ -44,11 +44,11 @@ func (a *Auth) Login(c echo.Context) error {
 
 	// Check input parameters
 	if username == "" {
-		return c.String(http.StatusForbidden, "Username should not be empty")
+		return c.JSON(http.StatusForbidden, types.NewErr("Username should not be empty"))
 	}
 
 	if password == "" {
-		return c.String(http.StatusForbidden, "Password should not be empty")
+		return c.JSON(http.StatusForbidden, types.NewErr("Password should not be empty"))
 	}
 
 	// Handle APIs from Echo context
@@ -65,16 +65,16 @@ func (a *Auth) Login(c echo.Context) error {
 	if err != nil {
 		log.WithError(err).WithField("username", username).Error("User authentication failed")
 		if err == auth.ErrInvalidCredentials {
-			return c.String(http.StatusForbidden, auth.ErrInvalidCredentials.Error())
+			return c.JSON(http.StatusForbidden, types.NewErr(auth.ErrInvalidCredentials.Error()))
 		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, types.NewErr(err.Error()))
 	}
 
 	// Generates a valid token
 	token, err := login.CreateLoginToken(username)
 	if err != nil {
 		log.WithError(err).WithField("username", username).Error("Login token creation failed")
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, types.NewErr(err.Error()))
 	}
 
 	// Get the user from database
@@ -82,7 +82,7 @@ func (a *Auth) Login(c echo.Context) error {
 	user, err := database.Users.FindByUsername(username)
 	if err != nil {
 		log.WithError(err).WithField("username", username).Error("User retrieval failed")
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, types.NewErr(err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, Token{ID: token, User: user})

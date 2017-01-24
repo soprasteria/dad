@@ -19,6 +19,7 @@ before_install:
 install:
 - go get -u -v github.com/alecthomas/gometalinter
 - go get -u -v github.com/kardianos/govendor
+- gometalinter -f -i -u
 - govendor sync -v
 - npm install
 

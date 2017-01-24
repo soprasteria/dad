@@ -1,6 +1,7 @@
 // React
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 
 import AuthPage from '../auth/login.component';
 
@@ -8,21 +9,19 @@ import AuthPage from '../auth/login.component';
 class HomeComponent extends React.Component {
 
   render = () => {
-    const { isAuthenticated } = this.props;
-    var content;
+    const { isAuthenticated, redirect } = this.props;
     if (isAuthenticated) {
-      content = (<div />);
+      redirect('/projects');
+      return <div/>;
     } else {
-      content = (<AuthPage/>);
+      return <AuthPage/>;
     }
-    return (
-      content
-    );
   }
 }
 
 HomeComponent.propTypes = {
-  isAuthenticated : React.PropTypes.bool.isRequired
+  isAuthenticated : React.PropTypes.bool.isRequired,
+  redirect: React.PropTypes.func.isRequired
 };
 
 // Function to map state to container props
@@ -35,10 +34,19 @@ const mapStateToProps = (state) => {
   };
 };
 
+// Function to map dispatch to container props
+const mapDispatchToProps = (dispatch) => {
+  return {
+    redirect: path => {
+      dispatch(push(path));
+    }
+  };
+};
+
 // Redux container to Sites component
 const Home = connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(HomeComponent);
 
 export default Home;

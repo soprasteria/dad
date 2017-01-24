@@ -136,9 +136,13 @@ func (u *Projects) Save(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "The name and domain fields cannot be empty")
 	}
 
+	if project.BusinessUnit == "" && project.ServiceCenter == "" {
+		return c.String(http.StatusBadRequest, "At least one of the business unit and service center fields is mandatory")
+	}
+
 	// If an business unit is provided, check it exists in the entity collection
-	if project.BusinessUnit != nil {
-		entity, err := database.Entities.FindByIDBson(project.BusinessUnit)
+	if project.BusinessUnit != "" {
+		entity, err := database.Entities.FindByID(project.BusinessUnit)
 		if err == mgo.ErrNotFound {
 			return c.String(http.StatusBadRequest, fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit))
 		} else if err != nil {
@@ -151,8 +155,8 @@ func (u *Projects) Save(c echo.Context) error {
 	}
 
 	// If a service center is provided, check it exists in the entity collection
-	if project.ServiceCenter != nil {
-		entity, err := database.Entities.FindByIDBson(project.ServiceCenter)
+	if project.ServiceCenter != "" {
+		entity, err := database.Entities.FindByID(project.ServiceCenter)
 		if err == mgo.ErrNotFound {
 			return c.String(http.StatusBadRequest, fmt.Sprintf("The service center %s does not exist", project.ServiceCenter))
 		} else if err != nil {

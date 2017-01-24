@@ -15,7 +15,7 @@ export const getByType = (entities, type) => {
 };
 
 export const getEntitiesAsOptions = (entities) => {
-  return [{ value: '', text:'Empty' }].concat(entities.map(entity => {
+  return [{ value: '', text:'None' }].concat(entities.map(entity => {
     let type = entity.type;
     type = type.charAt(0).toUpperCase() + type.substring(1);
 

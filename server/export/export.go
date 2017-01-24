@@ -75,17 +75,17 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		var comments []string
 		projectRow := sheet.AddRow()
 
-		businessUnit, err := e.Database.Entities.FindByIDBson(project.BusinessUnit)
+		businessUnit, err := e.Database.Entities.FindByID(project.BusinessUnit)
 		if err != nil {
 			businessUnit = types.Entity{Name: "N/A"}
 		}
 
-		serviceCenter, err := e.Database.Entities.FindByIDBson(project.ServiceCenter)
+		serviceCenter, err := e.Database.Entities.FindByID(project.ServiceCenter)
 		if err != nil {
 			serviceCenter = types.Entity{Name: "N/A"}
 		}
 
-		projectManager, err := e.Database.Users.FindByIDBson(project.ProjectManager)
+		projectManager, err := e.Database.Users.FindByID(project.ProjectManager)
 		if err != nil {
 			projectManager = types.User{DisplayName: "N/A"}
 		}

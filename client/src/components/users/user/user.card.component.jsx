@@ -37,7 +37,7 @@ class UserCardComponent extends React.Component {
     const options = ALL_ROLES.map(role => {
       return { icon: <Icon name={getRoleIcon(role)} color={getRoleColor(role) || null} />, value: role, text: getRoleLabel(role) };
     });
-    const canGoToProfile = connectedUser.role === AUTH_ADMIN_ROLE || connectedUser.role === AUTH_RI_ROLE;
+    const canGoToProfile = connectedUser.role === AUTH_ADMIN_ROLE;
     return (
       <Card className='user-card' raised>
         <Card.Content>

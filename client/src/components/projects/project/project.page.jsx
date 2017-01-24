@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
-import { Button, Container, Divider, Form, Header, Icon, Table, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Header, Icon, Message, Table, Segment } from 'semantic-ui-react';
 
 import Joi from 'joi-browser';
 
@@ -33,10 +33,10 @@ class ProjectComponent extends React.Component {
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
     domain: Joi.string().trim().required().label('Domain'),
-    projectManager: Joi.string().trim().alphanum().required().label('Project Manager'),
-    serviceCenter: Joi.string().trim().alphanum().allow('').label('Service Center'),
-    businessUnit: Joi.string().trim().alphanum().allow('').label('Business Unit'),
-  }).or('serviceCenter', 'businessUnit')
+    projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
+    serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
+    businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit')
+  }).or('serviceCenter', 'businessUnit').label('Service Center or Business Unit');
 
   componentWillMount = () => {
     const matrix = {};
@@ -63,6 +63,15 @@ class ProjectComponent extends React.Component {
         this.props.fetchProject(projectId);
       }
     });
+    if (!projectId) {
+      window.scrollTo(0, 0);
+    }
+  }
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.isFetching) {
+      window.scrollTo(0, 0);
+    }
   }
 
   handleChange = (e, { name, value }) => {
@@ -71,7 +80,6 @@ class ProjectComponent extends React.Component {
       project: { ...project, [name]: value },
       errors: { details: [...errors.details], fields: { ...errors.fields } }
     };
-    name = (name === 'serviceCenter' || name === 'businessUnit') ? 'value' : name;
     delete state.errors.fields[name];
     this.setState(state);
   }
@@ -84,26 +92,23 @@ class ProjectComponent extends React.Component {
 
   isFormValid = () => {
     const { error } = Joi.validate(this.state.project, this.schema, { abortEarly: false, allowUnknown: true });
-    error && this.setState({ errors: parseError(error) });
+    if (error) {
+      const errors = parseError(error);
+      if (errors.fields['Service Center or Business Unit']) {
+        errors.fields.serviceCenter = true;
+        errors.fields.businessUnit = true;
+        delete errors.fields['Service Center or Business Unit'];
+      }
+      window.scrollTo(0, 0);
+      this.setState({ errors:  errors });
+    }
     return !Boolean(error);
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
-    if(!this.state.project.serviceCenter) {
-      this.state.project.serviceCenter = '';
-    }
-    if(!this.state.project.businessUnit) {
-      this.state.project.businessUnit = '';
-    }
     if (this.isFormValid()) {
       const { project, matrix } = this.state;
-      if(!project.serviceCenter) {
-        delete project.serviceCenter;
-      }
-      if(!project.businessUnit) {
-        delete project.businessUnit;
-      }
       const modifiedProject = { ...project, matrix:Object.values(matrix) };
       this.props.onSave(modifiedProject);
     }
@@ -134,7 +139,7 @@ class ProjectComponent extends React.Component {
     });
   }
 
-  renderDropdown = (readOnly, name, label, value, placeholder, width, options, isFetching, errors, errorName ) => {
+  renderDropdown = (readOnly, name, label, value, placeholder, width, options, isFetching, errors ) => {
     if (readOnly) {
       const option = options.find(elm => elm.value === value);
       return (
@@ -145,7 +150,7 @@ class ProjectComponent extends React.Component {
     }
     return (
       <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}  width={width}
-        label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[errorName]}
+        label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
       />
     );
   }
@@ -166,7 +171,7 @@ class ProjectComponent extends React.Component {
           </Header>
           <Divider hidden/>
           <Box icon='settings' title='Details' stacked={Boolean(projectId)}>
-            <Form>
+            <Form error={Boolean(errors.details.length)}>
               <Form.Group>
                 <Form.Input readOnly={readOnly} label='Name' value={project.name || ''} onChange={this.handleChange}
                   type='text' name='name' autoComplete='off' placeholder='Project Name' width='four' error={errors.fields['name']}
@@ -174,13 +179,14 @@ class ProjectComponent extends React.Component {
                 <Form.Input readOnly={readOnly} label='Domain' value={project.domain || ''} onChange={this.handleChange}
                     type='text' name='domain' autoComplete='off' placeholder='Project Domain' width='four' error={errors.fields['domain']}
                 />
-                {this.renderDropdown(readOnly, 'projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors, 'projectManager')}
+                {this.renderDropdown(readOnly, 'projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors)}
               </Form.Group>
 
               <Form.Group widths='two'>
-                {this.renderDropdown(readOnly, 'serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', 'eight', serviceCenters, isEntitiesFetching, errors, 'value')}
-                {this.renderDropdown(readOnly, 'businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', 'eight', businessUnits, isEntitiesFetching, errors, 'value')}
+                {this.renderDropdown(readOnly, 'serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', 'eight', serviceCenters, isEntitiesFetching, errors)}
+                {this.renderDropdown(readOnly, 'businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', 'eight', businessUnits, isEntitiesFetching, errors)}
               </Form.Group>
+              <Message error list={errors.details}/>
             </Form>
           </Box>
           <Divider hidden/>

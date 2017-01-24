@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "Manage maturity of deployment ",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "archive": "gulp archive",
+    "dist": "gulp dist",
+    "test": "echo no tests specified",
     "jslint": "eslint '*.js?' 'client/src/**/*.js?' 'client/test/**/*.js?' && sass-lint 'client/**/*.scss' ",
     "golint": "gometalinter --vendor --deadline=60m --config=./gometalinter.json ./server/... ./cmd/... .",
     "formatJS": "eslint --fix 'client/src/**/*.js'"

@@ -104,7 +104,9 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 				// Iterate on the project matrix and print the data for the current service
 				for _, line := range project.Matrix {
 					if line.Service == service.ID {
-						comments = append(comments, fmt.Sprintf("%s: %s: %s", pkg, service.Name, line.Comment))
+						if line.Comment != "" {
+							comments = append(comments, fmt.Sprintf("%s: %s: %s", pkg, service.Name, line.Comment))
+						}
 						createCell(projectRow, types.Progress[line.Progress])
 						createCell(projectRow, types.Progress[line.Goal])
 						applicable = true
@@ -117,6 +119,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 				}
 			}
 		}
+		projectRow.SetHeightCM(0.5 * float64(len(comments)))
 		createCell(projectRow, strings.Join(comments, "\n"))
 	}
 

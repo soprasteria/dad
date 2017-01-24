@@ -1,0 +1,30 @@
+language: go
+
+go:
+- 1.7
+
+env:
+- GO_VENDOR=1
+
+cache:
+  directories:
+  - node_modules
+
+before_install:
+- nvm --version
+- nvm install 7.2.0
+- node --version && npm --version
+- go version
+
+install:
+- go get -u -v github.com/alecthomas/gometalinter
+- go get -u -v github.com/kardianos/govendor
+- govendor sync -v
+- npm install
+
+script:
+- npm run jslint
+- travis_wait 60 npm run golint
+- go test ./cmd/... ./server/...
+- npm test
+- npm run archive

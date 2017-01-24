@@ -52,6 +52,7 @@
     "strict": [2, "never"],
     "quotes": [1, "single", { "avoidEscape": true }],
     "semi": 1,
+    "no-undef": 2,
     "curly": [1, "all"],
     "object-curly-spacing": [1, "always"],
     "comma-spacing": 1,

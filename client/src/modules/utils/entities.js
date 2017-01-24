@@ -95,7 +95,7 @@ export const generateEntitiesActions = (entitiesName) => {
     },
     invalidRequestEntity: (entity) => (error) => {
       const entityName = entitiesName.toLowerCase().slice(0, -1);
-      const title = entity.title || entity.name || entity.username;
+      const title = entity.title || entity.name || entity.username || entity.id;
       return {
         type: CONST_INVALID_ENTITY,
         title: `Cannot fetch ${entityName} ${title}`,
@@ -177,7 +177,8 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
   case CONST_INVALID:
     return {
       ...state,
-      ...initialState
+      ...initialState,
+      items: { ...state.items }
     };
   case CONST_REQUEST:
     return {
@@ -283,7 +284,7 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
     if (action.entity.id) {
       invalidEntityItems = {
         ...invalidEntityItems,
-        [action.entity.id]: { ...invalidEntityItems[action.entity.id], isFetching: true },
+        [action.entity.id]: { ...invalidEntityItems[action.entity.id], isFetching: false },
       };
     }
     return {
@@ -350,7 +351,7 @@ export const generateEntitiesThunks = (entitiesName) => {
           dispatch(Actions.receiveOne(response));
         })
         .catch(error => {
-          handleError(error, Actions.invalidRequestEntity, dispatch);
+          handleError(error, Actions.invalidRequestEntity({ id }), dispatch);
         });
     };
   };

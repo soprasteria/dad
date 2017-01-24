@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Button, Card, Dropdown, Icon } from 'semantic-ui-react';
 
-import { ALL_ROLES, AUTH_ADMIN_ROLE, AUTH_RI_ROLE, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
+import { ALL_ROLES, AUTH_ADMIN_ROLE, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 
 import './user.card.component.scss';

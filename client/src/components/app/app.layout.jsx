@@ -3,6 +3,7 @@ import React from 'react';
 
 // Components
 import NavBar from './navBar.component';
+import Toasts from '../common/toasts.component';
 
 
 // Style
@@ -18,6 +19,7 @@ class App extends React.Component {
       <div className='flex main layout vertical'>
         {this.props.children}
       </div>
+      <Toasts />
     </div>
   );
 }

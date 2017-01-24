@@ -1,6 +1,7 @@
 // React
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import { Button, Container, Form, Header, Message, Segment } from 'semantic-ui-react';
 import Joi from 'joi-browser';
 

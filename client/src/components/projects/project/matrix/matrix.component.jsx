@@ -19,30 +19,40 @@ class Matrix extends React.Component {
   }
 
   render = () => {
-    const { service, matrix } = this.props;
+    const { service, matrix, readOnly } = this.props;
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
+
+    const progressOption = options.find(elm => elm.value === matrix.progress);
+    const goalOption = options.find(elm => elm.value === matrix.goal);
     return (
-      <Table.Row>
+      <Table.Row className='matrix-component'>
         <Table.Cell>{service.name}</Table.Cell>
         <Table.Cell>
           <Form>
-            <Form.Dropdown placeholder='Progress' fluid selection name='progress'
-              options={options} value={matrix.progress} onChange={this.handleChange}
-            />
+            {readOnly
+              ? (<div>{progressOption.text}</div>)
+              : (<Form.Dropdown placeholder='Progress' fluid selection name='progress'
+                  options={options} value={matrix.progress} onChange={this.handleChange}
+                />)
+            }
           </Form>
         </Table.Cell>
         <Table.Cell>
           <Form>
-            <Form.Dropdown placeholder='Goal' fluid selection name='goal'
-              options={options} value={matrix.goal} onChange={this.handleChange}
-            />
+            {readOnly
+              ? (<div>{goalOption.text}</div>)
+              : (<Form.Dropdown readOnly={readOnly} placeholder='Goal' fluid selection name='goal'
+                  options={options} value={matrix.goal} onChange={this.handleChange}
+                />)
+            }
           </Form>
         </Table.Cell>
         <Table.Cell>
           <Form>
-            <DebounceInput debounceTimeout={600} element={Form.TextArea} autoHeight
-              placeholder='Add a comment' name='comment' value={matrix.comment} onChange={this.handleChangeComment}
+            <DebounceInput readOnly={readOnly} debounceTimeout={600} element={Form.TextArea} autoHeight
+              placeholder={readOnly ? '' : 'Add a comment'} name='comment' value={matrix.comment}
+              onChange={this.handleChangeComment}
             />
           </Form>
         </Table.Cell>
@@ -55,7 +65,8 @@ Matrix.propTypes = {
   serviceId: React.PropTypes.string,
   matrix: React.PropTypes.object,
   service: React.PropTypes.object,
-  onChange: React.PropTypes.func
+  onChange: React.PropTypes.func,
+  readOnly: React.PropTypes.bool
 };
 
 export default Matrix;

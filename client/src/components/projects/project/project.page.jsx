@@ -22,6 +22,8 @@ import { getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
 
+import { AUTH_CP_ROLE } from '../../../modules/auth/auth.constants';
+
 // Style
 import './project.page.scss';
 
@@ -118,6 +120,7 @@ class ProjectComponent extends React.Component {
     if (isServicesFetching) {
       return <div />;
     }
+    const readOnly = this.isReadonly();
     return Object.entries(services).map(([pckg, servicesList]) => {
       return (
         <Table key={pckg} celled striped compact>
@@ -131,7 +134,7 @@ class ProjectComponent extends React.Component {
           </Table.Header>
           <Table.Body>
             {servicesList.map(service => {
-              return <Matrix serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix}/>;
+              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix}/>;
             })}
           </Table.Body>
         </Table>
@@ -139,12 +142,12 @@ class ProjectComponent extends React.Component {
     });
   }
 
-  renderDropdown = (readOnly, name, label, value, placeholder, width, options, isFetching, errors ) => {
-    if (readOnly) {
+  renderDropdown = (name, label, value, placeholder, width, options, isFetching, errors ) => {
+    if (this.isReadonly()) {
       const option = options.find(elm => elm.value === value);
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
-          type='text' autoComplete='off' placeholder={placeholder} width={width}
+          type='text' autoComplete='off' placeholder={`No ${label}`} width={width}
         />
       );
     }
@@ -155,10 +158,12 @@ class ProjectComponent extends React.Component {
     );
   }
 
+  isReadonly = () => this.props.auth.user.role === AUTH_CP_ROLE
+
   render = () => {
     const { isFetching, serviceCenters, businessUnits, isEntitiesFetching, services, isServicesFetching, users, projectId } = this.props;
     const { project, errors } = this.state;
-    const readOnly = false;
+    const readOnly = this.isReadonly();
     return (
       <Container className='project-page'>
         <Segment loading={isFetching || isServicesFetching} padded>
@@ -179,12 +184,12 @@ class ProjectComponent extends React.Component {
                 <Form.Input readOnly={readOnly} label='Domain' value={project.domain || ''} onChange={this.handleChange}
                     type='text' name='domain' autoComplete='off' placeholder='Project Domain' width='four' error={errors.fields['domain']}
                 />
-                {this.renderDropdown(readOnly, 'projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors)}
+                {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors)}
               </Form.Group>
 
               <Form.Group widths='two'>
-                {this.renderDropdown(readOnly, 'serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', 'eight', serviceCenters, isEntitiesFetching, errors)}
-                {this.renderDropdown(readOnly, 'businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', 'eight', businessUnits, isEntitiesFetching, errors)}
+                {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', 'eight', serviceCenters, isEntitiesFetching, errors)}
+                {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', 'eight', businessUnits, isEntitiesFetching, errors)}
               </Form.Group>
               <Message error list={errors.details}/>
             </Form>
@@ -200,6 +205,7 @@ class ProjectComponent extends React.Component {
 }
 
 ProjectComponent.propTypes = {
+  auth: React.PropTypes.object.isRequired,
   project: React.PropTypes.object,
   isFetching: React.PropTypes.bool,
   businessUnits: React.PropTypes.array,
@@ -227,6 +233,7 @@ const mapStateToProps = (state, ownProps) => {
   const isServicesFetching = state.services.isFetching;
   const users = Object.values(state.users.items);
   return {
+    auth: state.auth,
     project: { ...emptyProject, ...projects.items[paramId] },
     isFetching,
     projectId: paramId,

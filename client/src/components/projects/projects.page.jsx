@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Button, Card, Container, Icon, Input, Label, Segment } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
+import { AUTH_CP_ROLE } from '../../modules/auth/auth.constants';
 
 // API Fetching
 import ProjectsThunks from '../../modules/projects/projects.thunks';
@@ -40,23 +41,23 @@ class Projects extends React.Component {
   }
 
   render = () => {
-    const { projects, filterValue, isFetching, changeFilter } = this.props;
+    const { projects, filterValue, isFetching, changeFilter, auth } = this.props;
     return (
       <Container fluid className='projects-page'>
         <Segment.Group raised>
           <Segment clearing>
-                <Input icon labelPosition='left corner'>
-                  <Label corner='left' icon='search' />
-                  <DebounceInput
-                    placeholder='Search...'
-                    minLength={1}
-                    debounceTimeout={300}
-                    onChange={(event) => changeFilter(event.target.value)}
-                    value={filterValue}
-                  />
-                  <Icon link name='remove' onClick={() => changeFilter('')}/>
-                </Input>
-                <Button as={Link} content='New Project' icon='plus' labelPosition='left' color='green' floated='right' to={'/projects/new'} />
+            <Input icon labelPosition='left corner'>
+              <Label corner='left' icon='search' />
+              <DebounceInput
+                placeholder='Search...'
+                minLength={1}
+                debounceTimeout={300}
+                onChange={(event) => changeFilter(event.target.value)}
+                value={filterValue}
+              />
+              <Icon link name='remove' onClick={() => changeFilter('')}/>
+            </Input>
+            {auth.user.role !== AUTH_CP_ROLE && <Button as={Link} content='New Project' icon='plus' labelPosition='left' color='green' floated='right' to={'/projects/new'} />}
           </Segment>
           <Segment loading={isFetching}>
             {this.renderCards(projects)}
@@ -68,6 +69,7 @@ class Projects extends React.Component {
 }
 
 Projects.propTypes = {
+  auth: React.PropTypes.object.isRequired,
   projects: React.PropTypes.array,
   filterValue: React.PropTypes.string,
   isFetching: React.PropTypes.bool,
@@ -80,7 +82,12 @@ const mapStateToProjectsProps = (state) => {
   const filterValue = state.projects.filterValue;
   const projects = getFilteredProjects(state.projects.items, filterValue);
   const isFetching = state.projects.isFetching;
-  return { filterValue, projects, isFetching };
+  return {
+    filterValue,
+    projects,
+    isFetching,
+    auth: state.auth
+  };
 };
 
 // Function to map dispatch to container props

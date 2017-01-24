@@ -13,84 +13,84 @@ import (
 	"github.com/soprasteria/dad/server/types"
 )
 
-// FunctionnalServices is the controller type
-type FunctionnalServices struct {
+// FunctionalServices is the controller type
+type FunctionalServices struct {
 }
 
-// GetAll functionnal services from database
-func (u *FunctionnalServices) GetAll(c echo.Context) error {
+// GetAll functional services from database
+func (u *FunctionalServices) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
-	functionnalServices, err := database.FunctionnalServices.FindAll()
+	functionalServices, err := database.FunctionalServices.FindAll()
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error while retreiving all functionnal services")
+		return c.String(http.StatusInternalServerError, "Error while retreiving all functional services")
 	}
-	return c.JSON(http.StatusOK, functionnalServices)
+	return c.JSON(http.StatusOK, functionalServices)
 }
 
-// Get functionnal service from database
-func (u *FunctionnalServices) Get(c echo.Context) error {
+// Get functional service from database
+func (u *FunctionalServices) Get(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
-	functionnalService, err := database.FunctionnalServices.FindByID(id)
-	if err != nil || functionnalService.ID.Hex() == "" {
-		return c.String(http.StatusNotFound, fmt.Sprintf("Functionnal service not found %v", id))
+	functionalService, err := database.FunctionalServices.FindByID(id)
+	if err != nil || functionalService.ID.Hex() == "" {
+		return c.String(http.StatusNotFound, fmt.Sprintf("Functional service not found %v", id))
 	}
-	return c.JSON(http.StatusOK, functionnalService)
+	return c.JSON(http.StatusOK, functionalService)
 }
 
-// Delete functionnal service from database
-func (u *FunctionnalServices) Delete(c echo.Context) error {
+// Delete functional service from database
+func (u *FunctionalServices) Delete(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
 
-	res, err := database.FunctionnalServices.Delete(bson.ObjectIdHex(id))
+	res, err := database.FunctionalServices.Delete(bson.ObjectIdHex(id))
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while removing functionnal service: %v", err))
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error while removing functional service: %v", err))
 	}
 
 	return c.JSON(http.StatusOK, res)
 }
 
-// Save creates or update given functionnal service
-func (u *FunctionnalServices) Save(c echo.Context) error {
+// Save creates or update given functional service
+func (u *FunctionalServices) Save(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
 
-	// Get functionnal service from body
-	var functionnalService types.FunctionnalService
+	// Get functional service from body
+	var functionalService types.FunctionalService
 	var err error
 
-	err = c.Bind(&functionnalService)
+	err = c.Bind(&functionalService)
 	if err != nil {
-		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted functionnal service is not valid: %v", err))
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Posted functional service is not valid: %v", err))
 	}
 
-	log.WithField("functionnalService", functionnalService).Info("Received functionnal service to save")
+	log.WithField("functionalService", functionalService).Info("Received functional service to save")
 
-	if functionnalService.Name == "" || functionnalService.Package == "" {
+	if functionalService.Name == "" || functionalService.Package == "" {
 		return c.String(http.StatusBadRequest, "The name and package fields cannot be empty")
 	}
 
-	exists, err := database.FunctionnalServices.Exists(functionnalService.Name, functionnalService.Package)
+	exists, err := database.FunctionalServices.Exists(functionalService.Name, functionalService.Package)
 	if err != nil {
-		return c.String(http.StatusBadRequest, fmt.Sprintf("Error checking while checking if the functionnal service already exists: %v", err))
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Error checking while checking if the functional service already exists: %v", err))
 	}
 	if exists {
-		return c.String(http.StatusConflict, fmt.Sprintf("Received functionnal service already exists"))
+		return c.String(http.StatusConflict, fmt.Sprintf("Received functional service already exists"))
 	}
 
 	if id != "" {
-		// Functionnal service will be updated
-		functionnalService.ID = bson.ObjectIdHex(id)
+		// Functional service will be updated
+		functionalService.ID = bson.ObjectIdHex(id)
 	} else {
-		// Functionnal service will be created
-		functionnalService.ID = ""
+		// Functional service will be created
+		functionalService.ID = ""
 	}
 
-	functionnalServiceSaved, err := database.FunctionnalServices.Save(functionnalService)
+	functionalServiceSaved, err := database.FunctionalServices.Save(functionalService)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save functionnal service to database: %v", err))
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Failed to save functional service to database: %v", err))
 	}
 
-	return c.JSON(http.StatusOK, functionnalServiceSaved)
+	return c.JSON(http.StatusOK, functionalServiceSaved)
 }

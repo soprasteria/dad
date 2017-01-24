@@ -7,62 +7,62 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// FunctionnalService represents the service
-type FunctionnalService struct {
+// FunctionalService represents the service
+type FunctionalService struct {
 	ID      bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
 	Name    string        `bson:"name" json:"name"`
 	Package string        `bson:"package" json:"package"`
 }
 
-// FunctionnalServiceRepo wraps all requests to database for accessing functionnal services
-type FunctionnalServiceRepo struct {
+// FunctionalServiceRepo wraps all requests to database for accessing functional services
+type FunctionalServiceRepo struct {
 	database *mgo.Database
 }
 
-// NewFunctionnalServiceRepo creates a new entites repo from database
-// This FunctionnalServiceRepo is wrapping all requests with database
-func NewFunctionnalServiceRepo(database *mgo.Database) FunctionnalServiceRepo {
-	return FunctionnalServiceRepo{database: database}
+// NewFunctionalServiceRepo creates a new entites repo from database
+// This FunctionalServiceRepo is wrapping all requests with database
+func NewFunctionalServiceRepo(database *mgo.Database) FunctionalServiceRepo {
+	return FunctionalServiceRepo{database: database}
 }
 
-func (r *FunctionnalServiceRepo) col() *mgo.Collection {
-	return r.database.C("functionnalServices")
+func (r *FunctionalServiceRepo) col() *mgo.Collection {
+	return r.database.C("functionalServices")
 }
 
-func (r *FunctionnalServiceRepo) isInitialized() bool {
+func (r *FunctionalServiceRepo) isInitialized() bool {
 	return r.database != nil
 }
 
-// FindByID get the functionnal service by its id (string version)
-func (r *FunctionnalServiceRepo) FindByID(id string) (FunctionnalService, error) {
+// FindByID get the functional service by its id (string version)
+func (r *FunctionalServiceRepo) FindByID(id string) (FunctionalService, error) {
 	return r.FindByIDBson(bson.ObjectIdHex(id))
 }
 
-// FindByIDBson get the functionnal service by its id (as a bson object)
-func (r *FunctionnalServiceRepo) FindByIDBson(id bson.ObjectId) (FunctionnalService, error) {
+// FindByIDBson get the functional service by its id (as a bson object)
+func (r *FunctionalServiceRepo) FindByIDBson(id bson.ObjectId) (FunctionalService, error) {
 	if !r.isInitialized() {
-		return FunctionnalService{}, ErrDatabaseNotInitialiazed
+		return FunctionalService{}, ErrDatabaseNotInitialiazed
 	}
-	result := FunctionnalService{}
+	result := FunctionalService{}
 	err := r.col().FindId(id).One(&result)
 	return result, err
 }
 
-// FindAll get all functionnal services from the database
-func (r *FunctionnalServiceRepo) FindAll() ([]FunctionnalService, error) {
+// FindAll get all functional services from the database
+func (r *FunctionalServiceRepo) FindAll() ([]FunctionalService, error) {
 	if !r.isInitialized() {
-		return []FunctionnalService{}, ErrDatabaseNotInitialiazed
+		return []FunctionalService{}, ErrDatabaseNotInitialiazed
 	}
-	functionnalServices := []FunctionnalService{}
-	err := r.col().Find(bson.M{}).All(&functionnalServices)
+	functionalServices := []FunctionalService{}
+	err := r.col().Find(bson.M{}).All(&functionalServices)
 	if err != nil {
-		return []FunctionnalService{}, errors.New("Can't retrieve all functionnal services")
+		return []FunctionalService{}, errors.New("Can't retrieve all functional services")
 	}
-	return functionnalServices, nil
+	return functionalServices, nil
 }
 
-// Exists checks if a functionnal service (name and package) already exists
-func (r *FunctionnalServiceRepo) Exists(name, pkg string) (bool, error) {
+// Exists checks if a functional service (name and package) already exists
+func (r *FunctionalServiceRepo) Exists(name, pkg string) (bool, error) {
 	nb, err := r.col().Find(bson.M{
 		"name":    name,
 		"package": pkg,
@@ -74,21 +74,21 @@ func (r *FunctionnalServiceRepo) Exists(name, pkg string) (bool, error) {
 	return nb != 0, nil
 }
 
-// Save updates or create the functionnal service in database
-func (r *FunctionnalServiceRepo) Save(functionnalService FunctionnalService) (FunctionnalService, error) {
+// Save updates or create the functional service in database
+func (r *FunctionalServiceRepo) Save(functionalService FunctionalService) (FunctionalService, error) {
 	if !r.isInitialized() {
-		return FunctionnalService{}, ErrDatabaseNotInitialiazed
+		return FunctionalService{}, ErrDatabaseNotInitialiazed
 	}
 
-	if functionnalService.ID.Hex() == "" {
-		functionnalService.ID = bson.NewObjectId()
+	if functionalService.ID.Hex() == "" {
+		functionalService.ID = bson.NewObjectId()
 	}
 
-	_, err := r.col().UpsertId(functionnalService.ID, bson.M{"$set": functionnalService})
-	return functionnalService, err
+	_, err := r.col().UpsertId(functionalService.ID, bson.M{"$set": functionalService})
+	return functionalService, err
 }
 
-// Delete the functionnal service
-func (r *FunctionnalServiceRepo) Delete(id bson.ObjectId) (bson.ObjectId, error) {
+// Delete the functional service
+func (r *FunctionalServiceRepo) Delete(id bson.ObjectId) (bson.ObjectId, error) {
 	return BasicDelete(r, id)
 }

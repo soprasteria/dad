@@ -192,7 +192,7 @@ func (r *ProjectRepo) FindByProjectManager(id bson.ObjectId) ([]Project, error) 
 	return projects, nil
 }
 
-// Save updates or create the functionnal service in database
+// Save updates or create the functional service in database
 func (r *ProjectRepo) Save(project Project) (Project, error) {
 	if !r.isInitialized() {
 		return Project{}, ErrDatabaseNotInitialiazed

@@ -4,7 +4,7 @@ set -u
 
 DAD_JWT_TOKEN="$1"
 DAD_URL=${2:-'http://localhost:8080'}
-FILE=${3:-functionnal-services.csv}
+FILE=${3:-functional-services.csv}
 
 (
     IFS=$';\n'

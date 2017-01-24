@@ -20,7 +20,7 @@ import (
 type Projects struct {
 }
 
-// GetAll functionnal services from database
+// GetAll functional services from database
 func (u *Projects) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 

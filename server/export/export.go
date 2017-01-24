@@ -17,7 +17,7 @@ type Export struct {
 }
 
 func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
-	services, err := e.Database.FunctionnalServices.FindAll()
+	services, err := e.Database.FunctionalServices.FindAll()
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	createCell(serviceMaturityRow, "Project Manager")
 
 	// Build a map of services indexed by their package name
-	servicesMap := make(map[string][]types.FunctionnalService)
+	servicesMap := make(map[string][]types.FunctionalService)
 	for _, service := range services {
 		servicesMap[service.Package] = append(servicesMap[service.Package], service)
 	}
@@ -57,7 +57,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	}
 	sort.Strings(servicesMapSortedKeys)
 
-	// Header generation: package and associated functionnal services
+	// Header generation: package and associated functional services
 	for _, pkg := range servicesMapSortedKeys {
 		services := servicesMap[pkg]
 

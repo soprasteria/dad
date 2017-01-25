@@ -38,10 +38,10 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 
 	createMergedCell(serviceNameRow, "", 5)
 
-	createCell(serviceMaturityRow, "Domain")
 	createCell(serviceMaturityRow, "Project")
 	createCell(serviceMaturityRow, "Business Unit")
 	createCell(serviceMaturityRow, "Service Center")
+	createCell(serviceMaturityRow, "Domain")
 	createCell(serviceMaturityRow, "Project Manager")
 
 	// Build a map of services indexed by their package name
@@ -92,10 +92,14 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 			projectManager = types.User{DisplayName: "N/A"}
 		}
 
-		createCell(projectRow, project.Domain)
+		if project.Domain == "" {
+			project.Domain = "N/A"
+		}
+
 		createCell(projectRow, project.Name)
 		createCell(projectRow, businessUnit.Name)
 		createCell(projectRow, serviceCenter.Name)
+		createCell(projectRow, project.Domain)
 		createCell(projectRow, projectManager.DisplayName)
 
 		// Iterate on each service in the correct order

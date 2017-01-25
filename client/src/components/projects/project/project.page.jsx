@@ -248,8 +248,7 @@ class ProjectComponent extends React.Component {
           </Box>
           <Divider hidden/>
           {this.renderServices(project, services, fetching)}
-          <Divider hidden/>
-          <Button fluid color='green' onClick={this.handleSubmit}>Save</Button>
+          {!readOnly && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>
       </Container>
     );

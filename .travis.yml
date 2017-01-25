@@ -30,6 +30,8 @@ script:
 - npm test
 
 before_deploy:
+  - git config --global user.email "github@travis-ci.org"
+  - git config --global user.name "Travis CI"
   - npm version ${TRAVIS_TAG}
   - npm run archive
 

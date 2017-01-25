@@ -28,12 +28,16 @@ script:
 - travis_wait 60 npm run golint
 - go test ./cmd/... ./server/...
 - npm test
-- npm run archive
+
+before_deploy:
+  - npm version ${TRAVIS_TAG}
+  - npm run archive
 
 deploy:
   provider: releases
   api_key:
     secure: kkZfioE7nqnygyL70RrUdW8Aq/Qmwnr4rJLYjRrkW++kBVfr8cvAuIgIQubRntvVpUhWOh/l7f0M64+c2547op8qu9UnQMOZv1vRmYC/otKq/m1tjw8J8bpHTQqF1RVpXpgXL/oqy/X0Ht/nhv0TevG4o6rHMDE9qvi1QU98JihhYYCdjW+lFrM5McZM2upCBboE/+so0lmkJu/dtTwpDYBdINIG84v9AwSGqZLD1qEuoE6zx7vmvrbvjUVcuQhLBY2/JQSPgiR1uLDTasdctfXmc2bEKXlEUarwXwkXsooQ04w+Vbddq3EXrwE7c+KLwCnMBuuwtpl1JnFqNfIgvG1TmQKmnCvC/Md5SrYroBy6UBd01kF/0/34L0PHHG6EPZFXE+aYY8J8kYrWxJaVk9T/PINMND5sRkHQpliesMf6C4gcQCQPUeIF2FhQJZ8uEUljWJCE9NXaE6JlYnOPhWP9L1dSMFUT6PxSSGekoGC1qjqpnNzE/VoIZk9T0KCkOWUAAYL1KtdFOs3N8IUBG0/pcy695UJvbDu42rwmREzeJRvAzD9cBHZSOqjrWB6F2dhEYrXGbkx70OBqJl+DsQNfcx+njafc1p25Wb8kZOatRyQikdgxAwdCARwWclzZM3N3m0nlpSTEZhMuADischkwBao7FysXT7w2Y8I+kEU=
   file: dist/dad-${TRAVIS_TAG}.zip
+  skip_cleanup: true
   on:
     tags: true

@@ -134,7 +134,7 @@ gulp.task('dist:images', function() {
 
 gulp.task('dist:webpack', function(callback) {
   webpack(prodConfigWebpack, function(err) {
-    if(err) {throw new gutil.PluginError('webpack', err);}
+    if(err) {throw new util.PluginError('webpack', err);}
     callback();
   });
 });

@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
-import { Button, Container, Divider, Form, Header, Icon, Message, Table, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Header, Icon, Label, Message, Table, Segment } from 'semantic-ui-react';
 
 import Joi from 'joi-browser';
 
@@ -15,6 +15,8 @@ import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
 import UsersThunks from '../../../modules/users/users.thunks';
+import ProjectsActions from '../../../modules/projects/projects.actions';
+import ModalActions from '../../../modules/modal/modal.actions';
 
 import { getEntitiesAsOptions, getByType } from '../../../modules/entities/entities.selectors';
 import { groupByPackage } from '../../../modules/services/services.selectors';
@@ -42,16 +44,24 @@ class ProjectComponent extends React.Component {
 
   componentWillMount = () => {
     const matrix = {};
-    const project = this.props.project || { matrix: [] };
+    const project = this.props.project;
     project.matrix.forEach((m) => matrix[m.service] = m);
     this.setState({ project: { ...project }, errors: { details: [], fields:{} }, matrix });
   }
 
   componentWillReceiveProps = (nextProps) => {
-    const matrix = {};
-    const project = nextProps.project || { matrix: [] };
-    project.matrix.forEach((m) => matrix[m.service] = m);
-    this.setState({ project: { ...project }, errors: { details: [], fields:{} }, matrix });
+    const project = nextProps.project;
+    if(!project.isEditing) {
+      const matrix = {};
+      project.matrix.forEach((m) => matrix[m.service] = m);
+      this.setState({ project: { ...project }, errors: { details: [], fields:{} }, matrix });
+    } else {
+      this.setState({ project: { ...this.state.project, urls: [...project.urls] } });
+    }
+  }
+
+  componentWillUpdate = (nextProps, nextState) => {
+    console.log(nextState);
   }
 
   componentDidMount = () => {
@@ -116,9 +126,9 @@ class ProjectComponent extends React.Component {
     }
   }
 
-  renderServices = (project, services, isServicesFetching) => {
-    if (isServicesFetching) {
-      return <div />;
+  renderServices = (project, services, isFetching) => {
+    if (isFetching) {
+      return <p>Fetching Matrix...</p>;
     }
     const readOnly = this.isReadonly();
     return Object.entries(services).map(([pckg, servicesList]) => {
@@ -161,20 +171,62 @@ class ProjectComponent extends React.Component {
   isReadonly = () => this.props.auth.user.role === AUTH_CP_ROLE
 
   render = () => {
-    const { isFetching, serviceCenters, businessUnits, isEntitiesFetching, services, isServicesFetching, users, projectId } = this.props;
+    const {
+      isFetching, serviceCenters, businessUnits,
+      isEntitiesFetching, services, isServicesFetching,
+      users, projectId, onCreateUrl, onEditUrl, onRemoveUrl
+    } = this.props;
     const { project, errors } = this.state;
+    const fetching = isFetching || isServicesFetching;
     const readOnly = this.isReadonly();
+    const createUrl = (e) => {
+      e.preventDefault();
+      onCreateUrl(projectId);
+    };
+    const editUrl = (index, url) => e => {
+      e.preventDefault();
+      onEditUrl(projectId, index, url);
+    };
+    const removeUrl = (index) => e => {
+      e.preventDefault();
+      onRemoveUrl(projectId, index);
+    };
     return (
       <Container className='project-page'>
-        <Segment loading={isFetching || isServicesFetching} padded>
+        <Segment loading={fetching} padded>
           <Header as='h1'>
             <Link to={'/projects'}>
               <Icon name='arrow left' fitted/>
             </Link>
             {projectId ? project.name : 'New Project'}
-            {project.url && <Button as='a' href={project.url} content='URL' icon='linkify' labelPosition='left' color='blue' floated='right' />}
           </Header>
           <Divider hidden/>
+          <Form>
+            <Form.Group>
+              <Form.Field width='two'>
+                <Label size='large' className='form-label' content='URLs' />
+              </Form.Field>
+              <Form.Field width='fourteen'>
+                <Label.Group>
+                  {project.urls && project.urls.map((url, index) => {
+                    return (
+                      <Label as='a' href={url.link} color='blue' key={index} image>
+                        <Icon name='linkify' />
+                        {url.name}
+                        {!readOnly &&
+                          <Label.Detail>
+                            <Icon link fitted name='edit' title='Edit URL' onClick={editUrl(index, url)}/>
+                            <Icon link fitted name='delete' title='Remove URL'  onClick={removeUrl(index)}/>
+                          </Label.Detail>
+                        }
+                      </Label>
+                    );
+                  })}
+                  {!readOnly && <Label as='a' color='green' onClick={createUrl}><Icon name='plus' />Add URL</Label>}
+                </Label.Group>
+              </Form.Field>
+            </Form.Group>
+          </Form>
           <Box icon='settings' title='Details' stacked={Boolean(projectId)}>
             <Form error={Boolean(errors.details.length)}>
               <Form.Group>
@@ -195,7 +247,7 @@ class ProjectComponent extends React.Component {
             </Form>
           </Box>
           <Divider hidden/>
-          {this.renderServices(project, services, isServicesFetching)}
+          {this.renderServices(project, services, fetching)}
           <Divider hidden/>
           <Button fluid color='green' onClick={this.handleSubmit}>Save</Button>
         </Segment>
@@ -219,6 +271,9 @@ ProjectComponent.propTypes = {
   fetchEntities: React.PropTypes.func.isRequired,
   fetchServices: React.PropTypes.func.isRequired,
   fetchUsers: React.PropTypes.func.isRequired,
+  onCreateUrl: React.PropTypes.func.isRequired,
+  onEditUrl: React.PropTypes.func.isRequired,
+  onRemoveUrl: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired
 };
 
@@ -226,15 +281,17 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
-  const emptyProject = { matrix: [] };
+  const emptyProject = { matrix: [], urls: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
   const entities = Object.values(state.entities.items);
   const services = groupByPackage(state.services.items);
   const isServicesFetching = state.services.isFetching;
   const users = Object.values(state.users.items);
+  const selectedProject = { ...emptyProject, ...projects.items[paramId] };
+  selectedProject.urls = selectedProject.urls || [];
   return {
     auth: state.auth,
-    project: { ...emptyProject, ...projects.items[paramId] },
+    project: selectedProject,
     isFetching,
     projectId: paramId,
     businessUnits: getEntitiesAsOptions(getByType(entities, 'businessUnit')),
@@ -251,7 +308,16 @@ const mapDispatchToProps = dispatch => ({
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
-  onSave: project => dispatch(ProjectsThunks.save(project, push('/projects')))
+  onCreateUrl: (id) => {
+    const cb = (url) => dispatch(ProjectsActions.addUrl(id, url));
+    dispatch(ModalActions.openNewUrlModal(cb));
+  },
+  onEditUrl: (id, index, url) => {
+    const cb = (url) => dispatch(ProjectsActions.editUrl(id, index, url));
+    dispatch(ModalActions.openEditUrlModal(url, cb));
+  },
+  onRemoveUrl: (id, index) => dispatch(ProjectsActions.removeUrl(id, index)),
+  onSave: project => dispatch(ProjectsThunks.save(project, push('/projects'))),
 });
 
 const ProjectPage = connect(

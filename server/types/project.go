@@ -31,6 +31,15 @@ type MatrixLine struct {
 // Matrix represent a slice of matrix lines
 type Matrix []MatrixLine
 
+// URL represents a link to another application
+type URL struct {
+	Name string `bson:"name" json:"name"`
+	Link string `bson:"link" json:"link"`
+}
+
+// URLs represent a slice of URLs
+type URLs []URL
+
 // Project represents a Sopra Steria project
 type Project struct {
 	ID             bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
@@ -39,7 +48,7 @@ type Project struct {
 	ProjectManager string        `bson:"projectManager" json:"projectManager"`
 	BusinessUnit   string        `bson:"businessUnit" json:"businessUnit"`
 	ServiceCenter  string        `bson:"serviceCenter" json:"serviceCenter"`
-	URL            string        `bson:"url" json:"url"`
+	URLs           URLs          `bson:"urls" json:"urls"`
 	Matrix         Matrix        `bson:"matrix" json:"matrix"`
 	Description    string        `bson:"description" json:"description"`
 	Created        time.Time     `bson:"created" json:"created"`

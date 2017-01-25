@@ -11,7 +11,38 @@ const changeFilter = (filterValue) => {
   };
 };
 
+// Add URL
+const addUrl = (id, url) => {
+  return {
+    type: ProjectsConstants.ADD_URL,
+    id,
+    url
+  };
+};
+
+// Edit URL
+const editUrl = (id, index, url) => {
+  return {
+    type: ProjectsConstants.EDIT_URL,
+    id,
+    index,
+    url
+  };
+};
+
+// Edit URL
+const removeUrl = (id, index) => {
+  return {
+    type: ProjectsConstants.REMOVE_URL,
+    id,
+    index
+  };
+};
+
 export default {
   ...generateEntitiesActions('projects'),
-  changeFilter
+  changeFilter,
+  addUrl,
+  editUrl,
+  removeUrl
 };

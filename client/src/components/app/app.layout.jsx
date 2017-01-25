@@ -4,6 +4,7 @@ import React from 'react';
 // Components
 import NavBar from './navBar.component';
 import Toasts from '../common/toasts.component';
+import Modal from '../common/modal.component';
 
 
 // Style
@@ -20,6 +21,7 @@ class App extends React.Component {
         {this.props.children}
       </div>
       <Toasts />
+      <Modal />
     </div>
   );
 }

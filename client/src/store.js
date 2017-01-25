@@ -11,6 +11,7 @@ import users from './modules/users/users.reducer';
 import entities from './modules/entities/entities.reducer';
 import services from './modules/services/services.reducer';
 import toasts from './modules/toasts/toasts.reducer';
+import modal from './modules/modal/modal.reducer';
 import exportReducer from './modules/export/export.reducer';
 
 // Thunks
@@ -35,6 +36,7 @@ const store = createStore(
       entities,
       services,
       toasts,
+      modal,
       export: exportReducer,
       routing: routerReducer,
     }

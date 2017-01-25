@@ -44,7 +44,6 @@ func init() {
 	serveCmd.Flags().StringP("jwt-secret", "j", "dev-dad-secret", "Secret key used for JWT token authentication. Change it in your instance")
 	serveCmd.Flags().StringP("reset-pwd-secret", "", "dev-dad-reset-pwd-to-change", "Secret key used when resetting the password. Change it in your instance")
 	serveCmd.Flags().StringP("bcrypt-pepper", "p", "dev-dad-bcrypt", "Pepper used in password generation. Change it in your instance")
-	serveCmd.Flags().StringP("env", "e", "prod", "dev or prod")
 	serveCmd.Flags().BoolP("ldap-enable", "", true, "Enable LDAP")
 	serveCmd.Flags().String("ldap-address", "", "LDAP full address like : ldap.server:389. Optional")
 	serveCmd.Flags().String("ldap-baseDN", "", "BaseDN. Optional")
@@ -87,7 +86,6 @@ func init() {
 	_ = viper.BindPFlag("smtp.password", serveCmd.Flags().Lookup("smtp-password"))
 	_ = viper.BindPFlag("smtp.sender", serveCmd.Flags().Lookup("smtp-sender"))
 	_ = viper.BindPFlag("smtp.identity", serveCmd.Flags().Lookup("smtp-identity"))
-	_ = viper.BindPFlag("env", serveCmd.Flags().Lookup("env"))
 	RootCmd.AddCommand(serveCmd)
 
 }

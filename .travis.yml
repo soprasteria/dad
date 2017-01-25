@@ -43,3 +43,6 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+
+after_deploy:
+- "curl -H 'Content-Type: application/json' --data \"{'source_type': 'Tag', 'source_name': '${TRAVIS_TAG}'}\" -X POST https://registry.hub.docker.com/u/soprasteria/dad/trigger/${DOCKER_HUB_TOKEN}/"

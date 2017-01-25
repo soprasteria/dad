@@ -147,6 +147,10 @@ gulp.task('dist:client', function(callback) {
   runSequence('dist:fonts', 'dist:images', 'dist:webpack', 'dist:html', 'dist:copy', callback);
 });
 
+gulp.task('dist:binary', function() {
+  return gulp.src(distPath.binary).pipe(gulp.dest(distPath.dist));
+});
+
 gulp.task('dist:server', function(callback) {
   return git.long(function (gitHash) {
     const flags = `
@@ -164,8 +168,6 @@ gulp.task('dist:server', function(callback) {
         message: lines
       });
     } else {
-      gulp.src(distPath.binary)
-        .pipe(gulp.dest(distPath.dist));
       callback();
     }
   });
@@ -191,6 +193,7 @@ gulp.task('dist', function(callback) {
     'clean',
     'dist:client',
     'dist:server',
+    'dist:binary',
     callback
   );
 });

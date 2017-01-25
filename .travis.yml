@@ -6,10 +6,6 @@ go:
 env:
 - GO_VENDOR=1
 
-cache:
-  directories:
-  - node_modules
-
 before_install:
 - nvm --version
 - nvm install 7.2.0

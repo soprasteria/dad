@@ -52,8 +52,7 @@ email = ""
 You can see all the available settings with:
 
 ```sh
-npm run dist
-./dad serve --help
+go run main.go serve --help
 ```
 
 Run DAD in dev mode, with live reload, with the command:
@@ -62,7 +61,7 @@ Run DAD in dev mode, with live reload, with the command:
 gulp
 ```
 
-You can then browse http//localhost:8080/
+You can then browse http://localhost:8080/
 
 ## Production
 
@@ -82,4 +81,4 @@ npm run archive
 
 ## License
 
-See the LICENSE file.
+See the [LICENSE](./LICENSE) file.

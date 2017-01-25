@@ -50,7 +50,6 @@ class NavBarComponent extends React.Component {
                 {isAuthorized(
                   <Dropdown.Item onClick={exportData} disabled={isExportFetching}><Icon name='download' />Export</Dropdown.Item>,
                 )}
-                <Dropdown.Item as={Link} to='/settings'><Icon name='settings' />Settings</Dropdown.Item>
                 <Dropdown.Item onClick={logout} ><Icon name='sign out' />Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Menu.Item>

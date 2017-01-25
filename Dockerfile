@@ -16,7 +16,7 @@ RUN apt-get update && \
     curl -Lo dad.zip "$dad_release" && \
     unzip dad.zip && \
     rm dad.zip && \
-    apt-get remove curl jq unzip
+    apt-get remove -y curl jq unzip
 
 EXPOSE 8080
 CMD ["./dad", "serve"]

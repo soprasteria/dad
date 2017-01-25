@@ -82,20 +82,21 @@ func modifyRowBorder(row *xlsx.Row, color string) {
 
 func modifyCellBorder(cell *xlsx.Cell, left bool, right bool, top bool, bottom bool, color string) {
 	border := xlsx.DefaultBorder()
+	const borderSize = "thin"
 	if left {
-		border.Left = "thin"
+		border.Left = borderSize
 		border.LeftColor = color
 	}
 	if right {
-		border.Right = "thin"
+		border.Right = borderSize
 		border.RightColor = color
 	}
 	if top {
-		border.Top = "thin"
+		border.Top = borderSize
 		border.TopColor = color
 	}
 	if bottom {
-		border.Bottom = "thin"
+		border.Bottom = borderSize
 		border.BottomColor = color
 	}
 	style := cell.GetStyle()

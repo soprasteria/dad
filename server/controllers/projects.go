@@ -98,6 +98,41 @@ func (u *Projects) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func validateEntities(entityRepo types.EntityRepo, project types.Project) (int, string) {
+	if project.BusinessUnit == "" && project.ServiceCenter == "" {
+		return http.StatusBadRequest, "At least one of the business unit and service center fields is mandatory"
+	}
+
+	// If a business unit is provided, check it exists in the entity collection
+	if project.BusinessUnit != "" {
+		entity, err := entityRepo.FindByID(project.BusinessUnit)
+		if err == mgo.ErrNotFound {
+			return http.StatusBadRequest, fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit)
+		} else if err != nil {
+			return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve business unit %s from database: %v", project.BusinessUnit, err)
+		}
+
+		if entity.Type != types.BusinessUnitType {
+			return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an business unit but a %s", entity.Name, project.BusinessUnit, entity.Type)
+		}
+	}
+
+	// If a service center is provided, check it exists in the entity collection
+	if project.ServiceCenter != "" {
+		entity, err := entityRepo.FindByID(project.ServiceCenter)
+		if err == mgo.ErrNotFound {
+			return http.StatusBadRequest, fmt.Sprintf("The service center %s does not exist", project.ServiceCenter)
+		} else if err != nil {
+			return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve service center %s from database: %v", project.ServiceCenter, err)
+		}
+
+		if entity.Type != types.ServiceCenterType {
+			return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an service center but a %s", entity.Name, project.ServiceCenter, entity.Type)
+		}
+	}
+	return http.StatusOK, ""
+}
+
 // Save creates or update given project
 func (u *Projects) Save(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
@@ -136,36 +171,9 @@ func (u *Projects) Save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, types.NewErr("The name and domain fields cannot be empty"))
 	}
 
-	if project.BusinessUnit == "" && project.ServiceCenter == "" {
-		return c.JSON(http.StatusBadRequest, types.NewErr("At least one of the business unit and service center fields is mandatory"))
-	}
-
-	// If an business unit is provided, check it exists in the entity collection
-	if project.BusinessUnit != "" {
-		entity, err := database.Entities.FindByID(project.BusinessUnit)
-		if err == mgo.ErrNotFound {
-			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit)))
-		} else if err != nil {
-			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to retrieve business unit %s from database: %v", project.BusinessUnit, err)))
-		}
-
-		if entity.Type != types.BusinessUnitType {
-			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The entity %s (%s) is not an business unit but a %s", entity.Name, project.BusinessUnit, entity.Type)))
-		}
-	}
-
-	// If a service center is provided, check it exists in the entity collection
-	if project.ServiceCenter != "" {
-		entity, err := database.Entities.FindByID(project.ServiceCenter)
-		if err == mgo.ErrNotFound {
-			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The service center %s does not exist", project.ServiceCenter)))
-		} else if err != nil {
-			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to retrieve service center %s from database: %v", project.ServiceCenter, err)))
-		}
-
-		if entity.Type != types.ServiceCenterType {
-			return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("The entity %s (%s) is not an service center but a %s", entity.Name, project.ServiceCenter, entity.Type)))
-		}
+	httpStatusCode, errorMessage := validateEntities(database.Entities, project)
+	if errorMessage != "" {
+		return c.JSON(httpStatusCode, types.NewErr(errorMessage))
 	}
 
 	// Fill ID, Created and Updated fields

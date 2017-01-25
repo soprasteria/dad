@@ -10,4 +10,17 @@
       display:inline-block;
     }
   }
+
+  .ui.image.label {
+    i {
+      margin: 0;
+      opacity: 1 !important;
+      cursor: default;
+      transition: none;
+      &:hover {
+        cursor: default !important;
+        color: white !important;
+      }
+    }
+  }
 }

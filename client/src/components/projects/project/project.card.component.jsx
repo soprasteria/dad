@@ -11,15 +11,23 @@ class ProjectCard extends React.Component {
 
   render = () => {
     const { project } = this.props;
+    project.matrix = project.matrix || [];
+    const goals = project.matrix.map(m => [m.progress, m.goal])
+      .reduce((acc, [progress, goal]) => {
+        if (goal === -1) {return 0;}
+        return progress >= goal ? acc + 1 : acc;
+      }, 0);
     return (
       <Card className='project-card' raised>
         <Card.Content>
           <Card.Header as='h4'title={project.name} className='ui left floated link'>
             <Link to={`/projects/${project.id}`}><Icon fitted name='travel' />{project.name.toUpperCase()}</Link>
           </Card.Header>
-          <Label as='a' href={project.url} color='blue' className='ui right floated'>
-            <Icon name='linkify' />
-            URL
+          <Label color='blue' image title={`${goals} goal(s) reached`} className='ui right floated'>
+            <Icon fitted name='star' />
+            <Label.Detail>
+              {`${goals}/${project.matrix.length}`}
+            </Label.Detail>
           </Label>
         </Card.Content>
         <Card.Content extra >

@@ -1,6 +1,6 @@
 {
   "name": "dad",
-  "version": "0.0.1",
+  "version": "",
   "description": "Manage maturity of deployment ",
   "scripts": {
     "archive": "gulp archive",

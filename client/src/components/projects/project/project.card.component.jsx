@@ -24,7 +24,7 @@ class ProjectCard extends React.Component {
         </Card.Content>
         <Card.Content extra >
           <div className='domain' >
-            {project.domain}
+            {project.domain || 'No Domain'}
           </div>
         </Card.Content>
       </Card>

@@ -34,7 +34,7 @@ class ProjectComponent extends React.Component {
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
-    domain: Joi.string().trim().required().label('Domain'),
+    domain: Joi.string().trim().empty('').label('Domain'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
     serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
     businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit')

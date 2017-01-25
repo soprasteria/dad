@@ -167,8 +167,8 @@ func (u *Projects) Save(c echo.Context) error {
 
 	log.WithField("project", project).Info("Received project to save")
 
-	if project.Name == "" || project.Domain == "" {
-		return c.JSON(http.StatusBadRequest, types.NewErr("The name and domain fields cannot be empty"))
+	if project.Name == "" {
+		return c.JSON(http.StatusBadRequest, types.NewErr("The name field cannot be empty"))
 	}
 
 	httpStatusCode, errorMessage := validateEntities(database.Entities, project)

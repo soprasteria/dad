@@ -10,7 +10,6 @@ entities=$(curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" "$DAD_URL/api/entities
 (
     IFS=$';\n'
     while read -r name domain serviceCenter businessUnit description; do
-        domain=${domain:-Unknown}
         serviceCenterID=$(echo "$entities" | jq -M -r ".[] | select(.name==\"$serviceCenter\") | .id")
         businessUnitID=$(echo "$entities" | jq -M -r ".[] | select(.name==\"$businessUnit\") | .id")
 

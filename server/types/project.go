@@ -167,11 +167,17 @@ func (r *ProjectRepo) FindByEntities(ids []bson.ObjectId) ([]Project, error) {
 	if !r.isInitialized() {
 		return []Project{}, ErrDatabaseNotInitialiazed
 	}
+
+	idsString := []string{}
+	for _, id := range ids {
+		idsString = append(idsString, id.Hex())
+	}
+
 	projects := []Project{}
 	err := r.col().Find(bson.M{
 		"$or": []bson.M{
-			{"businessUnit": bson.M{"$in": ids}},
-			{"serviceCenter": bson.M{"$in": ids}},
+			{"businessUnit": bson.M{"$in": idsString}},
+			{"serviceCenter": bson.M{"$in": idsString}},
 		},
 	}).All(&projects)
 	if err != nil {

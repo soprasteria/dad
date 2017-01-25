@@ -5,7 +5,6 @@
     "vet",
     "vetshadow",
     "deadcode",
-    "gocyclo",
     "gofmt",
     "golint",
     "errcheck",

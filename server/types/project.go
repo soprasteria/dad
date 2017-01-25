@@ -146,7 +146,8 @@ func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
 			return nil, err
 		}
 
-		projectsByPM, err := r.FindByProjectManager(user.ID)
+		var projectsByPM []Project
+		projectsByPM, err = r.FindByProjectManager(user.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +186,7 @@ func (r *ProjectRepo) FindByProjectManager(id bson.ObjectId) ([]Project, error) 
 		return []Project{}, ErrDatabaseNotInitialiazed
 	}
 	projects := []Project{}
-	err := r.col().Find(bson.M{"projectManager": id}).All(&projects)
+	err := r.col().Find(bson.M{"projectManager": id.Hex()}).All(&projects)
 	if err != nil {
 		return []Project{}, fmt.Errorf("Can't retrieve projects for project manager %s", id)
 	}

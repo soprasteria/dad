@@ -33,6 +33,7 @@ class NavBarComponent extends React.Component {
   render = () => {
     const { logout, exportData, isExportFetching } = this.props;
     const isAuthorized = this.isAuthorized;
+    const userId = this.props.auth.user.id;
     return (
       <Menu inverted className='navbar'>
         <Menu.Item  as={IndexLink} to='/' header color='blue' active>
@@ -50,6 +51,7 @@ class NavBarComponent extends React.Component {
                 {isAuthorized(
                   <Dropdown.Item onClick={exportData} disabled={isExportFetching}><Icon name='download' />Export</Dropdown.Item>,
                 )}
+                <Dropdown.Item as={Link} to={`/users/${userId}`} ><Icon name='settings' />Profile</Dropdown.Item>
                 <Dropdown.Item onClick={logout} ><Icon name='sign out' />Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Menu.Item>

@@ -25,6 +25,8 @@ const initModal = (action) => {
   res.title = action.title;
   res.form = action.form;
   res.callback = action.callback;
+  res.basic = action.basic || false;
+  res.message = action.message || '';
   return res;
 };
 

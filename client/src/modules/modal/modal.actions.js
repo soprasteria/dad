@@ -38,8 +38,21 @@ const openEditUrlModal = (url, callback) => {
   };
 };
 
+const openRemoveProjectModal = (project, callback) => {
+  let form = { lines: [], hidden: [] };
+  return {
+    type: ModalConstants.OPEN_MODAL,
+    title: `${project.name} - Removing project`,
+    basic: true,
+    message: 'This project will be removed for all users. Are you sure to delete it ?',
+    form,
+    callback
+  };
+};
+
 export default {
   closeModal,
   openNewUrlModal,
   openEditUrlModal,
+  openRemoveProjectModal
 };

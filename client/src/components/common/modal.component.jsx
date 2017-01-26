@@ -115,10 +115,11 @@ class ModalComponent extends React.Component {
     const { modal, onClose } = this.props;
     const { fields, details } = this.state.errors;
     return (
-        <Modal size='small' open={modal.isVisible} onClose={onClose} className='dad-modal'>
-          <Icon name='close' onClick={onClose} />
+        <Modal basic={modal.basic} dimmer={modal.basic ? 'default' : 'blurring'} size='small' open={modal.isVisible} onClose={onClose} className='dad-modal'>
+          {!modal.basic && <Icon name='close' onClick={onClose} />}
           <Header content={modal.title} />
           <Modal.Content>
+            {modal.message ? <p>{modal.message}</p> : ''}
             <Form error={Boolean(details.length)}>
               {modal.form.lines.map((line, index) => (
                 <Form.Group key={index} className={line.class}>
@@ -129,8 +130,8 @@ class ModalComponent extends React.Component {
             </Form>
           </Modal.Content>
           <Modal.Actions>
-            <Button content='Cancel' color='black' onClick={onClose} />
-            <Button content='Validate' icon='checkmark' labelPosition='right' color='green' onClick={this.validate} />
+            <Button content='Cancel' color='black' onClick={onClose} inverted={modal.basic}/>
+            <Button content='Validate' icon='checkmark' labelPosition='right' color='green' onClick={this.validate} inverted={modal.basic}/>
           </Modal.Actions>
         </Modal>
     );

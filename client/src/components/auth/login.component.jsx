@@ -9,6 +9,8 @@ import { parseError } from '../../modules/utils/forms';
 
 import AuthThunks from '../../modules/auth/auth.thunk';
 
+import './login.component.scss';
+
 // Signin Pane containing fields to log in the application
 class LoginComponent extends React.Component {
 

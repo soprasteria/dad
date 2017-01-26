@@ -14,11 +14,11 @@ export const getByType = (entities, type) => {
   return entities.filter(entity => entity.type == type);
 };
 
-export const getEntitiesAsOptions = (entities) => {
+export const getEntitiesAsOptions = ({ entities, withType }) => {
   return [{ value: '', text:'None' }].concat(entities.map(entity => {
     let type = entity.type;
     type = type.charAt(0).toUpperCase() + type.substring(1);
-
-    return { value: entity.id, text: `${type}: ${entity.name}` } ;
+    const value = withType ? `${type}: ${entity.name}` : entity.name;
+    return { value: entity.id, text: value } ;
   }));
 };

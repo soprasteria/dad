@@ -159,7 +159,7 @@ const mapStateToProps = (state, ownProps) => {
     user: users.items[user.id] || emptyUser,
     isFetching,
     userId: paramId,
-    entities: getEntitiesAsOptions(entities),
+    entities: getEntitiesAsOptions({ entities, withType: true }),
     isEntitiesFetching: state.entities.isFetching
   };
 };

@@ -13,7 +13,7 @@ const openNewUrlModal = (callback) => {
   let form = { lines: [], hidden: [] };
   let line = { class: 'two', fields: [] };
   line.fields.push({ label: 'Name', name: 'name', placeholder: 'URL Name', type: 'text', required: true });
-  line.fields.push({ label: 'Link', name: 'link', placeholder: 'URL Link', type: 'text', required: true });
+  line.fields.push({ label: 'Link', name: 'link', placeholder: 'URL Link', type: 'url', required: true });
   form.lines.push(line);
   return {
     type: ModalConstants.OPEN_MODAL,
@@ -28,7 +28,7 @@ const openEditUrlModal = (url, callback) => {
   let form = { lines: [], hidden: [] };
   let line = { class: 'two', fields: [] };
   line.fields.push({ label: 'Name', name: 'name', placeholder: 'URL Name', type: 'text', required: true, value: url.name });
-  line.fields.push({ label: 'Link', name: 'link', placeholder: 'URL Link', type: 'text', required: true, value: url.link });
+  line.fields.push({ label: 'Link', name: 'link', placeholder: 'URL Link', type: 'url', required: true, value: url.link });
   form.lines.push(line);
   return {
     type: ModalConstants.OPEN_MODAL,

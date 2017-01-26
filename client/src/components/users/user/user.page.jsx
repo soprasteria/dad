@@ -85,7 +85,7 @@ class UserComponent extends React.Component {
             <Link to={'/users'}>
               <Icon name='arrow left' fitted/>
             </Link>
-            {`${user.displayName} (${user.username})`}
+            {`${user.displayName || ''}`} {user.username ? `(${user.username})` : ''}
           </Header>
           <Divider hidden/>
           <Form onSubmit={this.handleSubmit}>

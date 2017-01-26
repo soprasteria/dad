@@ -115,6 +115,17 @@ func (r *ProjectRepo) FindByIDBson(id bson.ObjectId) (Project, error) {
 	return result, err
 }
 
+// FindByName find a project by its name (case insenstive)
+func (r *ProjectRepo) FindByName(name string) (Project, error) {
+	if !r.isInitialized() {
+		return Project{}, ErrDatabaseNotInitialiazed
+	}
+	result := Project{}
+	regex := "^" + name + "$"
+	err := r.col().Find(bson.M{"name": bson.RegEx{Pattern: regex, Options: "i"}}).One(&result)
+	return result, err
+}
+
 // FindAll get all projects from the database
 func (r *ProjectRepo) FindAll() ([]Project, error) {
 	if !r.isInitialized() {

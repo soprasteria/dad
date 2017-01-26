@@ -55,6 +55,7 @@ const createGenericToast = (action) => {
     title: action.title,
     message: action.message,
     level: action.level,
+    autoDismiss: 10,
     position: 'br',
     uid: uuid
   };

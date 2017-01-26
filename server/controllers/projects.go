@@ -201,6 +201,15 @@ func (u *Projects) Save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, types.NewErr("The name field cannot be empty"))
 	}
 
+	// Not possible to create or update a project with a name already used by another one project
+	if existingProject, err := database.Projects.FindByName(projectToSave.Name); err != nil {
+		if err != mgo.ErrNotFound {
+			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Can't check whether the project exist in database: %v", err)))
+		}
+	} else if existingProject.ID != projectToSave.ID {
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Another project already exists with the same name %q", existingProject.Name)))
+	}
+
 	httpStatusCode, errorMessage := validateEntities(database.Entities, projectToSave, projectFromDB, authUser)
 	if errorMessage != "" {
 		return c.JSON(httpStatusCode, types.NewErr(errorMessage))

@@ -98,38 +98,62 @@ func (u *Projects) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func validateEntities(entityRepo types.EntityRepo, project types.Project) (int, string) {
-	if project.BusinessUnit == "" && project.ServiceCenter == "" {
+func canAddEntityToProject(entityToSet, entityFromDB string, authUser types.User) bool {
+	if authUser.Role == types.AdminRole {
+		return true
+	}
+
+	// If the user is a RI, he can only add an entity if:
+	// * it's one of his own assigned entities
+	// * it's the currently assigned entity of the project
+	allowedEntities := make([]bson.ObjectId, len(authUser.Entities))
+	copy(allowedEntities, authUser.Entities)
+	if bson.IsObjectIdHex(entityFromDB) {
+		allowedEntities = append(allowedEntities, bson.ObjectIdHex(entityFromDB))
+	}
+	for _, allowedEntity := range allowedEntities {
+		if bson.ObjectIdHex(entityToSet) == allowedEntity {
+			return true
+		}
+	}
+	return false
+}
+
+func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB string, entityType types.EntityType, authUser types.User) (int, string) {
+	if entityToSet != "" {
+		entity, err := entityRepo.FindByID(entityToSet)
+		if err == mgo.ErrNotFound {
+			return http.StatusBadRequest, fmt.Sprintf("The %s %s does not exist", entityType, entityToSet)
+		} else if err != nil {
+			return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve %s %s from database: %v", entityType, entityToSet, err)
+		}
+
+		if !canAddEntityToProject(entityToSet, entityFromDB, authUser) {
+			return http.StatusBadRequest, fmt.Sprintf("You can't add the entity %s to a project", entityToSet)
+		}
+
+		if entity.Type != entityType {
+			return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not of type %s but  %s", entity.Name, entityToSet, entityType, entity.Type)
+		}
+	}
+	return http.StatusOK, ""
+}
+
+func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB types.Project, authUser types.User) (int, string) {
+	if projectToSave.BusinessUnit == "" && projectToSave.ServiceCenter == "" {
 		return http.StatusBadRequest, "At least one of the business unit and service center fields is mandatory"
 	}
 
 	// If a business unit is provided, check it exists in the entity collection
-	if project.BusinessUnit != "" {
-		entity, err := entityRepo.FindByID(project.BusinessUnit)
-		if err == mgo.ErrNotFound {
-			return http.StatusBadRequest, fmt.Sprintf("The business unit %s does not exist", project.BusinessUnit)
-		} else if err != nil {
-			return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve business unit %s from database: %v", project.BusinessUnit, err)
-		}
-
-		if entity.Type != types.BusinessUnitType {
-			return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an business unit but a %s", entity.Name, project.BusinessUnit, entity.Type)
-		}
+	if statusCode, errMessage := validateEntity(entityRepo, projectToSave.BusinessUnit, projectFromDB.BusinessUnit, types.BusinessUnitType, authUser); errMessage != "" {
+		return statusCode, errMessage
 	}
 
 	// If a service center is provided, check it exists in the entity collection
-	if project.ServiceCenter != "" {
-		entity, err := entityRepo.FindByID(project.ServiceCenter)
-		if err == mgo.ErrNotFound {
-			return http.StatusBadRequest, fmt.Sprintf("The service center %s does not exist", project.ServiceCenter)
-		} else if err != nil {
-			return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve service center %s from database: %v", project.ServiceCenter, err)
-		}
-
-		if entity.Type != types.ServiceCenterType {
-			return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not an service center but a %s", entity.Name, project.ServiceCenter, entity.Type)
-		}
+	if statusCode, errMessage := validateEntity(entityRepo, projectToSave.ServiceCenter, projectFromDB.ServiceCenter, types.ServiceCenterType, authUser); errMessage != "" {
+		return statusCode, errMessage
 	}
+
 	return http.StatusOK, ""
 }
 
@@ -145,6 +169,7 @@ func (u *Projects) Save(c echo.Context) error {
 		"projectID": id,
 	}).Info("User trying to save a project")
 
+	var projectFromDB types.Project
 	if id != "" {
 		userProjects, err := database.Projects.FindForUser(authUser)
 		if err != nil {
@@ -154,40 +179,45 @@ func (u *Projects) Save(c echo.Context) error {
 		if !userProjects.ContainsBsonID(bson.ObjectIdHex(id)) {
 			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot update the project %s", authUser.Username, id)))
 		}
+
+		projectFromDB, err = database.Projects.FindByID(id)
+		if err != nil || projectFromDB.ID.Hex() == "" {
+			return c.JSON(http.StatusBadRequest, types.NewErr("Trying to modify a non existing project"))
+		}
 	}
 
 	// Get project from body
-	var project types.Project
+	var projectToSave types.Project
 	var err error
 
-	err = c.Bind(&project)
+	err = c.Bind(&projectToSave)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
 	}
 
-	log.WithField("project", project).Info("Received project to save")
+	log.WithField("project", projectToSave).Info("Received project to save")
 
-	if project.Name == "" {
+	if projectToSave.Name == "" {
 		return c.JSON(http.StatusBadRequest, types.NewErr("The name field cannot be empty"))
 	}
 
-	httpStatusCode, errorMessage := validateEntities(database.Entities, project)
+	httpStatusCode, errorMessage := validateEntities(database.Entities, projectToSave, projectFromDB, authUser)
 	if errorMessage != "" {
 		return c.JSON(httpStatusCode, types.NewErr(errorMessage))
 	}
 
 	// Fill ID, Created and Updated fields
-	project.Updated = time.Now()
+	projectToSave.Updated = time.Now()
 	if id != "" {
 		// Project will be updated
-		project.ID = bson.ObjectIdHex(id)
+		projectToSave.ID = bson.ObjectIdHex(id)
 	} else {
 		// Project will be created
-		project.ID = ""
-		project.Created = project.Updated
+		projectToSave.ID = ""
+		projectToSave.Created = projectToSave.Updated
 	}
 
-	projectSaved, err := database.Projects.Save(project)
+	projectSaved, err := database.Projects.Save(projectToSave)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to save project to database: %v", err)))
 	}

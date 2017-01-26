@@ -24,7 +24,7 @@ import { getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
 
-import { AUTH_CP_ROLE } from '../../../modules/auth/auth.constants';
+import { AUTH_CP_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
 
 // Style
 import './project.page.scss';
@@ -58,10 +58,6 @@ class ProjectComponent extends React.Component {
     } else {
       this.setState({ project: { ...this.state.project, urls: [...project.urls] } });
     }
-  }
-
-  componentWillUpdate = (nextProps, nextState) => {
-    console.log(nextState);
   }
 
   componentDidMount = () => {
@@ -277,19 +273,33 @@ ProjectComponent.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
+  const auth = state.auth;
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
   const emptyProject = { matrix: [], urls: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
-  const entities = Object.values(state.entities.items);
-  const services = groupByPackage(state.services.items);
   const isServicesFetching = state.services.isFetching;
   const users = Object.values(state.users.items);
   const selectedProject = { ...emptyProject, ...projects.items[paramId] };
   selectedProject.urls = selectedProject.urls || [];
+
+  let entities = Object.values(state.entities.items);
+
+  // The only entities we show for a RI and a CP are:
+  // * the entities assigned to the RI
+  // * the businessUnit and serviceCenter assigned to the current project
+  if (auth.user.role !== AUTH_ADMIN_ROLE) {
+    entities = entities.filter(entity =>
+      auth.user.entities
+        .concat(selectedProject.businessUnit)
+        .concat(selectedProject.serviceCenter)
+        .includes(entity.id));
+  }
+
+  const services = groupByPackage(state.services.items);
   return {
-    auth: state.auth,
+    auth,
     project: selectedProject,
     isFetching,
     projectId: paramId,

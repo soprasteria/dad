@@ -108,6 +108,7 @@ class ProjectComponent extends React.Component {
         delete errors.fields['Service Center or Business Unit'];
       }
       window.scrollTo(0, 0);
+      this.refs.details.setState({ stacked:false });
       this.setState({ errors:  errors });
     }
     return !Boolean(error);
@@ -233,7 +234,7 @@ class ProjectComponent extends React.Component {
               </Form.Field>
             </Form.Group>
           </Form>
-          <Box icon='settings' title='Details' stacked={Boolean(projectId)}>
+          <Box icon='settings' title='Details' ref='details' stacked={Boolean(projectId)}>
             <Form error={Boolean(errors.details.length)}>
               <Form.Group>
                 <Form.Input readOnly={readOnly} label='Name' value={project.name || ''} onChange={this.handleChange}

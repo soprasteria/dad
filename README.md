@@ -1,4 +1,7 @@
-# Deployment Analytics Dashboard [![Build Status](https://travis-ci.org/soprasteria/dad.svg?branch=master)](https://travis-ci.org/soprasteria/dad)
+# Deployment Analytics Dashboard
+
+[![Build Status](https://travis-ci.org/soprasteria/dad.svg?branch=master)](https://travis-ci.org/soprasteria/dad)
+[![Docker Automated buil](https://img.shields.io/docker/automated/soprasteria/dad.svg)](https://hub.docker.com/r/soprasteria/dad/builds/)
 
 ## Development
 
@@ -54,6 +57,12 @@ You can see all the available settings with:
 ```sh
 go run main.go serve --help
 ```
+
+**Note:** DAD allows three methods for the configuration:
+
+* Use a config file as described above
+* Use environment variables (`server.mongo.addr` becomes `DAD_SERVER_MONGO_ADDR`)
+* Use CLI parameters (`--server.mongo.addr`)
 
 Run DAD in dev mode, with live reload, with the command:
 

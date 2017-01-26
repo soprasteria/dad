@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
-import { Button, Container, Divider, Form, Header, Icon, Label, Message, Table, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Icon, Label, Message, Table, Segment } from 'semantic-ui-react';
 
 import Joi from 'joi-browser';
 
@@ -122,6 +122,12 @@ class ProjectComponent extends React.Component {
     }
   }
 
+  handleRemove = (e) => {
+    e.preventDefault();
+    this.props.onDelete(this.state.project);
+    console.log('remove projet');
+  }
+
   renderServices = (project, services, isFetching) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
@@ -190,12 +196,13 @@ class ProjectComponent extends React.Component {
     return (
       <Container className='project-page'>
         <Segment loading={fetching} padded>
-          <Header as='h1'>
+          <h1 className='layout horizontal center justified'>
             <Link to={'/projects'}>
               <Icon name='arrow left' fitted/>
             </Link>
-            {projectId ? project.name : 'New Project'}
-          </Header>
+            <div className='flex'>{projectId ? project.name : 'New Project'}</div>
+            {(!isFetching && !readOnly) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
+          </h1>
 
           <Divider hidden/>
           <Form>
@@ -272,7 +279,8 @@ ProjectComponent.propTypes = {
   onCreateUrl: React.PropTypes.func.isRequired,
   onEditUrl: React.PropTypes.func.isRequired,
   onRemoveUrl: React.PropTypes.func.isRequired,
-  onSave: React.PropTypes.func.isRequired
+  onSave: React.PropTypes.func.isRequired,
+  onDelete: React.PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -330,6 +338,10 @@ const mapDispatchToProps = dispatch => ({
   },
   onRemoveUrl: (id, index) => dispatch(ProjectsActions.removeUrl(id, index)),
   onSave: project => dispatch(ProjectsThunks.save(project, push('/projects'))),
+  onDelete: project => {
+    const del = () => dispatch(ProjectsThunks.delete(project, push('/projects')));
+    dispatch(ModalActions.openRemoveProjectModal(project, del));
+  }
 });
 
 const ProjectPage = connect(

@@ -2,107 +2,107 @@
 .layout.horizontal-reverse,
 .layout.vertical,
 .layout.vertical-reverse {
-  display: flex;
+  display: flex !important;
 }
 .layout.inline {
-  display: inline-flex;
+  display: inline-flex !important;
 }
 .layout.horizontal {
-  flex-direction: row;
+  flex-direction: row !important;
 }
 .layout.horizontal-reverse {
-  flex-direction: row-reverse;
+  flex-direction: row-reverse !important;
 }
 .layout.vertical {
-  flex-direction: column;
+  flex-direction: column !important;
 }
 .layout.vertical-reverse {
-  flex-direction: column-reverse;
+  flex-direction: column-reverse !important;
 }
 .layout.wrap {
-  flex-wrap: wrap;
+  flex-wrap: wrap !important;
 }
 .layout.wrap-reverse {
-  flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse !important;
 }
 .flex-auto {
-  flex: 0 1 auto;
+  flex: 0 1 auto !important;
 }
 .flex-none {
-  flex: none;
+  flex: none !important;
 }
 .flex,
 .flex-1 {
-  flex: 1;
+  flex: 1 !important;
 }
 .flex-2 {
-  flex: 2;
+  flex: 2 !important;
 }
 .flex-3 {
-  flex: 3;
+  flex: 3 !important;
 }
 .flex-4 {
-  flex: 4;
+  flex: 4 !important;
 }
 .flex-5 {
-  flex: 5;
+  flex: 5 !important;
 }
 .flex-6 {
-  flex: 6;
+  flex: 6 !important;
 }
 .flex-7 {
-  flex: 7;
+  flex: 7 !important;
 }
 .flex-8 {
-  flex: 8;
+  flex: 8 !important;
 }
 .flex-9 {
-  flex: 9;
+  flex: 9 !important;
 }
 .flex-10 {
-  flex: 10;
+  flex: 10 !important;
 }
 .flex-11 {
-  flex: 11;
+  flex: 11 !important;
 }
 .flex-12 {
-  flex: 12;
+  flex: 12 !important;
 }
 .layout.start {
-  align-items: flex-start;
+  align-items: flex-start !important;
 }
 .layout.center,
 .layout.center-center {
-  align-items: center;
+  align-items: center !important;
 }
 .layout.end {
-  align-items: flex-end;
+  align-items: flex-end !important;
 }
 .layout.start-justified {
-  justify-content: flex-start;
+  justify-content: flex-start !important;
 }
 .layout.center-center,
 .layout.center-justified {
-  justify-content: center;
+  justify-content: center !important;
 }
 .layout.end-justified {
-  justify-content: flex-end;
+  justify-content: flex-end !important;
 }
 .layout.around-justified {
-  justify-content: space-around;
+  justify-content: space-around !important;
 }
 .layout.justified {
-  justify-content: space-between;
+  justify-content: space-between !important;
 }
 .self-start {
-  align-self: flex-start;
+  align-self: flex-start !important;
 }
 .self-center {
-  align-self: center;
+  align-self: center !important;
 }
 .self-end {
-  align-self: flex-end;
+  align-self: flex-end !important;
 }
 .self-stretch {
-  align-self: stretch;
+  align-self: stretch !important;
 }

@@ -196,8 +196,11 @@ class ProjectComponent extends React.Component {
             </Link>
             {projectId ? project.name : 'New Project'}
           </Header>
+
           <Divider hidden/>
           <Form>
+            <Form.TextArea readOnly={readOnly} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
+                  type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}/>
             <Form.Group>
               <Form.Field width='two'>
                 <Label size='large' className='form-label' content='URLs' />

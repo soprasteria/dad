@@ -46,6 +46,17 @@ func (u *Entities) Delete(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while removing entity: %v", err)))
 	}
 
+	// Cascade remove in projects and users
+	err = database.Projects.RemoveEntity(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while cascade removing entity %v from projects", err)))
+	}
+
+	err = database.Users.RemoveEntity(bson.ObjectIdHex(id))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while cascade removing entity %v from users", err)))
+	}
+
 	return c.JSON(http.StatusOK, res)
 }
 

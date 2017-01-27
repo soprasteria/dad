@@ -222,6 +222,28 @@ func (r *ProjectRepo) Save(project Project) (Project, error) {
 	return project, err
 }
 
+// RemoveEntity removes an entity (businessUnit or serviceCenter) from a project
+// This is used for cascade deletions
+func (r *ProjectRepo) RemoveEntity(id string) error {
+	if !r.isInitialized() {
+		return ErrDatabaseNotInitialiazed
+	}
+
+	_, err := r.col().UpdateAll(
+		bson.M{"businessUnit": id},
+		bson.M{"$set": bson.M{"businessUnit": ""}},
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.col().UpdateAll(
+		bson.M{"serviceCenter": id},
+		bson.M{"$set": bson.M{"serviceCenter": ""}},
+	)
+	return err
+}
+
 // Delete the project
 func (r *ProjectRepo) Delete(id bson.ObjectId) (bson.ObjectId, error) {
 	return BasicDelete(r, id)

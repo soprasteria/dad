@@ -150,6 +150,20 @@ func (s *UserRepo) Save(user User) (User, error) {
 	return user, err
 }
 
+// RemoveEntity removes an entity from a user
+// This is used for cascade deletions
+func (s *UserRepo) RemoveEntity(id bson.ObjectId) error {
+	if !s.isInitialized() {
+		return ErrDatabaseNotInitialiazed
+	}
+
+	_, err := s.col().UpdateAll(
+		bson.M{"entities": id},
+		bson.M{"$pull": bson.M{"entities": id}},
+	)
+	return err
+}
+
 // Delete the user
 func (s *UserRepo) Delete(id bson.ObjectId) (bson.ObjectId, error) {
 	return BasicDelete(s, id)

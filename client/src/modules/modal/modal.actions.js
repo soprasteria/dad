@@ -44,7 +44,7 @@ const openRemoveProjectModal = (project, callback) => {
     type: ModalConstants.OPEN_MODAL,
     title: `${project.name} - Removing project`,
     basic: true,
-    message: 'This project will be removed for all users. Are you sure to delete it ?',
+    message: 'This project will be removed for all users. Are you sure to delete it?',
     form,
     callback
   };

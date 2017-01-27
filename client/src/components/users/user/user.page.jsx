@@ -12,6 +12,8 @@ import EntitiesThunks from '../../../modules/entities/entities.thunks';
 
 import { getEntitiesAsOptions } from '../../../modules/entities/entities.selectors';
 
+import { AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
+
 // Style
 import './user.page.scss';
 
@@ -59,7 +61,7 @@ class UserComponent extends React.Component {
     );
   }
 
-  renderRoleDropdown = (user, isFetching) => {
+  renderRoleDropdown = (user, isFetching, isReadOnly) => {
     const options = ALL_ROLES.map(role => {
       return {
         icon: <Icon name={getRoleIcon(role)} color={getRoleColor(role)} />,
@@ -69,13 +71,16 @@ class UserComponent extends React.Component {
     });
 
     return (
-      <Dropdown pointing trigger={this.renderDropDownButton(user, isFetching)} onChange={this.handleChange} options={options}
+      <Dropdown disabled={isReadOnly} pointing trigger={this.renderDropDownButton(user, isFetching)} onChange={this.handleChange} options={options}
         icon={null} value={user.role} name='role'
       />
     );
   }
 
+  isReadonly = () => this.props.auth.user.role !== AUTH_ADMIN_ROLE
+
   render = () => {
+    const readOnly = this.isReadonly();
     const { isFetching, entities, isEntitiesFetching } = this.props;
     const { user } = this.state;
     return (
@@ -114,7 +119,7 @@ class UserComponent extends React.Component {
                 <Label size='large' className='form-label' content='Role' />
               </Form.Field>
               <Form.Field width='fourteen'>
-                {this.renderRoleDropdown(user, isFetching)}
+                {this.renderRoleDropdown(user, isFetching, readOnly)}
               </Form.Field>
             </Form.Group>
 
@@ -122,14 +127,14 @@ class UserComponent extends React.Component {
               <Form.Field width='two'>
                 <Label size='large' className='form-label' content='Entities' />
               </Form.Field>
-              <Form.Dropdown width='fourteen' placeholder='Select entities' fluid multiple search selection loading={isEntitiesFetching}
+              <Form.Dropdown disabled={readOnly} width='fourteen' placeholder='Select entities' fluid multiple search selection loading={isEntitiesFetching}
                 name='entities' options={entities} value={user.entities || []} onChange={this.handleChange}
               />
             </Form.Group>
 
             <Divider hidden/>
 
-            <Button fluid color='green' content='Save' loading={isFetching} />
+            {!readOnly && <Button fluid color='green' content='Save' loading={isFetching} />}
           </Form>
         </Segment>
       </Container>
@@ -138,6 +143,7 @@ class UserComponent extends React.Component {
 }
 
 UserComponent.propTypes = {
+  auth: React.PropTypes.object,
   user: React.PropTypes.object,
   isFetching: React.PropTypes.bool,
   entities: React.PropTypes.array,
@@ -159,6 +165,7 @@ const mapStateToProps = (state, ownProps) => {
     user: users.items[user.id] || emptyUser,
     isFetching,
     userId: paramId,
+    auth: state.auth,
     entities: getEntitiesAsOptions({ entities, withType: true }),
     isEntitiesFetching: state.entities.isFetching
   };

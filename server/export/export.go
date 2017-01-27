@@ -70,6 +70,14 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		}
 	}
 
+	// Add a "Comments" header merged vertically
+	commentsHeader := servicePkgRow.AddCell()
+	serviceNameRow.AddCell()
+	serviceMaturityRow.AddCell()
+	commentsHeader.SetValue("Comments")
+	rotateCell(commentsHeader, 90)
+	commentsHeader.Merge(0, 2)
+
 	// Generate a project row
 	for _, project := range projects {
 		var comments []string

@@ -126,7 +126,6 @@ class ProjectComponent extends React.Component {
   handleRemove = (e) => {
     e.preventDefault();
     this.props.onDelete(this.state.project);
-    console.log('remove projet');
   }
 
   renderServices = (project, services, isFetching) => {

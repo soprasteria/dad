@@ -171,7 +171,8 @@ func (u *Projects) Save(c echo.Context) error {
 
 	var projectFromDB types.Project
 	if id != "" {
-		userProjects, err := database.Projects.FindForUser(authUser)
+		// Get only projects that the user can modify
+		userProjects, err := database.Projects.FindModifiableForUser(authUser)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
 		}
@@ -184,6 +185,7 @@ func (u *Projects) Save(c echo.Context) error {
 		if err != nil || projectFromDB.ID.Hex() == "" {
 			return c.JSON(http.StatusBadRequest, types.NewErr("Trying to modify a non existing project"))
 		}
+
 	}
 
 	// Get project from body
@@ -210,6 +212,7 @@ func (u *Projects) Save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Another project already exists with the same name %q", existingProject.Name)))
 	}
 
+	// Check rights to add entities to the project
 	httpStatusCode, errorMessage := validateEntities(database.Entities, projectToSave, projectFromDB, authUser)
 	if errorMessage != "" {
 		return c.JSON(httpStatusCode, types.NewErr(errorMessage))

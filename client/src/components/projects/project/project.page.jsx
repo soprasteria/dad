@@ -24,7 +24,7 @@ import { getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
 
-import { AUTH_CP_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
+import { AUTH_CP_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
 
 // Style
 import './project.page.scss';
@@ -171,7 +171,15 @@ class ProjectComponent extends React.Component {
     );
   }
 
-  isReadonly = () => this.props.auth.user.role === AUTH_CP_ROLE
+  isReadonly = () => {
+    const project = this.props.project;
+    const authUser = this.props.auth.user;
+    const userEntities = authUser.entities || [];
+
+    const commonEntities = userEntities.find(id => [project.businessUnit, project.serviceCenter].includes(id)) || [];
+
+    return authUser.role === AUTH_CP_ROLE || (authUser.role === AUTH_RI_ROLE && commonEntities.length === 0);
+  }
 
   render = () => {
     const {

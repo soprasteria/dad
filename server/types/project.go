@@ -182,6 +182,28 @@ func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
 	return projects, err
 }
 
+// FindModifiableForUser returns the projects associated to a user, but only projects which are modifiable by him
+func (r *ProjectRepo) FindModifiableForUser(user User) (Projects, error) {
+	var projects []Project
+	var err error
+
+	switch user.Role {
+	case AdminRole:
+		projects, err = r.FindAll()
+	case RIRole:
+		projects, err = r.FindByEntities(user.Entities)
+		if err != nil {
+			return nil, err
+		}
+	case CPRole:
+		return []Project{}, nil
+	default:
+		return nil, fmt.Errorf("Invalid role %s for user %s", user.Role, user.Username)
+	}
+
+	return projects, err
+}
+
 // FindByEntities get all projects with a matching businessUnit or serviceCenter
 func (r *ProjectRepo) FindByEntities(ids []bson.ObjectId) ([]Project, error) {
 	if !r.isInitialized() {

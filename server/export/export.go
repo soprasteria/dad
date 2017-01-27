@@ -133,7 +133,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 				}
 			}
 		}
-		projectRow.SetHeightCM(0.5 * float64(len(comments)))
+		projectRow.SetHeightCM(0.5*float64(len(comments)) + 0.5)
 		createCell(projectRow, strings.Join(comments, "\n"))
 	}
 

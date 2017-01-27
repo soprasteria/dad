@@ -12,7 +12,8 @@ class ProjectCard extends React.Component {
   render = () => {
     const { project } = this.props;
     project.matrix = project.matrix || [];
-    const goals = project.matrix.map(m => [m.progress, m.goal])
+    const filteredMatrix = project.matrix.filter(m => m.goal != -1);
+    const goals = filteredMatrix.map(m => [m.progress, m.goal])
       .reduce((acc, [progress, goal]) => {
         if (goal === -1) {return 0;}
         return progress >= goal ? acc + 1 : acc;
@@ -26,7 +27,7 @@ class ProjectCard extends React.Component {
           <Label color='blue' image title={`${goals} goal(s) reached`} className='ui right floated'>
             <Icon fitted name='star' />
             <Label.Detail>
-              {`${goals}/${project.matrix.length}`}
+              {`${goals}/${filteredMatrix.length}`}
             </Label.Detail>
           </Label>
         </Card.Content>

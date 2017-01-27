@@ -37,18 +37,13 @@ class UserCardComponent extends React.Component {
     const options = ALL_ROLES.map(role => {
       return { icon: <Icon name={getRoleIcon(role)} color={getRoleColor(role) || null} />, value: role, text: getRoleLabel(role) };
     });
-    const canGoToProfile = connectedUser.role === AUTH_ADMIN_ROLE;
+
     return (
       <Card className='user-card' raised>
         <Card.Content>
-          {
-            canGoToProfile ?
-              <Link to={`/users/${user.id}`}>
-                {user.displayName}
-              </Link>
-            :
-              user.displayName
-          }
+          <Link to={`/users/${user.id}`}>
+            {user.displayName}
+          </Link>
           <Dropdown trigger={this.renderDropDown(user)} compact onChange={this.handleChange} options={options}
             icon={null} button disabled={disabled} value={user.role} pointing='right' className='tiny attached'
           />

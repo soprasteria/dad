@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/soprasteria/dad.svg?branch=master)](https://travis-ci.org/soprasteria/dad)
 [![Docker Automated buil](https://img.shields.io/docker/automated/soprasteria/dad.svg)](https://hub.docker.com/r/soprasteria/dad/builds/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/soprasteria/dad)](https://goreportcard.com/report/github.com/soprasteria/dad)
 
 ## Development
 

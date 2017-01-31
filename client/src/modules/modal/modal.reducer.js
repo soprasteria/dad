@@ -27,6 +27,12 @@ const initModal = (action) => {
   res.callback = action.callback;
   res.basic = action.basic || false;
   res.message = action.message || '';
+  res.icon = action.icon;
+  res.validateText = action.validateText || 'Validate';
+  res.validateColor = action.validateColor || 'green';
+  res.validateIcon = action.validateIcon || 'checkmark';
+  res.cancelText = action.cancelText || 'Cancel';
+  res.cancelColor = action.cancelColor || 'black';
   return res;
 };
 

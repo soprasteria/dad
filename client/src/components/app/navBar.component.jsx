@@ -26,7 +26,8 @@ class NavBarComponent extends React.Component {
   renderDropdown = (loading) => {
     const item = [];
     item.push(<Icon key='icon' name={loading ? 'circle notched' : 'user'} loading={loading} size='large'/>);
-    item.push(this.props.auth.user.displayName);
+    const name = `${this.props.auth.user.lastName ? this.props.auth.user.lastName.toUpperCase() : ''} ${this.props.auth.user.firstName}`;
+    item.push(name);
     return item;
   }
 

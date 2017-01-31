@@ -42,7 +42,7 @@ class UserCardComponent extends React.Component {
       <Card className='user-card' raised>
         <Card.Content>
           <Link to={`/users/${user.id}`}>
-            {user.displayName}
+            {`${user.lastName.toUpperCase()} ${user.firstName}`}
           </Link>
           <Dropdown trigger={this.renderDropDown(user)} compact onChange={this.handleChange} options={options}
             icon={null} button disabled={disabled} value={user.role} pointing='right' className='tiny attached'

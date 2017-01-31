@@ -1,4 +1,5 @@
 import { containsWithoutAccents } from '../utils/strings';
+import { sortby } from '../utils/arrays';
 
 export const getFilteredEntities = (entities, filterValue) => {
   if (!filterValue || filterValue === '') {
@@ -20,5 +21,5 @@ export const getEntitiesAsOptions = ({ entities, withType }) => {
     type = type.charAt(0).toUpperCase() + type.substring(1);
     const value = withType ? `${type}: ${entity.name}` : entity.name;
     return { value: entity.id, text: value } ;
-  }));
+  }).sort(sortby('text')));
 };

@@ -71,7 +71,7 @@ Run DAD in dev mode, with live reload, with the command:
 gulp
 ```
 
-You can then browse http://localhost:8080/
+You can then browse [http://localhost:8080/](http://localhost:8080/)
 
 ## Production
 

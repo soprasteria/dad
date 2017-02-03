@@ -196,7 +196,10 @@ func (r *ProjectRepo) FindModifiableForUser(user User) (Projects, error) {
 			return nil, err
 		}
 	case CPRole:
-		return []Project{}, nil
+		projects, err = r.FindByProjectManager(user.ID)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("Invalid role %s for user %s", user.Role, user.Username)
 	}

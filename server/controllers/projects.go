@@ -178,7 +178,12 @@ func (u *Projects) Save(c echo.Context) error {
 		}
 
 		if !userProjects.ContainsBsonID(bson.ObjectIdHex(id)) {
-			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot update the project %s", authUser.Username, id)))
+			log.WithFields(log.Fields{
+				"username":  authUser.Username,
+				"role":      authUser.Role,
+				"projectID": id,
+			}).Info("User isn't allowed to update the project")
+			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s isn't allowed to update the project", authUser.Username)))
 		}
 
 		projectFromDB, err = database.Projects.FindByID(id)
@@ -204,12 +209,38 @@ func (u *Projects) Save(c echo.Context) error {
 	}
 
 	// Not possible to create or update a project with a name already used by another one project
-	if existingProject, err := database.Projects.FindByName(projectToSave.Name); err != nil {
+	existingProject, err := database.Projects.FindByName(projectToSave.Name)
+	if err != nil {
 		if err != mgo.ErrNotFound {
 			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Can't check whether the project exist in database: %v", err)))
 		}
 	} else if existingProject.ID != projectToSave.ID {
 		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Another project already exists with the same name %q", existingProject.Name)))
+	}
+
+	modifiedDetails := projectToSave.Name != existingProject.Name ||
+		projectToSave.Domain != existingProject.Domain ||
+		projectToSave.ProjectManager != existingProject.ProjectManager ||
+		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
+		projectToSave.BusinessUnit != existingProject.BusinessUnit
+	// A Project Manager can't update details, if any of the details has changed it's an issue and we shouldn't update the project
+	if authUser.Role == types.CPRole && modifiedDetails {
+		log.WithFields(log.Fields{
+			"username":                       authUser.Username,
+			"role":                           authUser.Role,
+			"projectID":                      id,
+			"projectToSave.Name":             projectToSave.Name,
+			"existingProject.Name":           existingProject.Name,
+			"projectToSave.Domain":           projectToSave.Domain,
+			"existingProject.Domain":         existingProject.Domain,
+			"projectToSave.ProjectManager":   projectToSave.ProjectManager,
+			"existingProject.ProjectManager": existingProject.ProjectManager,
+			"projectToSave.ServiceCenter":    projectToSave.ServiceCenter,
+			"existingProject.ServiceCenter":  existingProject.ServiceCenter,
+			"projectToSave.BusinessUnit":     projectToSave.BusinessUnit,
+			"existingProject.BusinessUnit":   existingProject.BusinessUnit,
+		}).Warn("User isn't allowed to update the project")
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("A project manager isn't allowed to update project details")))
 	}
 
 	// Check rights to add entities to the project

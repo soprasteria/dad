@@ -18,7 +18,15 @@ const closeNotification = (id) => {
   };
 };
 
+const savedProjectSuccessNotification = (projectName) => {
+  return {
+    type: ToastsConstants.PROJECT_SAVED_NOTIFICATION,
+    projectName
+  };
+};
+
 export default {
   confirmDeletion,
-  closeNotification
+  closeNotification,
+  savedProjectSuccessNotification
 };

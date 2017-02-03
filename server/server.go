@@ -116,7 +116,7 @@ func New(version string) {
 				projectAPI.Use(isValidID("id"))
 				projectAPI.GET("", projectsC.Get)
 				projectAPI.DELETE("", projectsC.Delete, hasRole(types.RIRole))
-				projectAPI.PUT("", projectsC.Save, hasRole(types.RIRole))
+				projectAPI.PUT("", projectsC.Save)
 			}
 		}
 

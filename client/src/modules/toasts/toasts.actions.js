@@ -1,3 +1,6 @@
+// JS dependencies
+import UUID from 'uuid-js';
+
 // import constants
 import ToastsConstants from './toasts.constants';
 
@@ -18,7 +21,15 @@ const closeNotification = (id) => {
   };
 };
 
+const savedProjectSuccessNotification = (projectName) => {
+  return {
+    type: ToastsConstants.PROJECT_SAVED_NOTIFICATION,
+    projectName
+  };
+};
+
 export default {
   confirmDeletion,
-  closeNotification
+  closeNotification,
+  savedProjectSuccessNotification
 };

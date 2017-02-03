@@ -1,6 +1,3 @@
-// JS dependencies
-import UUID from 'uuid-js';
-
 // import constants
 import ToastsConstants from './toasts.constants';
 

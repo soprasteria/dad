@@ -12,7 +12,7 @@ const loginUser = (creds) => {
   let config = {
     method: 'POST',
     headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-    body: `username=${creds.username}&password=${creds.password}`
+    body: `username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}`
   };
 
   return dispatch => {
@@ -31,15 +31,7 @@ const loginUser = (creds) => {
         // Dispatch differents actions wether the user is not authorized
         // or if the server encounters any other error
         if (error.response) {
-          error.response.text().then(text => {
-            if (error.response.status == 403) {
-              // Whill print a simple error message
-              dispatch(AuthActions.loginNotAuthorized(text));
-            } else {
-              // Will open an error toast
-              dispatch(AuthActions.loginInvalidRequest(text));
-            }
-          });
+          handleError(error, AuthActions.loginInvalidRequest, dispatch);
         } else {
           dispatch(AuthActions.loginInvalidRequest(error.message));
         }

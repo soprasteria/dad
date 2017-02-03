@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
@@ -36,7 +37,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 
 	createMergedCell(servicePkgRow, "Matrix Maturity", 5)
 
-	createMergedCell(serviceNameRow, "", 5)
+	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), 5)
 
 	createCell(serviceMaturityRow, "Project")
 	createCell(serviceMaturityRow, "Business Unit")

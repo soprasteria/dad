@@ -41,6 +41,8 @@ const toastsReducer = (state = initialState, action) => {
     let resState = { ...state };
     delete resState[action.id];
     return resState;
+  case ToastsConstants.PROJECT_SAVED_NOTIFICATION:
+    return { ...state, ...createProjectSavedToast(action.projectName) };
   case LOCATION_CHANGE:
     return { ...initialState };
   default:
@@ -67,7 +69,7 @@ const createConfirmDelToast = (action) => {
   const id = MD5(action.title);
   res[id] = {
     title: 'Confirm Suppression',
-    message: 'Remove ' + action.title + ' ?',
+    message: 'Remove ' + action.title + '?',
     autoDismiss: 0,
     level: 'error',
     position: 'br',
@@ -79,5 +81,20 @@ const createConfirmDelToast = (action) => {
   };
   return res;
 };
+
+const createProjectSavedToast = (projectName) => {
+  let res = {};
+  const uuid = UUID.create(4).hex;
+  res[uuid] = {
+    title: 'Project saved',
+    message: 'Project ' + projectName + ' successfully saved',
+    level: 'success',
+    autoDismiss: 5,
+    position: 'br',
+    uid: uuid
+  };
+  return res;
+};
+
 
 export default toastsReducer;

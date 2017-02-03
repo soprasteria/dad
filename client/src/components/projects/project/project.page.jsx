@@ -17,6 +17,7 @@ import ServicesThunks from '../../../modules/services/services.thunks';
 import UsersThunks from '../../../modules/users/users.thunks';
 import ProjectsActions from '../../../modules/projects/projects.actions';
 import ModalActions from '../../../modules/modal/modal.actions';
+import ToastsActions from '../../../modules/toasts/toasts.actions';
 
 import { getEntitiesAsOptions, getByType } from '../../../modules/entities/entities.selectors';
 import { groupByPackage } from '../../../modules/services/services.selectors';
@@ -344,7 +345,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(ModalActions.openEditUrlModal(url, cb));
   },
   onRemoveUrl: (id, index) => dispatch(ProjectsActions.removeUrl(id, index)),
-  onSave: project => dispatch(ProjectsThunks.save(project, push('/projects'))),
+  onSave: project => dispatch(ProjectsThunks.save(project, ToastsActions.savedProjectSuccessNotification(project.name))),
   onDelete: project => {
     const del = () => dispatch(ProjectsThunks.delete(project, push('/projects')));
     dispatch(ModalActions.openRemoveProjectModal(project, del));

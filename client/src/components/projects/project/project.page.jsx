@@ -194,17 +194,21 @@ class ProjectComponent extends React.Component {
     };
     return (
       <Container className='project-page'>
+
         <Segment loading={fetching} padded>
+
+          <Form>
           <h1 className='layout horizontal center justified'>
             <Link to={'/projects'}>
               <Icon name='arrow left' fitted/>
             </Link>
-            <div className='flex'>{projectId ? project.name : 'New Project'}</div>
+            <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
+              type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
+            />
             {(!isFetching && canEditDetails) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
           </h1>
 
           <Divider hidden/>
-          <Form>
             <Form.TextArea readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
                   type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}/>
             <Form.Group>
@@ -234,12 +238,9 @@ class ProjectComponent extends React.Component {
           </Form>
           <Box icon='settings' title='Details' ref='details' stacked={Boolean(projectId)}>
             <Form error={Boolean(errors.details.length)}>
-              <Form.Group>
-                <Form.Input readOnly={!canEditDetails} label='Name' value={project.name || ''} onChange={this.handleChange}
-                  type='text' name='name' autoComplete='off' placeholder='Project Name' width='four' error={errors.fields['name']}
-                />
+              <Form.Group widths='two'>
                 <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                    type='text' name='domain' autoComplete='off' placeholder='Project Domain' width='four' error={errors.fields['domain']}
+                    type='text' name='domain' autoComplete='off' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
                 />
                 {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors, !canEditDetails)}
               </Form.Group>

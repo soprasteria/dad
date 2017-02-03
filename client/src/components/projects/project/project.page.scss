@@ -27,6 +27,14 @@
     a {
       margin-right: .5em;
     }
+
+    .projectName {
+      margin: 0 .5em 0 0 !important;
+
+      input {
+        padding: .2em !important;
+      }
+    }
   }
 
   .field.readonly {

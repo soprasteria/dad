@@ -206,7 +206,7 @@ class ProjectComponent extends React.Component {
             <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
               type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
             />
-            {(!isFetching && canEditDetails) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
+            {(!isFetching && canEditDetails && projectId!=null ) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
           </h1>
 
           <Divider hidden/>
@@ -299,6 +299,7 @@ const mapStateToProps = (state, ownProps) => {
   selectedProject.urls = selectedProject.urls || [];
 
   let entities = Object.values(state.entities.items);
+  const userEntities = authUser.entities || [];
 
   // The only entities we show for a RI and a CP are:
   // * the entities assigned to the RI
@@ -306,12 +307,11 @@ const mapStateToProps = (state, ownProps) => {
   if (authUser.role !== AUTH_ADMIN_ROLE) {
     entities = entities.filter(entity =>
       authUser.entities
-        .concat(selectedProject.businessUnit)
-        .concat(selectedProject.serviceCenter)
+        .concat(selectedProject.businessUnit || [])
+        .concat(selectedProject.serviceCenter || [])
         .includes(entity.id));
   }
   
-  const userEntities = authUser.entities || [];
   const commonEntities = userEntities.find(id => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
   // Details of the project can be edited if the user is an admin
   // or if the user is a RI and it's a project linked to that user

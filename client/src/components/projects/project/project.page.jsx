@@ -335,8 +335,8 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const redirectAction = (projectId) => {
-  return push('/projects/' + projectId)
-}
+  return push('/projects/' + projectId);
+};
 
 const mapDispatchToProps = dispatch => ({
   fetchProject: id => dispatch(ProjectsThunks.fetch(id)),

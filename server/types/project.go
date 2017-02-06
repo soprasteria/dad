@@ -115,7 +115,7 @@ func (r *ProjectRepo) FindByIDBson(id bson.ObjectId) (Project, error) {
 	return result, err
 }
 
-// FindByName find a project by its name (case insenstive)
+// FindByName find a project by its name (case insensitive)
 func (r *ProjectRepo) FindByName(name string) (Project, error) {
 	if !r.isInitialized() {
 		return Project{}, ErrDatabaseNotInitialiazed

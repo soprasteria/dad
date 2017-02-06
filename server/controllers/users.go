@@ -83,7 +83,7 @@ func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.Use
 	userID := userUpdated.GetID()
 	userFromDB, err := database.Users.FindByIDBson(&userID)
 	if err != nil || userFromDB.GetID().Hex() == "" {
-		return types.User{}, errors.New("User does not exist. Please register user first.")
+		return types.User{}, errors.New("User does not exist. Please register user first")
 	}
 	if connectedUser.IsAdmin() && userUpdated.Role.IsValid() {
 		userFromDB.Role = userUpdated.Role

@@ -355,7 +355,7 @@ export const generateEntitiesThunks = (entitiesName) => {
         });
     };
   };
-  const saveFunc = (form, postAction) => {
+  const saveFunc = (form, postActionRedirect, postActionToast) => {
     let entity = { ...form };
     entity.created = entity.created ? new Date(entity.created) : new Date();
     const endpoint = entity.id || 'new';
@@ -376,7 +376,8 @@ export const generateEntitiesThunks = (entitiesName) => {
         .then(parseJSON)
         .then(response => {
           dispatch(Actions.saved(response));
-          postAction && dispatch(postAction);
+          postActionRedirect && dispatch(postActionRedirect(response.id));
+          postActionToast && dispatch(postActionToast);
         })
         .catch(error => {
           handleError(error, Actions.invalidSaveEntity(entity), dispatch);

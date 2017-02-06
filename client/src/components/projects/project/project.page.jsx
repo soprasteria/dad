@@ -313,7 +313,10 @@ const mapStateToProps = (state, ownProps) => {
   
   const userEntities = authUser.entities || [];
   const commonEntities = userEntities.find(id => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
-  const canEditDetails = authUser.role === AUTH_ADMIN_ROLE || (authUser.role === AUTH_RI_ROLE && commonEntities.length > 0);
+  // Details of the project can be edited if the user is an admin
+  // or if the user is a RI and it's a project linked to that user
+  // or if the user is a RI and it's a new project
+  const canEditDetails = authUser.role === AUTH_ADMIN_ROLE || (authUser.role === AUTH_RI_ROLE && (commonEntities.length > 0 || !project.id));
   
   const services = groupByPackage(state.services.items);
   return {

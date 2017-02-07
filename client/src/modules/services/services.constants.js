@@ -7,7 +7,7 @@ export const options = [
   { value: 2, text: '40%', title:'Configured by project team and ready to use' },
   { value: 3, text: '60%', title:'Used by leaders or seniors' },
   { value: 4, text: '80%', title:'Team trained and aware of the benefits' },
-  { value: 5, text: '100%', title:'Used fully by the team' },
+  { value: 5, text: '100%', title:'Fully used by the team' },
 ];
 
 export default {

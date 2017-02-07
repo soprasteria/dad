@@ -14,6 +14,7 @@ import Box from '../../common/box.component';
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
+import { options } from '../../../modules/services/services.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 import ProjectsActions from '../../../modules/projects/projects.actions';
 import ModalActions from '../../../modules/modal/modal.actions';
@@ -256,36 +257,22 @@ class ProjectComponent extends React.Component {
           <Box icon='help circle' title='Maturity Legend' ref='legend'>
             <Grid columns={2} relaxed>
               <Grid.Column>
-                <List.Item>
-                  <Label color='black' horizontal>N/A</Label>
-                  Non applicable
-                </List.Item>
-                <List.Item>
-                  <Label color='grey' horizontal>0% </Label>
-                  No action launched on the service
-                </List.Item>
-                <List.Item>
-                  <Label color='red' horizontal>20%</Label>
-                  Deployed empty by CDK core team
-                </List.Item>
-                <List.Item>
-                  <Label color='orange' horizontal>40%</Label>
-                  Configured by project team and ready to use
-                </List.Item>
+              {options.slice(0,4).map((opt, index) => {
+                return (<List.Item key={opt.value}>
+                          <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                          {opt.title}
+                        </List.Item>
+                  )}
+                )}
               </Grid.Column>
               <Grid.Column>
-                <List.Item>
-                  <Label color='yellow' horizontal>60%</Label>
-                  Used by leaders or seniors
-                </List.Item>
-                <List.Item>
-                  <Label color='olive' horizontal>80%</Label>
-                  Team trained and aware of the benefits
-                </List.Item>
-                <List.Item>
-                  <Label color='green' horizontal>100%</Label>
-                  Fully used by the team
-                </List.Item>
+              {options.slice(4).map((opt, index) => {
+                return (<List.Item key={opt.value}>
+                          <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                          {opt.title}
+                        </List.Item>
+                  )}
+                )}
               </Grid.Column>
             </Grid>
           </Box>

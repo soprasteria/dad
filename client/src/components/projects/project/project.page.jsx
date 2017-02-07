@@ -257,21 +257,23 @@ class ProjectComponent extends React.Component {
           <Box icon='help circle' title='Maturity Legend' ref='legend'>
             <Grid columns={2} relaxed>
               <Grid.Column>
-              {options.slice(0,4).map((opt, index) => {
-                return (<List.Item key={opt.value}>
-                          <Label color={opt.label.color} horizontal>{opt.text}</Label>
-                          {opt.title}
-                        </List.Item>
-                  )}
+                {options.slice(0, 4).map(opt => {
+                  return (<List.Item key={opt.value}>
+                    <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                    {opt.title}
+                  </List.Item>
+                  );
+                }
                 )}
               </Grid.Column>
               <Grid.Column>
-              {options.slice(4).map((opt, index) => {
-                return (<List.Item key={opt.value}>
-                          <Label color={opt.label.color} horizontal>{opt.text}</Label>
-                          {opt.title}
-                        </List.Item>
-                  )}
+                {options.slice(4).map(opt => {
+                  return (<List.Item key={opt.value}>
+                    <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                    {opt.title}
+                  </List.Item>
+                  );
+                }
                 )}
               </Grid.Column>
             </Grid>

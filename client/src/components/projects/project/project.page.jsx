@@ -257,7 +257,7 @@ class ProjectComponent extends React.Component {
           <Box icon='help circle' title='Maturity Legend' ref='legend'>
             <Grid columns={2} relaxed>
               <Grid.Column>
-                {options.slice(0, 4).map(opt => {
+                {options.slice(0, Math.ceil(options.length/2)).map(opt => {
                   return (<List.Item key={opt.value}>
                     <Label color={opt.label.color} horizontal>{opt.text}</Label>
                     {opt.title}
@@ -267,7 +267,7 @@ class ProjectComponent extends React.Component {
                 )}
               </Grid.Column>
               <Grid.Column>
-                {options.slice(4).map(opt => {
+                {options.slice(Math.ceil(options.length/2)).map(opt => {
                   return (<List.Item key={opt.value}>
                     <Label color={opt.label.color} horizontal>{opt.text}</Label>
                     {opt.title}

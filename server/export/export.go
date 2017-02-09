@@ -35,15 +35,18 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 
 	serviceNameRow.SetHeightCM(10)
 
-	createMergedCell(servicePkgRow, "Matrix Maturity", 5)
+	createMergedCell(servicePkgRow, "Matrix Maturity", 7)
 
-	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), 5)
+	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), 7)
 
 	createCell(serviceMaturityRow, "Project")
 	createCell(serviceMaturityRow, "Business Unit")
 	createCell(serviceMaturityRow, "Service Center")
 	createCell(serviceMaturityRow, "Domain")
 	createCell(serviceMaturityRow, "Project Manager")
+
+	// Add a "Comments" header merged vertically
+	createMergedCell(serviceMaturityRow, "Comments", 2)
 
 	// Build a map of services indexed by their package name
 	servicesMap := make(map[string][]types.FunctionalService)
@@ -70,14 +73,6 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 			createCell(serviceMaturityRow, "Goal")
 		}
 	}
-
-	// Add a "Comments" header merged vertically
-	commentsHeader := servicePkgRow.AddCell()
-	serviceNameRow.AddCell()
-	serviceMaturityRow.AddCell()
-	commentsHeader.SetValue("Comments")
-	rotateCell(commentsHeader, 90)
-	commentsHeader.Merge(0, 2)
 
 	// Generate a project row
 	for _, project := range projects {
@@ -111,6 +106,24 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		createCell(projectRow, project.Domain)
 		createCell(projectRow, projectManager.DisplayName)
 
+		// Aggregate comments
+		for _, pkg := range servicesMapSortedKeys {
+			services := servicesMap[pkg]
+			for _, service := range services {
+				for _, line := range project.Matrix {
+					if line.Service == service.ID {
+						if line.Comment != "" {
+							comments = append(comments, fmt.Sprintf("%s: %s: %s", pkg, service.Name, line.Comment))
+						}
+						break
+					}
+				}
+			}
+		}
+		commentsString := strings.Join(comments, "\n")
+		createMergedCell(projectRow, commentsString, 2)
+		projectRow.SetHeightCM(0.5*float64(strings.Count(commentsString, "\n")) + 0.5)
+
 		// Iterate on each service in the correct order
 		for _, pkg := range servicesMapSortedKeys {
 			services := servicesMap[pkg]
@@ -119,9 +132,6 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 				// Iterate on the project matrix and print the data for the current service
 				for _, line := range project.Matrix {
 					if line.Service == service.ID {
-						if line.Comment != "" {
-							comments = append(comments, fmt.Sprintf("%s: %s: %s", pkg, service.Name, line.Comment))
-						}
 						createCell(projectRow, types.Progress[line.Progress])
 						createCell(projectRow, types.Progress[line.Goal])
 						applicable = true
@@ -134,8 +144,6 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 				}
 			}
 		}
-		projectRow.SetHeightCM(0.5*float64(len(comments)) + 0.5)
-		createCell(projectRow, strings.Join(comments, "\n"))
 	}
 
 	colorRow(servicePkgRow, red, white)

@@ -11,6 +11,14 @@
     }
   }
 
+  .content > a {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 195px;
+  }
+
   .ui.attached.button {
     box-shadow: none !important;
     left: auto;

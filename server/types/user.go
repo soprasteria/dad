@@ -114,7 +114,9 @@ func (s *UserRepo) FindByUsername(username string) (User, error) {
 		return User{}, ErrDatabaseNotInitialiazed
 	}
 	user := User{}
-	err := s.col().Find(bson.M{"username": username}).One(&user)
+	err := s.col().Find(bson.M{
+		"username": bson.RegEx{Pattern: username, Options: "i"},
+	}).One(&user)
 	if err != nil {
 		return User{}, fmt.Errorf("Can't retrieve user %s", username)
 	}

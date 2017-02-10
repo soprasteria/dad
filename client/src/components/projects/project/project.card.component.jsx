@@ -19,6 +19,7 @@ class ProjectCard extends React.Component {
         const res = acc  + Math.min(progress * 100 / goal, 100);
         return res;
       }, 0);
+    const goalMessage = filteredMatrix.length <= 0 ? 'N/A' : Math.floor(goals / filteredMatrix.length) + '%';
     return (
       <Card className='project-card' raised>
         <Card.Content>
@@ -28,7 +29,7 @@ class ProjectCard extends React.Component {
           <Label color='blue' image title={'Goal completion rates'} className='ui right floated'>
             <Icon fitted name='line chart' />
             <Label.Detail>
-              {Math.floor(goals / filteredMatrix.length) + '%'}
+              {goalMessage}
             </Label.Detail>
           </Label>
           <Card.Meta className='domain' title={project.domain}>

@@ -18,13 +18,15 @@ export const getFilteredProjects = (projects, entities, filterValue) => {
           const parsedValue = Number.parseInt(filterValue.substring(0, filterValue.length - 1));
           if (parsedValue) {
             const filteredMatrix = project.matrix.filter(m => m.goal !== -1);
-            const goals = filteredMatrix.map(m => [m.progress, m.goal])
-              .reduce((acc, [progress, goal]) => {
-                if (progress === -1) {progress = 0;}
-                const res = acc  + Math.min(progress * 100 / goal, 100);
-                return res;
-              }, 0);
-            goalsMatch = Math.floor(goals / filteredMatrix.length) >= parsedValue;
+            if (filteredMatrix.length > 0) {
+              const goals = filteredMatrix.map(m => [m.progress, m.goal])
+                .reduce((acc, [progress, goal]) => {
+                  if (progress === -1) {progress = 0;}
+                  const res = acc  + Math.min(progress * 100 / goal, 100);
+                  return res;
+                }, 0);
+              goalsMatch = Math.floor(goals / filteredMatrix.length) >= parsedValue;
+            }
           }
         }
         return projectContains || businessUnitContains || serviceCenterContains || goalsMatch;

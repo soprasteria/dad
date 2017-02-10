@@ -8,8 +8,8 @@ FILE=${3:-functional-services.csv}
 
 (
     IFS=$';\n'
-    while read -r package name; do
-        fs=$(printf '{"name": "%s", "package": "%s"}' "$name" "$package")
+    while read -r package name position; do
+        fs=$(printf '{"name": "%s", "package": "%s", "position": %s}' "$name" "$package" "$position")
         echo "Sending: $fs"
         curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$fs" "$DAD_URL/api/services/new"
         echo

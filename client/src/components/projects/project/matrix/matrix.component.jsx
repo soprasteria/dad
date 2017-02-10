@@ -32,8 +32,8 @@ class Matrix extends React.Component {
           <Form>
             {readOnly
               ? (<div>{progressOption.text}</div>)
-              : (<Form.Dropdown placeholder='Progress' fluid selection name='progress'
-                  options={options} value={matrix.progress} onChange={this.handleChange}
+              : (<Form.Dropdown placeholder='Progress' fluid selection name='progress' title={progressOption.title}
+                  options={options} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
                 />)
             }
           </Form>
@@ -42,8 +42,8 @@ class Matrix extends React.Component {
           <Form>
             {readOnly
               ? (<div>{goalOption.text}</div>)
-              : (<Form.Dropdown readOnly={readOnly} placeholder='Goal' fluid selection name='goal'
-                  options={options} value={matrix.goal} onChange={this.handleChange}
+              : (<Form.Dropdown readOnly={readOnly} placeholder='Goal' fluid selection name='goal' title={goalOption.title}
+                  options={options} value={matrix.goal} onChange={this.handleChange} className={goalOption.label.color}
                 />)
             }
           </Form>

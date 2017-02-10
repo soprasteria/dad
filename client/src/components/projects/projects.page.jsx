@@ -8,6 +8,7 @@ import { AUTH_CP_ROLE } from '../../modules/auth/auth.constants';
 
 // API Fetching
 import ProjectsThunks from '../../modules/projects/projects.thunks';
+import EntitiesThunks from '../../modules/entities/entities.thunks';
 import ProjectsActions from '../../modules/projects/projects.actions';
 
 // Selectors
@@ -22,16 +23,18 @@ import './projects.page.scss';
 class Projects extends React.Component {
 
   componentWillMount = () => {
-    this.props.fetchProjects();
+    Promise.all([this.props.fetchEntities()]).then(() => {
+      this.props.fetchProjects();
+    });
   }
 
-  renderCards = (projects) => {
+  renderCards = (projects, entities) => {
     if (projects.length) {
       return (
         <Card.Group>
           {projects.map(project => {
             return (
-              <ProjectCard project={project} key={project.id} />
+              <ProjectCard project={project} key={project.id} businessUnit={entities[project.businessUnit] || {}} serviceCenter={entities[project.serviceCenter] || {}}/>
             );
           })}
         </Card.Group>
@@ -41,7 +44,7 @@ class Projects extends React.Component {
   }
 
   render = () => {
-    const { projects, filterValue, isFetching, changeFilter, auth } = this.props;
+    const { projects, entities, filterValue, isFetching, changeFilter, auth } = this.props;
     return (
       <Container fluid className='projects-page'>
         <Segment.Group raised>
@@ -60,7 +63,7 @@ class Projects extends React.Component {
             {auth.user.role !== AUTH_CP_ROLE && <Button as={Link} content='New Project' icon='plus' labelPosition='left' color='green' floated='right' to={'/projects/new'} />}
           </Segment>
           <Segment loading={isFetching}>
-            {this.renderCards(projects)}
+            {this.renderCards(projects, entities)}
           </Segment>
         </Segment.Group>
       </Container>
@@ -71,20 +74,24 @@ class Projects extends React.Component {
 Projects.propTypes = {
   auth: React.PropTypes.object.isRequired,
   projects: React.PropTypes.array,
+  entities: React.PropTypes.object,
   filterValue: React.PropTypes.string,
   isFetching: React.PropTypes.bool,
   fetchProjects: React.PropTypes.func.isRequired,
+  fetchEntities: React.PropTypes.func.isRequired,
   changeFilter: React.PropTypes.func.isRequired
 };
 
 // Function to map state to container props
 const mapStateToProjectsProps = (state) => {
   const filterValue = state.projects.filterValue;
-  const projects = getFilteredProjects(state.projects.items, filterValue);
-  const isFetching = state.projects.isFetching;
+  const entities = state.entities.items;
+  const projects = getFilteredProjects(state.projects.items, entities, filterValue);
+  const isFetching = state.projects.isFetclhing || state.entities.isFetching;
   return {
     filterValue,
     projects,
+    entities,
     isFetching,
     auth: state.auth
   };
@@ -94,6 +101,7 @@ const mapStateToProjectsProps = (state) => {
 const mapDispatchToProjectsProps = (dispatch) => {
   return {
     fetchProjects : () => dispatch(ProjectsThunks.fetchIfNeeded()),
+    fetchEntities : () => dispatch(EntitiesThunks.fetchIfNeeded()),
     changeFilter: filterValue => dispatch(ProjectsActions.changeFilter(filterValue))
   };
 };

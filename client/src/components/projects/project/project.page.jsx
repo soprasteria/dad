@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
-import { Button, Container, Divider, Form, Icon, Label, Message, Table, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment } from 'semantic-ui-react';
 
 import Joi from 'joi-browser';
 
@@ -14,6 +14,7 @@ import Box from '../../common/box.component';
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
+import { options } from '../../../modules/services/services.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 import ProjectsActions from '../../../modules/projects/projects.actions';
 import ModalActions from '../../../modules/modal/modal.actions';
@@ -47,15 +48,15 @@ class ProjectComponent extends React.Component {
     const matrix = {};
     const project = this.props.project;
     project.matrix.forEach((m) => matrix[m.service] = m);
-    this.setState({ project: { ...project }, errors: { details: [], fields:{} }, matrix });
+    this.setState({ project: { ...project }, errors: { details: [], fields: {} }, matrix });
   }
 
   componentWillReceiveProps = (nextProps) => {
     const project = nextProps.project;
-    if(!project.isEditing) {
+    if (!project.isEditing) {
       const matrix = {};
       project.matrix.forEach((m) => matrix[m.service] = m);
-      this.setState({ project: { ...project }, errors: { details: [], fields:{} }, matrix });
+      this.setState({ project: { ...project }, errors: { details: [], fields: {} }, matrix });
     } else {
       this.setState({ project: { ...this.state.project, urls: [...project.urls] } });
     }
@@ -67,7 +68,7 @@ class ProjectComponent extends React.Component {
       this.props.fetchEntities(),
       this.props.fetchServices(),
       this.props.fetchUsers()
-    ]).then(()=>{
+    ]).then(() => {
       if (projectId) {
         this.props.fetchProject(projectId);
       }
@@ -109,8 +110,8 @@ class ProjectComponent extends React.Component {
         delete errors.fields['Service Center or Business Unit'];
       }
       window.scrollTo(0, 0);
-      this.refs.details.setState({ stacked:false });
-      this.setState({ errors:  errors });
+      this.refs.details.setState({ stacked: false });
+      this.setState({ errors: errors });
     }
     return !Boolean(error);
   }
@@ -119,7 +120,7 @@ class ProjectComponent extends React.Component {
     e.preventDefault();
     if (this.isFormValid()) {
       const { project, matrix } = this.state;
-      const modifiedProject = { ...project, matrix:Object.values(matrix) };
+      const modifiedProject = { ...project, matrix: Object.values(matrix) };
       this.props.onSave(modifiedProject);
     }
   }
@@ -146,7 +147,7 @@ class ProjectComponent extends React.Component {
           </Table.Header>
           <Table.Body>
             {servicesList.map(service => {
-              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix}/>;
+              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix} />;
             })}
           </Table.Body>
         </Table>
@@ -160,13 +161,13 @@ class ProjectComponent extends React.Component {
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
           type='text' autoComplete='off' placeholder={`No ${label}`} width={width}
-        />
+          />
       );
     }
     return (
-      <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}  width={width}
+      <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching} width={width}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
-      />
+        />
     );
   }
 
@@ -199,19 +200,19 @@ class ProjectComponent extends React.Component {
         <Segment loading={fetching} padded>
 
           <Form>
-          <h1 className='layout horizontal center justified'>
-            <Link to={'/projects'}>
-              <Icon name='arrow left' fitted/>
-            </Link>
-            <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
-              type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
-            />
-            {(!isFetching && canEditDetails) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
-          </h1>
+            <h1 className='layout horizontal center justified'>
+              <Link to={'/projects'}>
+                <Icon name='arrow left' fitted />
+              </Link>
+              <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
+                type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
+                />
+              {(!isFetching && canEditDetails && projectId != null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
+            </h1>
 
-          <Divider hidden/>
+            <Divider hidden />
             <Form.TextArea readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
-                  type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}/>
+              type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']} />
             <Form.Group>
               <Form.Field width='two'>
                 <Label size='large' className='form-label' content='URLs' />
@@ -225,8 +226,8 @@ class ProjectComponent extends React.Component {
                         {url.name}
                         {canEditDetails &&
                           <Label.Detail>
-                            <Icon link fitted name='edit' title='Edit URL' onClick={editUrl(index, url)}/>
-                            <Icon link fitted name='delete' title='Remove URL'  onClick={removeUrl(index)}/>
+                            <Icon link fitted name='edit' title='Edit URL' onClick={editUrl(index, url)} />
+                            <Icon link fitted name='delete' title='Remove URL' onClick={removeUrl(index)} />
                           </Label.Detail>
                         }
                       </Label>
@@ -241,8 +242,8 @@ class ProjectComponent extends React.Component {
             <Form error={Boolean(errors.details.length)}>
               <Form.Group widths='two'>
                 <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                    type='text' name='domain' autoComplete='off' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
-                />
+                  type='text' name='domain' autoComplete='off' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
+                  />
                 {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors, !canEditDetails)}
               </Form.Group>
 
@@ -250,10 +251,34 @@ class ProjectComponent extends React.Component {
                 {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', 'eight', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                 {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', 'eight', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
               </Form.Group>
-              <Message error list={errors.details}/>
+              <Message error list={errors.details} />
             </Form>
           </Box>
-          <Divider hidden/>
+          <Box icon='help circle' title='Maturity Legend' ref='legend'>
+            <Grid columns={2} relaxed>
+              <Grid.Column>
+                {options.slice(0, Math.ceil(options.length / 2)).map(opt => {
+                  return (
+                    <List.Item key={opt.value}>
+                      <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                      {opt.title}
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+              <Grid.Column>
+                {options.slice(Math.ceil(options.length / 2)).map(opt => {
+                  return (
+                    <List.Item key={opt.value}>
+                      <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                      {opt.title}
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+            </Grid>
+          </Box>
+          <Divider hidden />
           {this.renderServices(project, services, fetching, !canEditMatrix)}
           {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>
@@ -299,6 +324,7 @@ const mapStateToProps = (state, ownProps) => {
   selectedProject.urls = selectedProject.urls || [];
 
   let entities = Object.values(state.entities.items);
+  const userEntities = authUser.entities || [];
 
   // The only entities we show for a RI and a CP are:
   // * the entities assigned to the RI
@@ -306,18 +332,17 @@ const mapStateToProps = (state, ownProps) => {
   if (authUser.role !== AUTH_ADMIN_ROLE) {
     entities = entities.filter(entity =>
       authUser.entities
-        .concat(selectedProject.businessUnit)
-        .concat(selectedProject.serviceCenter)
+        .concat(selectedProject.businessUnit || [])
+        .concat(selectedProject.serviceCenter || [])
         .includes(entity.id));
   }
-  
-  const userEntities = authUser.entities || [];
+
   const commonEntities = userEntities.find(id => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
   // Details of the project can be edited if the user is an admin
   // or if the user is a RI and it's a project linked to that user
   // or if the user is a RI and it's a new project
   const canEditDetails = authUser.role === AUTH_ADMIN_ROLE || (authUser.role === AUTH_RI_ROLE && (commonEntities.length > 0 || !project.id));
-  
+
   const services = groupByPackage(state.services.items);
   return {
     auth,
@@ -334,6 +359,10 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
+const redirectAction = (projectId) => {
+  return push('/projects/' + projectId);
+};
+
 const mapDispatchToProps = dispatch => ({
   fetchProject: id => dispatch(ProjectsThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
@@ -348,7 +377,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(ModalActions.openEditUrlModal(url, cb));
   },
   onRemoveUrl: (id, index) => dispatch(ProjectsActions.removeUrl(id, index)),
-  onSave: project => dispatch(ProjectsThunks.save(project, ToastsActions.savedProjectSuccessNotification(project.name))),
+  onSave: project => dispatch(ProjectsThunks.save(project, redirectAction, ToastsActions.savedProjectSuccessNotification(project.name))),
   onDelete: project => {
     const del = () => dispatch(ProjectsThunks.delete(project, push('/projects')));
     dispatch(ModalActions.openRemoveProjectModal(project, del));

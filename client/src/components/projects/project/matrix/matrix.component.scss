@@ -21,4 +21,92 @@
       }
     }
   }
+  .ui.selection.dropdown .menu .item .label {
+    float: left !important;
+    margin-right: 0.5em !important;
+  }
+
+  .field.black .ui.selection.dropdown .text{
+    &::before {
+      content: ">>";
+      display: inline-block;
+      background-color: black;
+      color: black;
+      margin-right: .5em;
+      border-radius: .28571429rem;
+      width: 20px;
+    }
+  }
+
+  .field.grey .ui.selection.dropdown .text{
+    &::before {
+      content: ">>";
+      display: inline-block;
+      background-color: #767676;
+      color: #767676;
+      margin-right: .5em;
+      border-radius: .28571429rem;
+      width: 20px;
+    }
+  }
+
+  .field.red .ui.selection.dropdown .text{
+    &::before {
+      content: ">>";
+      display: inline-block;
+      background-color: #DB2828;
+      color: #DB2828;
+      margin-right: .5em;
+      border-radius: .28571429rem;
+      width: 20px;
+    }
+  }
+
+  .field.orange .ui.selection.dropdown .text{
+    &::before {
+      content: ">>";
+      display: inline-block;
+      background-color: #F2711C;
+      color: #F2711C;
+      margin-right: .5em;
+      border-radius: .28571429rem;
+      width: 20px;
+    }
+  }
+
+  .field.yellow .ui.selection.dropdown .text{
+    &::before {
+      content: ">>";
+      display: inline-block;
+      background-color: #FBBD08;
+      color: #FBBD08;
+      margin-right: .5em;
+      border-radius: .28571429rem;
+      width: 20px;
+    }
+  }
+
+  .field.olive .ui.selection.dropdown .text{
+    &::before {
+      content: ">>";
+      display: inline-block;
+      background-color: #B5CC18;
+      color: #B5CC18;
+      margin-right: .5em;
+      border-radius: .28571429rem;
+      width: 20px;
+    }
+  }
+
+  .field.green .ui.selection.dropdown .text{
+    &::before {
+      content: ">>";
+      display: inline-block;
+      background-color: #21BA45;
+      color: #21BA45;
+      margin-right: .5em;
+      border-radius: .28571429rem;
+      width: 20px;
+    }
+  }
 }

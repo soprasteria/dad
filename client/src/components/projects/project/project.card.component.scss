@@ -23,4 +23,30 @@
       }
     }
   }
+
+  .ui.right.floated.image {
+    margin-bottom: .25em;
+  }
+
+  .service-center {
+    width: 130px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .business-unit {
+    width: 130px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: right;
+  }
+
+  .domain {
+    width: 260px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 }

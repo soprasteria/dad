@@ -41,7 +41,7 @@ class UserCardComponent extends React.Component {
     return (
       <Card className='user-card' raised>
         <Card.Content>
-          <Link to={`/users/${user.id}`}>
+          <Link to={`/users/${user.id}`} title={user.displayName}>
             {`${user.lastName.toUpperCase()} ${user.firstName}`}
           </Link>
           <Dropdown trigger={this.renderDropDown(user)} compact onChange={this.handleChange} options={options}

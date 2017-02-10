@@ -17,7 +17,7 @@ export const getFilteredProjects = (projects, entities, filterValue) => {
         if(filterValue.endsWith('%')) {
           const parsedValue = Number.parseInt(filterValue.substring(0, filterValue.length - 1));
           if (parsedValue) {
-            const filteredMatrix = project.matrix.filter(m => m.goal !== -1);
+            const filteredMatrix = project.matrix.filter(m => m.goal > 0);
             if (filteredMatrix.length > 0) {
               const goals = filteredMatrix.map(m => [m.progress, m.goal])
                 .reduce((acc, [progress, goal]) => {

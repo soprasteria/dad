@@ -42,7 +42,7 @@ class Matrix extends React.Component {
           <Form>
             {readOnly
               ? (<div>{goalOption.text}</div>)
-              : (<Form.Dropdown readOnly={readOnly} placeholder='Goal' fluid selection name='goal' title={goalOption.title}
+              : (<Form.Dropdown placeholder='Goal' fluid selection name='goal' title={goalOption.title}
                   options={options} value={matrix.goal} onChange={this.handleChange} className={goalOption.label.color}
                 />)
             }

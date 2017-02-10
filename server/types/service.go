@@ -9,9 +9,10 @@ import (
 
 // FunctionalService represents the service
 type FunctionalService struct {
-	ID      bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
-	Name    string        `bson:"name" json:"name"`
-	Package string        `bson:"package" json:"package"`
+	ID       bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
+	Name     string        `bson:"name" json:"name"`
+	Package  string        `bson:"package" json:"package"`
+	Position int           `bson:"position" json:"position"`
 }
 
 // FunctionalServiceRepo wraps all requests to database for accessing functional services
@@ -54,7 +55,7 @@ func (r *FunctionalServiceRepo) FindAll() ([]FunctionalService, error) {
 		return []FunctionalService{}, ErrDatabaseNotInitialiazed
 	}
 	functionalServices := []FunctionalService{}
-	err := r.col().Find(bson.M{}).All(&functionalServices)
+	err := r.col().Find(bson.M{}).Sort("package", "position").All(&functionalServices)
 	if err != nil {
 		return []FunctionalService{}, errors.New("Can't retrieve all functional services")
 	}

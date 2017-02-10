@@ -26,7 +26,7 @@ class Users extends React.Component {
   renderCards = (users) => {
     if (users.length) {
       return (
-        <Card.Group>
+        <Card.Group className='centered'>
           {users.map(user => {
             return (
               <UserCard user={user} key={user.id} />

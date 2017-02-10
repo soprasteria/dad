@@ -31,7 +31,7 @@ class Projects extends React.Component {
   renderCards = (projects, entities) => {
     if (projects.length) {
       return (
-        <Card.Group>
+        <Card.Group className='centered'>
           {projects.map(project => {
             return (
               <ProjectCard project={project} key={project.id} businessUnit={entities[project.businessUnit] || {}} serviceCenter={entities[project.serviceCenter] || {}}/>

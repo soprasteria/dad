@@ -359,10 +359,6 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const redirectAction = (projectId) => {
-  return push('/projects/' + projectId);
-};
-
 const mapDispatchToProps = dispatch => ({
   fetchProject: id => dispatch(ProjectsThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
@@ -377,7 +373,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(ModalActions.openEditUrlModal(url, cb));
   },
   onRemoveUrl: (id, index) => dispatch(ProjectsActions.removeUrl(id, index)),
-  onSave: project => dispatch(ProjectsThunks.save(project, redirectAction, ToastsActions.savedProjectSuccessNotification(project.name))),
+  onSave: project => dispatch(ProjectsThunks.save(project, (id) => push('/projects/' + id), ToastsActions.savedSuccessNotification('Project ' + project.name))),
   onDelete: project => {
     const del = () => dispatch(ProjectsThunks.delete(project, push('/projects')));
     dispatch(ModalActions.openRemoveProjectModal(project, del));

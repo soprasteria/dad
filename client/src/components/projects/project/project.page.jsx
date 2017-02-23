@@ -242,7 +242,7 @@ class ProjectComponent extends React.Component {
             <Form error={Boolean(errors.details.length)}>
               <Form.Group widths='two'>
                 <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                  type='text' name='domain' autoComplete='off' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
+                  type='text' name='domain' autoComplete='on' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
                   />
                 {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors, !canEditDetails)}
               </Form.Group>

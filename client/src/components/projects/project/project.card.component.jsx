@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { Card, Icon, Label } from 'semantic-ui-react';
 
-
+import { calculateProgress } from '../../../modules/utils/projects';
 import './project.card.component.scss';
 
 // ProjectCard Component
@@ -12,14 +12,10 @@ class ProjectCard extends React.Component {
   render = () => {
     const { project, businessUnit, serviceCenter } = this.props;
     project.matrix = project.matrix || [];
-    const filteredMatrix = project.matrix.filter(m => m.goal > 0);
-    const goals = filteredMatrix.map(m => [m.progress, m.goal])
-      .reduce((acc, [progress, goal]) => {
-        if (progress === -1) {progress = 0;}
-        const res = acc  + Math.min(progress * 100 / goal, 100);
-        return res;
-      }, 0);
-    const goalMessage = filteredMatrix.length <= 0 ? 'N/A' : Math.floor(goals / filteredMatrix.length) + '%';
+    const filteredMatrixGoals = project.matrix.filter(m => m.goal >= 0);
+    const filteredMatrixProgress = project.matrix.filter(m => m.progress >= 0);
+    const goalMessage = (filteredMatrixGoals.length === 0 && filteredMatrixProgress.length === 0) ? '-' :  // If nothing was renseigned, then the output is ''-'
+          filteredMatrixGoals.length === 0 ? 'N/A' : Math.floor(calculateProgress(project)) + '%'; // Else if there is no goal specified the output is N/A, otherwise we do the maths.
     return (
       <Card className='project-card' raised>
         <Card.Content>

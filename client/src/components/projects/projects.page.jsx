@@ -53,7 +53,7 @@ class Projects extends React.Component {
           onChange={(event) => changeFilter(event.target.value)}
           value={filterValue}
         />
-    )
+    );
 
     return (
       <Container fluid className='projects-page'>

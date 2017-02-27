@@ -17,13 +17,13 @@ class HomeComponent extends React.Component {
 
   componentWillReceiveProps = (nextProps) => {
     const { isAuthenticated, redirect } = nextProps;
-      if (isAuthenticated) {
-        redirect('/projects');
-      }
+    if (isAuthenticated) {
+      redirect('/projects');
+    }
   }
 
   render = () => {
-    const { isAuthenticated, redirect } = this.props;
+    const { isAuthenticated } = this.props;
     if (isAuthenticated) {
       return <div/>;
     } else {

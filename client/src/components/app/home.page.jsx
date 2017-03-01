@@ -8,10 +8,20 @@ import AuthPage from '../auth/login.component';
 // HomeComponent displaying either the register/login component or information about Dad when authenticated
 class HomeComponent extends React.Component {
 
-  render = () => {
-    const { isAuthenticated, redirect } = this.props;
+  redirectIfAuthenticated = (props) => {
+    const { isAuthenticated, redirect } = props;
     if (isAuthenticated) {
       redirect('/projects');
+    }
+  }
+
+  componentWillMount = () => this.redirectIfAuthenticated(this.props);
+
+  componentWillReceiveProps = (nextProps) => this.redirectIfAuthenticated(nextProps);
+
+  render = () => {
+    const { isAuthenticated } = this.props;
+    if (isAuthenticated) {
       return <div/>;
     } else {
       return <AuthPage/>;

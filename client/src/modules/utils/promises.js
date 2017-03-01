@@ -25,8 +25,9 @@ export const parseText = response => {
 const dispatchError = (status, action, text, dispatch) => {
   if (status === 401 || status === 403) {
     // When JWT Token expired or is invalid, redirect to auth
-    dispatch(AuthActions.loginNotAuthorized(text));
     dispatch(push('/login'));
+    dispatch(action(text));
+    dispatch(AuthActions.loginNotAuthorized(text));
   } else {
     dispatch(action(text));
   }

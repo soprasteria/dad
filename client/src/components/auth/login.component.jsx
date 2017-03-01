@@ -14,7 +14,7 @@ import './login.component.scss';
 // Signin Pane containing fields to log in the application
 class LoginComponent extends React.Component {
 
-  state = { errors: { details: [], fields: {} } }
+  state = { errors: { details: [], fields: {} }, auth: {} }
 
   schema = Joi.object().keys({
     username: Joi.string().trim().alphanum().required().label('Username'),
@@ -27,7 +27,7 @@ class LoginComponent extends React.Component {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {
-      this.setState({ errors: { details: [errorMessage], fields:{} } });
+      this.setState({ errors: { details: [errorMessage], fields:{} }, auth: {} });
     }
   }
 
@@ -37,24 +37,28 @@ class LoginComponent extends React.Component {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {
-      this.setState({ errors: { details: [errorMessage], fields:{} } });
+      this.setState({ errors: { details: [errorMessage], fields:{} }, auth: {} });
     }
   }
 
-  handleSubmit = (e, { formData }) => {
+  handleSubmit = (e) => {
     e.preventDefault();
-    const { error } = Joi.validate(formData, this.schema, { abortEarly: false });
+    const { error } = Joi.validate(this.state.auth, this.schema, { abortEarly: false });
     if (error) {
       this.setState({ errors: parseError(error) });
     } else {
-      this.props.logUser(formData);
+      this.props.logUser(this.state.auth);
     }
   }
 
-  handleChange = (e, { name }) => {
-    const fields = { ...this.state.errors.fields };
-    delete fields[name];
-    this.setState({ errors: { fields, details: [...this.state.errors.details] } });
+  handleChange = (e, { name, value }) => {
+    const { auth, errors } = this.state;
+    const state = {
+      auth: { ...auth, [name]: value },
+      errors: { details: [...errors.details], fields: { ...errors.fields } }
+    };
+    delete state.errors.fields[name];
+    this.setState(state);
   }
 
   render = () => {
@@ -105,8 +109,8 @@ const mapStateToProps = (state) => {
 // Function to map dispatch to container props
 const mapDispatchToProps = (dispatch) => {
   return {
-    logUser: (creds) => {
-      dispatch(AuthThunks.loginUser(creds));
+    logUser: (username, password) => {
+      dispatch(AuthThunks.loginUser(username, password));
     },
     redirect: (path) => {
       dispatch(push(path));

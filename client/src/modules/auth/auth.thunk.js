@@ -7,12 +7,12 @@ import AuthActions from './auth.actions';
 
 // Calls the API to get a token and
 // dispatches actions along the way
-const loginUser = (creds) => {
+const loginUser = (auth) => {
 
   let config = {
     method: 'POST',
     headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-    body: `username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}`
+    body: `username=${encodeURIComponent(auth.username)}&password=${encodeURIComponent(auth.password)}`
   };
 
   return dispatch => {

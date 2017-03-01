@@ -20,11 +20,21 @@ var Progress = map[int]string{
 	5:  "100%",
 }
 
+// Priority maps the progress codes to their string representation
+var Priority = map[int]string{
+	-1: "N/A",
+	0:  "P0",
+	1:  "P1",
+	2:  "P2",
+}
+
 // MatrixLine represents information of a depending on the functional service
 type MatrixLine struct {
 	Service  bson.ObjectId `bson:"service" json:"service"`
 	Progress int           `bson:"progress" json:"progress"`
 	Goal     int           `bson:"goal" json:"goal"`
+	Priority int           `bson:"priority" json:"priority"`
+	DueDate  time.Time     `bson:"dueDate,omitempty" json:"dueDate,omitempty"`
 	Comment  string        `bson:"comment" json:"comment"`
 }
 

@@ -2,7 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Button, Card, Container, Icon, Input, Label, Segment } from 'semantic-ui-react';
+import { Button, Card, Container, Icon, Input, Label, Popup, Segment } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
 import { AUTH_CP_ROLE } from '../../modules/auth/auth.constants';
 
@@ -45,19 +45,34 @@ class Projects extends React.Component {
 
   render = () => {
     const { projects, entities, filterValue, isFetching, changeFilter, auth } = this.props;
+    const SearchBar = (
+        <DebounceInput
+          placeholder='e.g. ProjectA, 10%, not started...'
+          minLength={1}
+          debounceTimeout={300}
+          onChange={(event) => changeFilter(event.target.value)}
+          value={filterValue}
+        />
+    );
+
     return (
       <Container fluid className='projects-page'>
         <Segment.Group raised>
           <Segment clearing>
             <Input icon labelPosition='left corner'>
               <Label corner='left' icon='search' />
-              <DebounceInput
-                placeholder='Search...'
-                minLength={1}
-                debounceTimeout={300}
-                onChange={(event) => changeFilter(event.target.value)}
-                value={filterValue}
-              />
+              <Popup trigger={SearchBar} position = 'bottom center' wide = 'very' size = 'small' on='focus' inverted>
+                <Popup.Header>Search Options</Popup.Header>
+                <Popup.Content>
+                  You can search projects by their <b>Name, Domain, Service Center, Business Unit and:</b>
+                  <ul>
+                    <li><b>N%</b>: All projects which progression is equal or above N% </li>
+                    <li><b>started</b>: All projects with at least 1 progession or 1 goal </li>
+                    <li><b>no goal</b>: All projects with no goal specified</li>
+                    <li><b>not started</b>: All empty projects</li>
+                  </ul>
+                </Popup.Content>
+              </Popup>
               <Icon link name='remove' onClick={() => changeFilter('')}/>
             </Input>
             {auth.user.role !== AUTH_CP_ROLE && <Button as={Link} content='New Project' icon='plus' labelPosition='left' color='green' floated='right' to={'/projects/new'} />}

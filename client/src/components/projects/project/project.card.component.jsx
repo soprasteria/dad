@@ -14,7 +14,7 @@ class ProjectCard extends React.Component {
     project.matrix = project.matrix || [];
     const filteredMatrixGoals = project.matrix.filter(m => m.goal >= 0);
     const filteredMatrixProgress = project.matrix.filter(m => m.progress >= 0);
-    const goalMessage = (filteredMatrixGoals.length === 0 && filteredMatrixProgress.length === 0) ? '-' :  // If nothing was renseigned, then the output is ''-'
+    const goalMessage = (filteredMatrixGoals.length === 0 && filteredMatrixProgress.length === 0) ? '-' :  // If nothing was specified, then the output is ''-'
           filteredMatrixGoals.length === 0 ? 'N/A' : Math.floor(calculateProgress(project)) + '%'; // Else if there is no goal specified the output is N/A, otherwise we do the maths.
     return (
       <Card className='project-card' raised>

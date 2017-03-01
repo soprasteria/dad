@@ -64,9 +64,9 @@ class Projects extends React.Component {
               <Popup trigger={SearchBar} position = 'bottom center' wide = 'very' size = 'small' on='focus' inverted>
                 <Popup.Header>Search Options</Popup.Header>
                 <Popup.Content>
-                  You can search projects by their <b>Names, Domain, Service Center, Business Unit and:</b>
+                  You can search projects by their <b>Name, Domain, Service Center, Business Unit and:</b>
                   <ul>
-                    <li><b>N%</b>: All projects which progression is &ge; N% </li>
+                    <li><b>N%</b>: All projects which progression is equal or above N% </li>
                     <li><b>started</b>: All projects with at least 1 progession or 1 goal </li>
                     <li><b>no goal</b>: All projects with no goal specified</li>
                     <li><b>not started</b>: All empty projects</li>

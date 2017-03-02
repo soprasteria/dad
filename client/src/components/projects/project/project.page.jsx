@@ -142,7 +142,9 @@ class ProjectComponent extends React.Component {
               <Table.HeaderCell width='six'>{pckg}</Table.HeaderCell>
               <Table.HeaderCell width='two'>Progress</Table.HeaderCell>
               <Table.HeaderCell width='two'>Goal</Table.HeaderCell>
-              <Table.HeaderCell width='six'>Comment</Table.HeaderCell>
+              <Table.HeaderCell width='one'>Priority</Table.HeaderCell>
+              <Table.HeaderCell width='two'>Due Date</Table.HeaderCell>
+              <Table.HeaderCell width='three'>Comment</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>

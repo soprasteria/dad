@@ -31,10 +31,10 @@ var Priority = map[int]string{
 // MatrixLine represents information of a depending on the functional service
 type MatrixLine struct {
 	Service  bson.ObjectId `bson:"service" json:"service"`
-	Progress int           `bson:"progress,omitempty" json:"progress,omitempty"`
-	Goal     int           `bson:"goal,omitempty" json:"goal,omitempty"`
-	Priority int           `bson:"priority,omitempty" json:"priority,omitempty"`
-	DueDate  time.Time     `bson:"dueDate,omitempty" json:"dueDate,omitempty"`
+	Progress int           `bson:"progress" json:"progress"`
+	Goal     int           `bson:"goal" json:"goal"`
+	Priority string        `bson:"priority,omitempty" json:"priority,omitempty"`
+	DueDate  time.Time     `bson:"dueDate" json:"dueDate"`
 	Comment  string        `bson:"comment" json:"comment"`
 }
 

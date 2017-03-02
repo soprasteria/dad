@@ -10,6 +10,13 @@ export const options = [
   { value: 5, text: '100%', label: { color: 'green', empty: true, circular: false }, title:'Fully used by the team' },
 ];
 
+export const priorities = [
+  { value: 'N/A', text: 'N/A', title: 'Non applicable' },
+  { value: 'P0', text: 'P0', title: 'High priority' },
+  { value: 'P1', text: 'P1', title: 'Medium priority' },
+  { value: 'P2', text: 'P2', title: 'Low priority' },
+];
+
 export default {
   ...generateEntitiesConstants('services'),
   CHANGE_FILTER: 'CHANGE_FILTER_SERVICES'

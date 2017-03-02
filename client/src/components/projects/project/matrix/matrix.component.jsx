@@ -3,9 +3,13 @@ import React from 'react';
 import DebounceInput from 'react-debounce-input';
 import { Form, Table } from 'semantic-ui-react';
 
-import { options } from '../../../../modules/services/services.constants';
+import { options, priorities } from '../../../../modules/services/services.constants';
 
 import './matrix.component.scss';
+
+// Golang date format
+const dueDateSuffix = 'T00:00:00Z';
+const defaultDueDate = '0001-01-01' + dueDateSuffix;
 
 // Matrix Component Component
 class Matrix extends React.Component {
@@ -18,13 +22,20 @@ class Matrix extends React.Component {
     this.props.onChange(this.props.serviceId, { ...this.props.matrix, comment:target.value });
   }
 
+  handleChangeDueDate = ({ target }) => {
+    this.props.onChange(this.props.serviceId, { ...this.props.matrix, dueDate: target.value ? target.value + dueDateSuffix : '' });
+  }
+
   render = () => {
     const { service, matrix, readOnly } = this.props;
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
+    matrix.priority = typeof matrix.priority === 'string' && matrix.priority !== '' ? matrix.priority : 'N/A';
 
     const progressOption = options.find(elm => elm.value === matrix.progress);
+    const priorityOption = priorities.find(elm => elm.value === matrix.priority);
     const goalOption = options.find(elm => elm.value === matrix.goal);
+    const dueDate = matrix.dueDate && matrix.dueDate !== defaultDueDate ? matrix.dueDate.substr(0, 10) : '';
     return (
       <Table.Row className='matrix-component'>
         <Table.Cell>{service.name}</Table.Cell>
@@ -46,6 +57,21 @@ class Matrix extends React.Component {
                   options={options} value={matrix.goal} onChange={this.handleChange} className={goalOption.label.color}
                 />)
             }
+          </Form>
+        </Table.Cell>
+        <Table.Cell>
+          <Form>
+            {readOnly
+              ? (<div>{priorityOption.text}</div>)
+              : (<Form.Dropdown placeholder='Priority' fluid selection name='priority' title={priorityOption.title}
+                options={priorities} value={matrix.priority} onChange={this.handleChange}
+              />)
+            }
+          </Form>
+        </Table.Cell>
+        <Table.Cell>
+          <Form>
+            <input type='date' name='dueDate' value={dueDate} onChange={this.handleChangeDueDate}/>
           </Form>
         </Table.Cell>
         <Table.Cell>

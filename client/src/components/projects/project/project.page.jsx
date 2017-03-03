@@ -139,12 +139,12 @@ class ProjectComponent extends React.Component {
         <Table key={pckg} celled striped compact>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell width='six'>{pckg}</Table.HeaderCell>
-              <Table.HeaderCell width='two'>Progress</Table.HeaderCell>
-              <Table.HeaderCell width='two'>Goal</Table.HeaderCell>
-              <Table.HeaderCell width='one'>Priority</Table.HeaderCell>
-              <Table.HeaderCell width='two'>Due Date</Table.HeaderCell>
-              <Table.HeaderCell width='three'>Comment</Table.HeaderCell>
+              <Table.HeaderCell width='8'>{pckg}</Table.HeaderCell>
+              <Table.HeaderCell width='2'>Progress</Table.HeaderCell>
+              <Table.HeaderCell width='2'>Goal</Table.HeaderCell>
+              <Table.HeaderCell width='1'>Priority</Table.HeaderCell>
+              <Table.HeaderCell width='2'>Due Date</Table.HeaderCell>
+              <Table.HeaderCell width='1'>Comment</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>

@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 import DebounceInput from 'react-debounce-input';
-import { Form, Table } from 'semantic-ui-react';
+import { Form, Table, Button, Icon, Popup } from 'semantic-ui-react';
 import classNames from 'classnames';
 
 import { options, priorities } from '../../../../modules/services/services.constants';
@@ -72,8 +72,6 @@ class Matrix extends React.Component {
         </Table.Cell>)
       ];
     } else {
-      const commentCellClassName = classNames(readOnly, 'comment');
-      const commentClassName = classNames(readOnly, { empty: !matrix.comment }, 'comment');
       return [
         serviceNameCell,
         (<Table.Cell key='progress'>
@@ -111,11 +109,17 @@ class Matrix extends React.Component {
             <input type='date' name='dueDate' value={dueDate} onChange={this.handleChangeDueDate} />
           </Form>
         </Table.Cell>),
-        (<Table.Cell key='comment' onClick={() => setExpandComment(true)} className={commentCellClassName} title={readOnly ? '' : 'Edit comment'} >
+        (<Table.Cell key='comment' className={classNames(readOnly, 'comment', 'center')}>
           <Form>
-            <span name='comment' className={commentClassName}>
-              {matrix.comment || (readOnly ? '' : 'Add a comment')}
-            </span>
+            <Popup
+              trigger={
+                <Button icon name='comment' onClick={() => setExpandComment(true)} title={readOnly ? '' : 'Edit comment'} color={matrix.comment ? 'blue' : null}>
+                  <Icon name='comment' />
+                </Button>
+              }
+              content={matrix.comment ? matrix.comment : 'Click to add a comment'}
+              header={matrix.comment ? 'Click to edit' : null}
+            />
           </Form>
         </Table.Cell>)
       ];

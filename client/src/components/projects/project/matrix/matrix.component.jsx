@@ -2,6 +2,7 @@
 import React from 'react';
 import DebounceInput from 'react-debounce-input';
 import { Form, Table } from 'semantic-ui-react';
+import classNames from 'classnames';
 
 import { options, priorities } from '../../../../modules/services/services.constants';
 
@@ -50,7 +51,7 @@ class Matrix extends React.Component {
 
     const serviceNameCell = (<Table.Cell key='service'>{service.name}</Table.Cell>);
 
-    const doExpandComment = (expandComment) => this.setState((prevState) => {
+    const setExpandComment = (expandComment) => this.setState((prevState) => {
       return {
         ...prevState,
         expandComment
@@ -58,18 +59,21 @@ class Matrix extends React.Component {
     });
 
     if (expandComment) {
+      // When the comment is expanded, the only 2 cells are the service name and the comment
       return [
         serviceNameCell,
         (<Table.Cell key='comment' colSpan={5}>
           <Form>
-            <DebounceInput readOnly={readOnly} debounceTimeout={600} element={Form.TextArea} autoHeight
+            <DebounceInput autoFocus readOnly={readOnly} debounceTimeout={600} element={Form.TextArea} autoHeight
               placeholder={readOnly ? '' : 'Add a comment'} name='comment' value={matrix.comment}
-              onChange={this.handleChangeComment} onBlur={() => doExpandComment(false)}
+              onChange={this.handleChangeComment} onBlur={() => setExpandComment(false)}
             />
           </Form>
         </Table.Cell>)
       ];
     } else {
+      const commentCellClassName = classNames(readOnly, 'comment');
+      const commentClassName = classNames(readOnly, { empty: !matrix.comment }, 'comment');
       return [
         serviceNameCell,
         (<Table.Cell key='progress'>
@@ -107,9 +111,9 @@ class Matrix extends React.Component {
             <input type='date' name='dueDate' value={dueDate} onChange={this.handleChangeDueDate} />
           </Form>
         </Table.Cell>),
-        (<Table.Cell key='comment'>
+        (<Table.Cell key='comment' onClick={() => setExpandComment(true)} className={commentCellClassName} title={readOnly ? '' : 'Edit comment'} >
           <Form>
-            <span name='comment' onClick={() => doExpandComment(true)} title={matrix.comment} className={matrix.comment ? '' : 'empty'}>
+            <span name='comment' className={commentClassName}>
               {matrix.comment || (readOnly ? '' : 'Add a comment')}
             </span>
           </Form>

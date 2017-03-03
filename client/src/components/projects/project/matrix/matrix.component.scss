@@ -110,7 +110,15 @@
     }
   }
 
-  .empty {
-    color: grey;
+  .comment {
+    white-space: pre-wrap;
+
+    &:hover:not(.readOnly) {
+      cursor: pointer;
+    }
+
+    &.empty {
+      color: grey;
+    }
   }
 }

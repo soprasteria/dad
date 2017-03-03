@@ -120,5 +120,9 @@
     &.empty {
       color: grey;
     }
+
+    &.center {
+      text-align: center;
+    }
   }
 }

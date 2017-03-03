@@ -15,11 +15,11 @@ const defaultDueDate = '0001-01-01' + dueDateSuffix;
 class Matrix extends React.Component {
 
   handleChange = (e, { name, value }) => {
-    this.props.onChange(this.props.serviceId, { ...this.props.matrix, [name]:value });
+    this.props.onChange(this.props.serviceId, { ...this.props.matrix, [name]: value });
   }
 
   handleChangeComment = ({ target }) => {
-    this.props.onChange(this.props.serviceId, { ...this.props.matrix, comment:target.value });
+    this.props.onChange(this.props.serviceId, { ...this.props.matrix, comment: target.value });
   }
 
   handleChangeDueDate = ({ target }) => {
@@ -28,6 +28,14 @@ class Matrix extends React.Component {
 
   render = () => {
     const { service, matrix, readOnly } = this.props;
+    return (
+      <Table.Row className='matrix-component'>
+        {this.renderCells(service, matrix, readOnly)}
+      </Table.Row>
+    );
+  }
+
+  renderCells = (service, matrix, readOnly) => {
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
     matrix.priority = typeof matrix.priority === 'string' && matrix.priority !== '' ? matrix.priority : 'N/A';
@@ -35,31 +43,56 @@ class Matrix extends React.Component {
     const progressOption = options.find(elm => elm.value === matrix.progress);
     const priorityOption = priorities.find(elm => elm.value === matrix.priority);
     const goalOption = options.find(elm => elm.value === matrix.goal);
+    // Only keeps the yyyy-MM-dd part of the due date which corresponds to the expected format for the input date
     const dueDate = matrix.dueDate && matrix.dueDate !== defaultDueDate ? matrix.dueDate.substr(0, 10) : '';
-    return (
-      <Table.Row className='matrix-component'>
-        <Table.Cell>{service.name}</Table.Cell>
-        <Table.Cell>
+
+    const expandComment = this.state && this.state.expandComment;
+
+    const serviceNameCell = (<Table.Cell key='service'>{service.name}</Table.Cell>);
+
+    const doExpandComment = (expandComment) => this.setState((prevState) => {
+      return {
+        ...prevState,
+        expandComment
+      };
+    });
+
+    if (expandComment) {
+      return [
+        serviceNameCell,
+        (<Table.Cell key='comment' colSpan={5}>
+          <Form>
+            <DebounceInput readOnly={readOnly} debounceTimeout={600} element={Form.TextArea} autoHeight
+              placeholder={readOnly ? '' : 'Add a comment'} name='comment' value={matrix.comment}
+              onChange={this.handleChangeComment} onBlur={() => doExpandComment(false)}
+            />
+          </Form>
+        </Table.Cell>)
+      ];
+    } else {
+      return [
+        serviceNameCell,
+        (<Table.Cell key='progress'>
           <Form>
             {readOnly
-              ? (<div>{progressOption.text}</div>)
+              ? (<div >{progressOption.text}</div>)
               : (<Form.Dropdown placeholder='Progress' fluid selection name='progress' title={progressOption.title}
-                  options={options} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
-                />)
+                options={options} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
+              />)
             }
           </Form>
-        </Table.Cell>
-        <Table.Cell>
+        </Table.Cell>),
+        (<Table.Cell key='goal'>
           <Form>
             {readOnly
               ? (<div>{goalOption.text}</div>)
               : (<Form.Dropdown placeholder='Goal' fluid selection name='goal' title={goalOption.title}
-                  options={options} value={matrix.goal} onChange={this.handleChange} className={goalOption.label.color}
-                />)
+                options={options} value={matrix.goal} onChange={this.handleChange} className={goalOption.label.color}
+              />)
             }
           </Form>
-        </Table.Cell>
-        <Table.Cell>
+        </Table.Cell>),
+        (<Table.Cell key='priority'>
           <Form>
             {readOnly
               ? (<div>{priorityOption.text}</div>)
@@ -68,22 +101,21 @@ class Matrix extends React.Component {
               />)
             }
           </Form>
-        </Table.Cell>
-        <Table.Cell>
+        </Table.Cell>),
+        (<Table.Cell key='dueDate'>
           <Form>
-            <input type='date' name='dueDate' value={dueDate} onChange={this.handleChangeDueDate}/>
+            <input type='date' name='dueDate' value={dueDate} onChange={this.handleChangeDueDate} />
           </Form>
-        </Table.Cell>
-        <Table.Cell>
+        </Table.Cell>),
+        (<Table.Cell key='comment'>
           <Form>
-            <DebounceInput readOnly={readOnly} debounceTimeout={600} element={Form.TextArea} autoHeight
-              placeholder={readOnly ? '' : 'Add a comment'} name='comment' value={matrix.comment}
-              onChange={this.handleChangeComment}
-            />
+            <span name='comment' onClick={() => doExpandComment(true)} title={matrix.comment} className={matrix.comment ? '' : 'empty'}>
+              {matrix.comment || (readOnly ? '' : 'Add a comment')}
+            </span>
           </Form>
-        </Table.Cell>
-      </Table.Row>
-    );
+        </Table.Cell>)
+      ];
+    }
   }
 }
 

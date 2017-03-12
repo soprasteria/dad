@@ -1,8 +1,6 @@
 package server
 
 import (
-	"html/template"
-	"io"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -16,19 +14,8 @@ import (
 // JSON type
 type JSON map[string]interface{}
 
-// Template : template struct
-type Template struct {
-	Templates *template.Template
-}
-
-// Render : render template
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.Templates.ExecuteTemplate(w, name, data)
-}
-
-//New instane of the server
+// New instance of the server
 func New(version string) {
-
 	engine := echo.New()
 	authC := controllers.Auth{}
 	usersC := controllers.Users{}
@@ -39,10 +26,7 @@ func New(version string) {
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
-	//engine.Use(middleware.Gzip())
-
-	t := &Template{Templates: template.Must(template.ParseFiles("./client/dist/index.tmpl"))}
-	engine.Renderer = t
+	// engine.Use(middleware.Gzip()) // FIXME: https://github.com/labstack/echo/issues/806
 
 	engine.GET("/ping", pong)
 
@@ -51,9 +35,9 @@ func New(version string) {
 		if viper.GetBool("ldap.enable") {
 			authAPI.Use(openLDAP)
 		}
-		authAPI.Use(sessionMongo) // Enrich echo context with connexion to mongo API
+		authAPI.Use(sessionMongo) // Enrich echo context with connection to Mongo
 		authAPI.POST("/login", authC.Login)
-		authAPI.GET("/*", GetIndex(version))
+		authAPI.File("/*", "client/index.html")
 	}
 
 	api := engine.Group("/api")
@@ -127,29 +111,19 @@ func New(version string) {
 		}
 	}
 
-	engine.Static("/js", "client/dist/js")
-	engine.Static("/css", "client/dist/css")
-	engine.Static("/images", "client/dist/images")
-	engine.Static("/fonts", "client/dist/fonts")
+	engine.Static("/js", "client/js")
+	engine.Static("/css", "client/css")
+	engine.Static("/images", "client/images")
+	engine.Static("/fonts", "client/fonts")
 
-	engine.GET("/*", GetIndex(version))
+	engine.File("/*", "client/index.html")
 	if err := engine.Start(":8080"); err != nil {
 		engine.Logger.Fatal(err.Error())
 	}
 }
 
 func pong(c echo.Context) error {
-
 	return c.JSON(http.StatusOK, JSON{
 		"message": "pong",
 	})
-}
-
-// GetIndex handler which render the index.html of mom
-func GetIndex(version string) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		data := make(map[string]interface{})
-		data["Version"] = version
-		return c.Render(http.StatusOK, "index", data)
-	}
 }

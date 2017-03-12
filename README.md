@@ -9,12 +9,10 @@
 ## Development
 
 Tools and dependencies:
-* Golang 1.7
+* [Golang 1.7](https://golang.org/)
   * [govendor](https://github.com/kardianos/govendor)
-* NodeJS 7.2.0
-  * npm
-  * [gulp](https://github.com/gulpjs/gulp)
-* Docker
+* [NodeJS 7.2.0](https://nodejs.org/en/)
+* [Docker](https://www.docker.com/)
 
 Get the dependencies:
 
@@ -32,8 +30,6 @@ docker run --name mongo -p 27017:27017 -v /data/mongo:/data/db -d mongo
 DAD requires a LDAP configuration. You can write a `~/.dad.toml` file with the following settings:
 
 ```toml
-env = "prod"
-
 [server]
 mongo-addr = "localhost:27017"
 
@@ -70,7 +66,7 @@ go run main.go serve --help
 Run DAD in dev mode, with live reload, with the command:
 
 ```sh
-gulp
+npm start
 ```
 
 You can then browse [http://localhost:8080/](http://localhost:8080/)
@@ -83,13 +79,7 @@ You can generate the binaries with:
 npm run dist
 ```
 
-The relevant files are `./dad` (the backend) and `./src/dist/` (frontend).
-
-You can generate an archive of these files with:
-
-```sh
-npm run archive
-```
+The relevant files are in the `dist` folder.
 
 ## License
 

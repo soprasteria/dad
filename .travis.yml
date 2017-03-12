@@ -15,13 +15,13 @@ before_install:
 install:
 - go get -u -v github.com/alecthomas/gometalinter
 - go get -u -v github.com/kardianos/govendor
-- gometalinter -f -i -u
+- gometalinter --install --update --force
 - govendor sync -v
 - npm install
 
 script:
-- npm run jslint
-- travis_wait 60 npm run golint
+- npm run lint:client
+- travis_wait 60 npm run lint:server
 - go test ./cmd/... ./server/...
 - npm test
 
@@ -29,7 +29,7 @@ before_deploy:
 - git config --global user.email "github@travis-ci.org"
 - git config --global user.name "Travis CI"
 - npm version ${TRAVIS_TAG}
-- npm run archive
+- npm run dist
 
 deploy:
   provider: releases

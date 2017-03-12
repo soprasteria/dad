@@ -6,7 +6,6 @@ import NavBar from './navBar.component';
 import Toasts from '../common/toasts.component';
 import Modal from '../common/modal.component';
 
-
 // Style
 import 'semantic-ui-css/semantic.min.css';
 import './common.scss';

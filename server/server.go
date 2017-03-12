@@ -129,7 +129,6 @@ func New(version string) {
 func index(c echo.Context) error {
 	return c.File("client/index.html")
 }
-
 func pong(c echo.Context) error {
 	return c.JSON(http.StatusOK, JSON{
 		"message": "pong",

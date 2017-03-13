@@ -21,7 +21,6 @@ import './users.page.scss';
 class Users extends React.Component {
 
   componentWillMount = () => {
-    document.title = 'D.A.D - Users';
     this.props.fetchUsers();
   }
 

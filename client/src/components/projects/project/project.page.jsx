@@ -71,12 +71,7 @@ class ProjectComponent extends React.Component {
       this.props.fetchUsers()
     ]).then(() => {
       if (projectId) {
-        Promise.all([this.props.fetchProject(projectId)]).then(() => {
-          const projectName = this.props.project && this.props.project.name;
-          document.title = 'D.A.D - Project ' + projectName;
-        });
-      } else {
-        document.title = 'D.A.D - New Project';
+        this.props.fetchProject(projectId);
       }
     });
     if (!projectId) {

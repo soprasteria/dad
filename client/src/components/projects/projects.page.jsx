@@ -24,7 +24,6 @@ import './projects.page.scss';
 class Projects extends React.Component {
 
   componentWillMount = () => {
-    document.title = 'D.A.D - Projects';
     Promise.all([this.props.fetchEntities()]).then(() => {
       this.props.fetchProjects();
     });

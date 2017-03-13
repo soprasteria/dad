@@ -13,8 +13,6 @@ class HomeComponent extends React.Component {
     const { isAuthenticated, redirect } = props;
     if (isAuthenticated) {
       redirect('/projects');
-    } else {
-      document.title = 'D.A.D - Login';
     }
   }
 

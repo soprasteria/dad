@@ -24,6 +24,13 @@ var NotValidID = "ID %q is not valid"
 // UserNotFound is a template string used to report that the user cannot be found
 var UserNotFound = "Cannot find user %s"
 
+func noCache(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Cache-Control", "no-cache")
+		return next(c)
+	}
+}
+
 func sessionMongo(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		dadConn, err := mongo.Get()
@@ -138,7 +145,6 @@ func hasRole(role types.Role) func(next echo.HandlerFunc) echo.HandlerFunc {
 func isValidID(id string) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-
 			idHex := c.Param(id)
 
 			if !bson.IsObjectIdHex(idHex) {

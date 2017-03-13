@@ -35,13 +35,15 @@ func New(version string) {
 		if viper.GetBool("ldap.enable") {
 			authAPI.Use(openLDAP)
 		}
+		authAPI.Use(noCache)
 		authAPI.Use(sessionMongo) // Enrich echo context with connection to Mongo
 		authAPI.POST("/login", authC.Login)
-		authAPI.File("/*", "client/index.html")
+		authAPI.GET("/*", index)
 	}
 
 	api := engine.Group("/api")
 	{
+		api.Use(noCache)
 		api.Use(sessionMongo) // Enrich echo context with connexion to mongo API
 		config := middleware.JWTConfig{
 			Claims:     &auth.MyCustomClaims{},
@@ -117,10 +119,15 @@ func New(version string) {
 	engine.Static("/fonts", "client/fonts")
 	engine.File("/favicon.ico", "client/favicon.ico")
 
-	engine.File("/*", "client/index.html")
+	engine.GET("/*", index, noCache)
+
 	if err := engine.Start(":8080"); err != nil {
 		engine.Logger.Fatal(err.Error())
 	}
+}
+
+func index(c echo.Context) error {
+	return c.File("client/index.html")
 }
 
 func pong(c echo.Context) error {

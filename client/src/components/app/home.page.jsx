@@ -2,6 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
+import DocumentTitle from 'react-document-title';
 
 import AuthPage from '../auth/login.component';
 
@@ -12,8 +13,6 @@ class HomeComponent extends React.Component {
     const { isAuthenticated, redirect } = props;
     if (isAuthenticated) {
       redirect('/projects');
-    } else {
-      document.title = 'D.A.D - Login';
     }
   }
 
@@ -24,15 +23,19 @@ class HomeComponent extends React.Component {
   render = () => {
     const { isAuthenticated } = this.props;
     if (isAuthenticated) {
-      return <div/>;
+      return <div />;
     } else {
-      return <AuthPage/>;
+      return (
+        <DocumentTitle title='D.A.D - Login'>
+          <AuthPage />
+        </DocumentTitle>
+      );
     }
   }
 }
 
 HomeComponent.propTypes = {
-  isAuthenticated : React.PropTypes.bool.isRequired,
+  isAuthenticated: React.PropTypes.bool.isRequired,
   redirect: React.PropTypes.func.isRequired
 };
 

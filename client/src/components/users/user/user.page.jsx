@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+import DocumentTitle from 'react-document-title';
 import { push } from 'react-router-redux';
 import { Button, Container, Divider, Dropdown, Form, Header, Icon, Label, Segment } from 'semantic-ui-react';
 import { ALL_ROLES, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
@@ -34,17 +35,14 @@ class UserComponent extends React.Component {
   componentDidMount = () => {
     const { userId } = this.props;
     Promise.all([this.props.fetchEntities()]).then(() => {
-      Promise.all([this.props.fetchUser(userId)]).then(() => {
-        const userName = (this.props.user && this.props.user.displayName) || '';
-        document.title = 'D.A.D - User ' + userName;
-      });
+      this.props.fetchUser(userId);
     });
   }
 
   handleChange = (e, { name, value, checked }) => {
     const { user } = this.state;
     const state = {
-      user: { ...user, [name]:value || checked }
+      user: { ...user, [name]: value || checked }
     };
     this.setState(state);
   }
@@ -87,61 +85,65 @@ class UserComponent extends React.Component {
     const readOnly = this.isReadonly();
     const { isFetching, entities, isEntitiesFetching } = this.props;
     const { user } = this.state;
+    const userName = (user && user.displayName) || '';
+    const title = 'D.A.D - User ' + userName;
     return (
-      <Container className='user-page'>
-        <Segment loading={isFetching} padded>
-          <Header as='h1'>
-            <Link to={'/users'}>
-              <Icon name='arrow left' fitted/>
-            </Link>
-            {`${user.displayName || ''}`} {user.username ? `(${user.username})` : ''}
-          </Header>
-          <Divider hidden/>
-          <Form onSubmit={this.handleSubmit}>
-            <Form.Group widths='two' >
-              <Form.Input readOnly label='Username' value={user.username || ''} onChange={this.handleChange}
-                type='text' name='username' autoComplete='off' placeholder='Username'
-              />
-              <Form.Input readOnly label='Email Address' value={user.email || ''} onChange={this.handleChange}
+      <DocumentTitle title={title}>
+        <Container className='user-page'>
+          <Segment loading={isFetching} padded>
+            <Header as='h1'>
+              <Link to={'/users'}>
+                <Icon name='arrow left' fitted />
+              </Link>
+              {`${user.displayName || ''}`} {user.username ? `(${user.username})` : ''}
+            </Header>
+            <Divider hidden />
+            <Form onSubmit={this.handleSubmit}>
+              <Form.Group widths='two' >
+                <Form.Input readOnly label='Username' value={user.username || ''} onChange={this.handleChange}
+                  type='text' name='username' autoComplete='off' placeholder='Username'
+                />
+                <Form.Input readOnly label='Email Address' value={user.email || ''} onChange={this.handleChange}
                   type='text' name='email' autoComplete='off' placeholder='A valid email address'
-              />
-            </Form.Group>
+                />
+              </Form.Group>
 
-            <Form.Group widths='two'>
-              <Form.Input readOnly label='First Name' value={user.firstName || ''} onChange={this.handleChange}
-                type='text' name='firstName' autoComplete='off' placeholder='First Name'
-              />
-              <Form.Input readOnly label='Last Name' value={user.lastName || ''} onChange={this.handleChange}
+              <Form.Group widths='two'>
+                <Form.Input readOnly label='First Name' value={user.firstName || ''} onChange={this.handleChange}
+                  type='text' name='firstName' autoComplete='off' placeholder='First Name'
+                />
+                <Form.Input readOnly label='Last Name' value={user.lastName || ''} onChange={this.handleChange}
                   type='text' name='lastName' autoComplete='off' placeholder='Last Name'
-              />
-            </Form.Group>
+                />
+              </Form.Group>
 
-            <Divider hidden/>
+              <Divider hidden />
 
-            <Form.Group>
-              <Form.Field width='two'>
-                <Label size='large' className='form-label' content='Role' />
-              </Form.Field>
-              <Form.Field width='fourteen'>
-                {this.renderRoleDropdown(user, isFetching, readOnly)}
-              </Form.Field>
-            </Form.Group>
+              <Form.Group>
+                <Form.Field width='two'>
+                  <Label size='large' className='form-label' content='Role' />
+                </Form.Field>
+                <Form.Field width='fourteen'>
+                  {this.renderRoleDropdown(user, isFetching, readOnly)}
+                </Form.Field>
+              </Form.Group>
 
-            <Form.Group>
-              <Form.Field width='two'>
-                <Label size='large' className='form-label' content='Entities' />
-              </Form.Field>
-              <Form.Dropdown disabled={readOnly} width='fourteen' placeholder='Select entities' fluid multiple search selection loading={isEntitiesFetching}
-                name='entities' options={entities} value={user.entities || []} onChange={this.handleChange}
-              />
-            </Form.Group>
+              <Form.Group>
+                <Form.Field width='two'>
+                  <Label size='large' className='form-label' content='Entities' />
+                </Form.Field>
+                <Form.Dropdown disabled={readOnly} width='fourteen' placeholder='Select entities' fluid multiple search selection loading={isEntitiesFetching}
+                  name='entities' options={entities} value={user.entities || []} onChange={this.handleChange}
+                />
+              </Form.Group>
 
-            <Divider hidden/>
+              <Divider hidden />
 
-            {!readOnly && <Button fluid color='green' content='Save' loading={isFetching} />}
-          </Form>
-        </Segment>
-      </Container>
+              {!readOnly && <Button fluid color='green' content='Save' loading={isFetching} />}
+            </Form>
+          </Segment>
+        </Container>
+      </DocumentTitle>
     );
   }
 }
@@ -177,7 +179,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => ({
   fetchUser: id => dispatch(UsersThunks.fetch(id)),
-  fetchEntities : () => dispatch(EntitiesThunks.fetchIfNeeded()),
+  fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
   onSave: user => dispatch(UsersThunks.save(user, () => push('/users'), ToastsActions.savedSuccessNotification('User ' + user.displayName))),
 });
 

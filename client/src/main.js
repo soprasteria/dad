@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+import 'date-input-polyfill';
 import 'isomorphic-fetch';
 import React from 'react';
 import ReactDOM from 'react-dom';

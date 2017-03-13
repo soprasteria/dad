@@ -26,9 +26,9 @@
     margin-right: 0.5em !important;
   }
 
-  .field.black .ui.selection.dropdown .text{
+  .field.black .ui.selection.dropdown .text:not(span) {
     &::before {
-      content: ">>";
+      content: '>>';
       display: inline-block;
       background-color: black;
       color: black;
@@ -38,9 +38,9 @@
     }
   }
 
-  .field.grey .ui.selection.dropdown .text{
+  .field.grey .ui.selection.dropdown .text:not(span) {
     &::before {
-      content: ">>";
+      content: '>>';
       display: inline-block;
       background-color: #767676;
       color: #767676;
@@ -50,9 +50,9 @@
     }
   }
 
-  .field.red .ui.selection.dropdown .text{
+  .field.red .ui.selection.dropdown .text:not(span) {
     &::before {
-      content: ">>";
+      content: '>>';
       display: inline-block;
       background-color: #DB2828;
       color: #DB2828;
@@ -62,9 +62,9 @@
     }
   }
 
-  .field.orange .ui.selection.dropdown .text{
+  .field.orange .ui.selection.dropdown .text:not(span) {
     &::before {
-      content: ">>";
+      content: '>>';
       display: inline-block;
       background-color: #F2711C;
       color: #F2711C;
@@ -74,9 +74,9 @@
     }
   }
 
-  .field.yellow .ui.selection.dropdown .text{
+  .field.yellow .ui.selection.dropdown .text:not(span) {
     &::before {
-      content: ">>";
+      content: '>>';
       display: inline-block;
       background-color: #FBBD08;
       color: #FBBD08;
@@ -86,9 +86,9 @@
     }
   }
 
-  .field.olive .ui.selection.dropdown .text{
+  .field.olive .ui.selection.dropdown .text:not(span) {
     &::before {
-      content: ">>";
+      content: '>>';
       display: inline-block;
       background-color: #B5CC18;
       color: #B5CC18;
@@ -98,9 +98,9 @@
     }
   }
 
-  .field.green .ui.selection.dropdown .text{
+  .field.green .ui.selection.dropdown .text:not(span) {
     &::before {
-      content: ">>";
+      content: '>>';
       display: inline-block;
       background-color: #21BA45;
       color: #21BA45;
@@ -125,4 +125,8 @@
       text-align: center;
     }
   }
+}
+
+.popup .content {
+  white-space: pre-wrap !important;
 }

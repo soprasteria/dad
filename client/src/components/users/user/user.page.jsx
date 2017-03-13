@@ -33,8 +33,11 @@ class UserComponent extends React.Component {
 
   componentDidMount = () => {
     const { userId } = this.props;
-    Promise.all([this.props.fetchEntities()]).then(()=>{
-      this.props.fetchUser(userId);
+    Promise.all([this.props.fetchEntities()]).then(() => {
+      Promise.all([this.props.fetchUser(userId)]).then(() => {
+        const userName = (this.props.user && this.props.user.displayName) || '';
+        document.title = 'D.A.D - User ' + userName;
+      });
     });
   }
 

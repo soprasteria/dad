@@ -23,6 +23,7 @@ import './projects.page.scss';
 class Projects extends React.Component {
 
   componentWillMount = () => {
+    document.title = 'D.A.D - Projects';
     Promise.all([this.props.fetchEntities()]).then(() => {
       this.props.fetchProjects();
     });
@@ -67,7 +68,7 @@ class Projects extends React.Component {
                   You can search projects by their <b>Name, Domain, Service Center, Business Unit and:</b>
                   <ul>
                     <li><b>N%</b>: All projects which progression is equal or above N% </li>
-                    <li><b>started</b>: All projects with at least 1 progession or 1 goal </li>
+                    <li><b>started</b>: All projects with at least 1 progression or 1 goal </li>
                     <li><b>no goal</b>: All projects with no goal specified</li>
                     <li><b>not started</b>: All empty projects</li>
                   </ul>

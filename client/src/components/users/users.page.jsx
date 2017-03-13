@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Card, Container, Icon, Input, Label, Segment } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
+import DocumentTitle from 'react-document-title';
 
 // API Fetching
 import UsersThunks from '../../modules/users/users.thunks';
@@ -20,7 +21,6 @@ import './users.page.scss';
 class Users extends React.Component {
 
   componentWillMount = () => {
-    document.title = 'D.A.D - Users';
     this.props.fetchUsers();
   }
 
@@ -42,26 +42,28 @@ class Users extends React.Component {
   render = () => {
     const { users, filterValue, isFetching, changeFilter } = this.props;
     return (
-      <Container fluid className='users-page'>
-        <Segment.Group raised>
-          <Segment>
-            <Input fluid icon labelPosition='left corner'>
-              <Label corner='left' icon='search' />
-              <DebounceInput
-                placeholder='Search...'
-                minLength={1}
-                debounceTimeout={300}
-                onChange={(event) => changeFilter(event.target.value)}
-                value={filterValue}
-              />
-              <Icon link name='remove' onClick={() => changeFilter('')}/>
-            </Input>
-          </Segment>
-          <Segment loading={isFetching}>
-            {this.renderCards(users)}
-          </Segment>
-        </Segment.Group>
-      </Container>
+      <DocumentTitle title='D.A.D - Users'>
+        <Container fluid className='users-page'>
+          <Segment.Group raised>
+            <Segment>
+              <Input fluid icon labelPosition='left corner'>
+                <Label corner='left' icon='search' />
+                <DebounceInput
+                  placeholder='Search...'
+                  minLength={1}
+                  debounceTimeout={300}
+                  onChange={(event) => changeFilter(event.target.value)}
+                  value={filterValue}
+                />
+                <Icon link name='remove' onClick={() => changeFilter('')} />
+              </Input>
+            </Segment>
+            <Segment loading={isFetching}>
+              {this.renderCards(users)}
+            </Segment>
+          </Segment.Group>
+        </Container>
+      </DocumentTitle>
     );
   }
 }
@@ -85,7 +87,7 @@ const mapStateToUsersProps = (state) => {
 // Function to map dispatch to container props
 const mapDispatchToUsersProps = (dispatch) => {
   return {
-    fetchUsers : () => dispatch(UsersThunks.fetchIfNeeded()),
+    fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
     changeFilter: filterValue => dispatch(UsersActions.changeFilter(filterValue))
   };
 };

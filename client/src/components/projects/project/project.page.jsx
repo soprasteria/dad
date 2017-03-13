@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
+import DocumentTitle from 'react-document-title';
 import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment } from 'semantic-ui-react';
 
 import Joi from 'joi-browser';
@@ -70,12 +71,7 @@ class ProjectComponent extends React.Component {
       this.props.fetchUsers()
     ]).then(() => {
       if (projectId) {
-        Promise.all([this.props.fetchProject(projectId)]).then(() => {
-          const projectName = this.props.project && this.props.project.name;
-          document.title = 'D.A.D - Project ' + projectName;
-        });
-      } else {
-        document.title = 'D.A.D - New Project';
+        this.props.fetchProject(projectId);
       }
     });
     if (!projectId) {
@@ -139,7 +135,8 @@ class ProjectComponent extends React.Component {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
-    return Object.entries(services).map(([pckg, servicesList]) => {
+
+    const packageList = Object.entries(services).map(([pckg, servicesList]) => {
       return (
         <Table key={pckg} celled striped compact>
           <Table.Header>
@@ -160,6 +157,9 @@ class ProjectComponent extends React.Component {
         </Table>
       );
     });
+
+    const title = this.props.projectId ? 'D.A.D - Project ' + (this.props.project && this.props.project.name) : 'D.A.D - New Project';
+    return <DocumentTitle title={title}><div>{packageList}</div></DocumentTitle>;
   }
 
   renderDropdown = (name, label, value, placeholder, width, options, isFetching, errors, readOnly) => {
@@ -168,13 +168,13 @@ class ProjectComponent extends React.Component {
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
           type='text' autoComplete='off' placeholder={`No ${label}`} width={width}
-          />
+        />
       );
     }
     return (
       <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching} width={width}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
-        />
+      />
     );
   }
 
@@ -213,7 +213,7 @@ class ProjectComponent extends React.Component {
               </Link>
               <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
                 type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
-                />
+              />
               {(!isFetching && canEditDetails && projectId != null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
@@ -250,7 +250,7 @@ class ProjectComponent extends React.Component {
               <Form.Group widths='two'>
                 <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
                   type='text' name='domain' autoComplete='on' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
-                  />
+                />
                 {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors, !canEditDetails)}
               </Form.Group>
 

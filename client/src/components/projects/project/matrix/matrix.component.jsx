@@ -2,7 +2,11 @@
 import React from 'react';
 import DebounceInput from 'react-debounce-input';
 import { Form, Table, Button, Icon, Popup } from 'semantic-ui-react';
+import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
+import moment from 'moment';
+
+import 'react-datepicker/dist/react-datepicker.css';
 
 import { options, priorities } from '../../../../modules/services/services.constants';
 
@@ -23,8 +27,8 @@ class Matrix extends React.Component {
     this.props.onChange(this.props.serviceId, { ...this.props.matrix, comment: target.value });
   }
 
-  handleChangeDueDate = ({ target }) => {
-    this.props.onChange(this.props.serviceId, { ...this.props.matrix, dueDate: target.value ? target.value + dueDateSuffix : '' });
+  handleChangeDueDate = (date) => {
+    this.props.onChange(this.props.serviceId, { ...this.props.matrix, dueDate: date || undefined });
   }
 
   render = () => {
@@ -45,8 +49,7 @@ class Matrix extends React.Component {
     const priorityOption = priorities.find(elm => elm.value === matrix.priority);
     const goalOption = options.find(elm => elm.value === matrix.goal);
     // Only keeps the yyyy-MM-dd part of the due date which corresponds to the expected format for the input date
-    const dueDate = matrix.dueDate && matrix.dueDate !== defaultDueDate ? matrix.dueDate.substr(0, 10) : '';
-
+    const dueDate = matrix.dueDate && matrix.dueDate !== defaultDueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
 
     const serviceNameCell = (<Table.Cell key='service'>{service.name}</Table.Cell>);
@@ -106,19 +109,20 @@ class Matrix extends React.Component {
         </Table.Cell>),
         (<Table.Cell key='dueDate'>
           <Form>
-            <input type='date' name='dueDate' value={dueDate} onChange={this.handleChangeDueDate} />
+            <ReactDatePicker dateFormat='DD/MM/YYYY' placeholderText='DD/MM/YYYY' selected={dueDate} onChange={this.handleChangeDueDate} />
           </Form>
         </Table.Cell>),
         (<Table.Cell key='comment' className={classNames(readOnly, 'comment', 'center')}>
           <Form>
             <Popup
               trigger={
-                <Button icon name='comment' onClick={() => setExpandComment(true)} title={readOnly ? '' : 'Edit comment'} color={matrix.comment ? 'blue' : null}>
+                <Button icon name='comment' onClick={() => setExpandComment(true)} color={matrix.comment ? 'blue' : null}>
                   <Icon name='comment' />
                 </Button>
               }
               content={matrix.comment ? matrix.comment : 'Click to add a comment'}
               header={matrix.comment ? 'Click to edit' : null}
+              inverted
             />
           </Form>
         </Table.Cell>)

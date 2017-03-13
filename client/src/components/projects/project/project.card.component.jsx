@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { Card, Icon, Label } from 'semantic-ui-react';
+import classNames from 'classnames';
 
 import { calculateProgress } from '../../../modules/utils/projects';
 import './project.card.component.scss';
@@ -16,6 +17,9 @@ class ProjectCard extends React.Component {
     const filteredMatrixProgress = project.matrix.filter(m => m.progress >= 0);
     const goalMessage = (filteredMatrixGoals.length === 0 && filteredMatrixProgress.length === 0) ? '-' :  // If nothing was specified, then the output is ''-'
           filteredMatrixGoals.length === 0 ? 'N/A' : Math.floor(calculateProgress(project)) + '%'; // Else if there is no goal specified the output is N/A, otherwise we do the maths.
+    const domainClassnames = classNames({ filled: project.domain }, 'domain');
+    const serviceCenterClassnames = classNames({ filled: serviceCenter.name }, 'left floated service-center');
+    const businessUnitClassnames = classNames({ filled: businessUnit.name }, 'right floated business-unit');
     return (
       <Card className='project-card' raised>
         <Card.Content>
@@ -28,15 +32,15 @@ class ProjectCard extends React.Component {
               {goalMessage}
             </Label.Detail>
           </Label>
-          <Card.Meta className='domain' title={project.domain}>
+          <Card.Meta className={domainClassnames} title={project.domain}>
             {project.domain || 'No Domain'}
           </Card.Meta>
         </Card.Content>
         <Card.Content extra >
-          <div className='left floated service-center' title={serviceCenter.name}>
+          <div className={serviceCenterClassnames} title={serviceCenter.name}>
             {serviceCenter.name || 'No Service Center'}
           </div>
-          <div className='right floated business-unit' title={businessUnit.name}>
+          <div className={businessUnitClassnames} title={businessUnit.name}>
             {businessUnit.name || 'No Business Unit'}
           </div>
         </Card.Content>

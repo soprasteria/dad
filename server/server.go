@@ -115,6 +115,7 @@ func New(version string) {
 	engine.Static("/css", "client/css")
 	engine.Static("/images", "client/images")
 	engine.Static("/fonts", "client/fonts")
+	engine.File("/favicon.ico", "client/favicon.ico")
 
 	engine.File("/*", "client/index.html")
 	if err := engine.Start(":8080"); err != nil {

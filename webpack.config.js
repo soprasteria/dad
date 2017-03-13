@@ -85,11 +85,11 @@ module.exports = {
       allChunks: true,
       disable: !production
     }),
-    // TODO: add a favicon
     new HtmlWebpackPlugin({
       alwaysWriteToDisk: true,
       template: 'client/src/index.ejs',
       title: 'DAD',
+      favicon: 'client/static/favicon.ico',
       hash: true
     }),
     new HtmlWebpackHarddiskPlugin(),

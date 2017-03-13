@@ -66,6 +66,7 @@ gulp.task('server:build', () => {
 });
 
 gulp.task('server:watch', () => {
+  // main.go isn't watched because it makes gulp.watch reload every time something changes in the tree
   const watcher = gulp.watch(['server/**/*.go', 'cmd/**/*.go'], sync([
     'server:build',
     'server:spawn'

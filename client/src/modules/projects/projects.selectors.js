@@ -18,22 +18,22 @@ export const getFilteredProjects = (projects, entities, filterValue) => {
         let matchingProjects = false;
         const filteredMatrixGoal = project.matrix.filter(m => m.goal >= 0);
         const filteredMatrixProgress = project.matrix.filter(m => m.progress >= 0);
-        if(filterValue === 'started'){
-          // We keep all projects whose progession is >= 0% AND the projects with no Goals but with a progress status.
+        if(filterValue === 'started') {
+          // We keep all projects whose progression is >= 0% AND the projects with no Goals but with a progress status.
           matchingProjects = Math.floor(calculateProgress(project)) >= 0 || filteredMatrixProgress.length > 0 ;
         }
-        if(filterValue === 'no goal'){
+        if(filterValue === 'no goal') {
           // We keep all projects with a progress status but no goal specified.
           matchingProjects = filteredMatrixGoal.length === 0 && filteredMatrixProgress.length > 0 ;
         }
-        if(filterValue === 'not started'){
+        if(filterValue === 'not started') {
           // We keep all projects that has not been started <=> no progress status and no goal specified
           matchingProjects = filteredMatrixGoal.length === 0 && filteredMatrixProgress.length === 0 ;
         }
         if(filterValue.endsWith('%')) {
           const parsedValue = Number.parseInt(filterValue.substring(0, filterValue.length - 1));
           if (parsedValue || parsedValue === 0) {
-              matchingProjects = Math.floor(calculateProgress(project)) >= parsedValue;
+            matchingProjects = Math.floor(calculateProgress(project)) >= parsedValue;
           }
         }
         return projectContains || businessUnitContains || serviceCenterContains || matchingProjects;

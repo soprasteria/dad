@@ -34,7 +34,7 @@ type MatrixLine struct {
 	Progress int           `bson:"progress" json:"progress"`
 	Goal     int           `bson:"goal" json:"goal"`
 	Priority string        `bson:"priority,omitempty" json:"priority,omitempty"`
-	DueDate  time.Time     `bson:"dueDate" json:"dueDate"`
+	DueDate  time.Time     `bson:"dueDate,omitempty" json:"dueDate,omitempty"`
 	Comment  string        `bson:"comment" json:"comment"`
 }
 

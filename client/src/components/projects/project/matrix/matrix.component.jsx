@@ -12,10 +12,6 @@ import { options, priorities } from '../../../../modules/services/services.const
 
 import './matrix.component.scss';
 
-// Golang date format
-const dueDateSuffix = 'T00:00:00Z';
-const defaultDueDate = '0001-01-01' + dueDateSuffix;
-
 // Matrix Component Component
 class Matrix extends React.Component {
 
@@ -48,8 +44,7 @@ class Matrix extends React.Component {
     const progressOption = options.find(elm => elm.value === matrix.progress);
     const priorityOption = priorities.find(elm => elm.value === matrix.priority);
     const goalOption = options.find(elm => elm.value === matrix.goal);
-    // Only keeps the yyyy-MM-dd part of the due date which corresponds to the expected format for the input date
-    const dueDate = matrix.dueDate && matrix.dueDate !== defaultDueDate ? moment(matrix.dueDate) : '';
+    const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
 
     const serviceNameCell = (<Table.Cell key='service'>{service.name}</Table.Cell>);
@@ -80,7 +75,7 @@ class Matrix extends React.Component {
         (<Table.Cell key='progress'>
           <Form>
             {readOnly
-              ? (<div >{progressOption.text}</div>)
+              ? (<div>{progressOption.text}</div>)
               : (<Form.Dropdown placeholder='Progress' fluid selection name='progress' title={progressOption.title}
                 options={options} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
               />)

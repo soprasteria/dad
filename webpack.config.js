@@ -88,7 +88,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       alwaysWriteToDisk: true,
       template: 'client/src/index.ejs',
-      title: 'DAD',
+      title: 'D.A.D',
       favicon: 'client/static/favicon.ico',
       hash: true
     }),

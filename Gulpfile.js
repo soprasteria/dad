@@ -23,13 +23,14 @@ gulp.task('client:webpack-dev-server', callback => {
   const compiler = webpack(webpackConfig);
   new WebpackDevServer(compiler, {
     hot: true,
-    quiet: true,
-    noInfo: true
+    stats: {
+      colors: true
+    }
   }).listen(port, 'localhost', err => {
-        if (err) {
-          throw new util.PluginError("webpack-dev-server", err);
-        }
-        callback();
+      if (err) {
+        throw new util.PluginError("webpack-dev-server", err);
+      }
+      callback();
     });
 });
 

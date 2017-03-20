@@ -7,7 +7,7 @@
     "dist": "cross-env NODE_ENV=production gulp",
     "test": "echo no tests specified",
     "lint:client": "eslint '*.js?' 'client/src/**/*.js?' 'client/test/**/*.js?' && sass-lint 'client/**/*.scss' ",
-    "lint:server": "gometalinter --vendor --deadline=60m --config=./gometalinter.json ./server/... ./cmd/... .",
+    "lint:server": "gometalinter --config=gometalinter.json ./server/... ./cmd/... .",
     "fix:client": "eslint --fix 'client/src/**/*.js'"
   },
   "repository": {

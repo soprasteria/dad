@@ -21,7 +21,7 @@ install:
 
 script:
 - npm run lint:client
-- travis_wait 60 npm run lint:server
+- npm run lint:server
 - go test ./cmd/... ./server/...
 - npm test
 

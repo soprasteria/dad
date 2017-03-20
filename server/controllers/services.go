@@ -58,9 +58,8 @@ func (u *FunctionalServices) Save(c echo.Context) error {
 
 	// Get functional service from body
 	var functionalService types.FunctionalService
-	var err error
 
-	err = c.Bind(&functionalService)
+	err := c.Bind(&functionalService)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted functional service is not valid: %v", err)))
 	}

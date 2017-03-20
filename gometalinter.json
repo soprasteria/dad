@@ -1,17 +1,19 @@
 {
   "DisableAll": true,
   "Enable": [
-    "unused",
-    "vet",
-    "vetshadow",
     "deadcode",
+    "gocyclo",
+    "goconst",
     "gofmt",
+    "goimports",
     "golint",
     "ineffassign",
-    "goconst",
-    "gosimple",
-    "staticcheck",
-    "misspell"
+    "misspell",
+    "vet",
+    "vetshadow"
   ],
-  "Test": true
+  "Cyclo": 25,
+  "Test": true,
+  "Vendor": true,
+  "VendoredLinters": true
 }

@@ -195,9 +195,8 @@ func (u *Projects) Save(c echo.Context) error {
 
 	// Get project from body
 	var projectToSave types.Project
-	var err error
 
-	err = c.Bind(&projectToSave)
+	err := c.Bind(&projectToSave)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
 	}

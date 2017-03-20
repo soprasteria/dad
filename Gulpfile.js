@@ -1,17 +1,17 @@
 const gulp = require('gulp'),
-      del  = require('del'),
-      fs   = require('fs'),
-      seq  = require('run-sequence'),
-      sync = require('gulp-sync')(gulp).sync,
-      util = require('gulp-util'),
-      zip  = require('gulp-zip');
+  del = require('del'),
+  fs = require('fs'),
+  seq = require('run-sequence'),
+  sync = require('gulp-sync')(gulp).sync,
+  util = require('gulp-util'),
+  zip = require('gulp-zip');
 
 const dad = require('./package.json');
 
 // Client Tasks
-const webpack          = require('webpack'),
-      webpackConfig    = require('./webpack.config'),
-      WebpackDevServer = require('webpack-dev-server');
+const webpack = require('webpack'),
+  webpackConfig = require('./webpack.config'),
+  WebpackDevServer = require('webpack-dev-server');
 
 gulp.task('client:webpack-dev-server', callback => {
   const port = webpackConfig.devServer.port;
@@ -27,11 +27,11 @@ gulp.task('client:webpack-dev-server', callback => {
       colors: true
     }
   }).listen(port, 'localhost', err => {
-      if (err) {
-        throw new util.PluginError("webpack-dev-server", err);
-      }
-      callback();
-    });
+    if (err) {
+      throw new util.PluginError('webpack-dev-server', err);
+    }
+    callback();
+  });
 });
 
 gulp.task('client:webpack', callback => {
@@ -47,13 +47,13 @@ gulp.task('client:dist', callback => {
   seq(
     'client:webpack',
     callback
-  )
+  );
 });
 
 // Server Tasks
-const child      = require('child_process'),
-      git        = require('git-rev'),
-      dateFormat = require('dateformat');
+const child = require('child_process'),
+  git = require('git-rev'),
+  dateFormat = require('dateformat');
 
 const now = () => dateFormat(new Date(), 'isoDateTime');
 
@@ -139,5 +139,5 @@ gulp.task('dist', callback => {
   );
 });
 
-const defaultTask = process.env.NODE_ENV === 'production' ? 'dist' : 'dev'
+const defaultTask = process.env.NODE_ENV === 'production' ? 'dist' : 'dev';
 gulp.task('default', [defaultTask]);

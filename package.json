@@ -6,7 +6,7 @@
     "start": "gulp",
     "dist": "cross-env NODE_ENV=production gulp",
     "test": "echo no tests specified",
-    "lint:client": "eslint '*.js?' 'client/src/**/*.js?' 'client/test/**/*.js?' && sass-lint 'client/**/*.scss' ",
+    "lint:client": "eslint --ext .js --ext .jsx '*.js' client/src && sass-lint 'client/src/**/*.scss'",
     "lint:server": "gometalinter --config=gometalinter.json ./server/... ./cmd/... .",
     "fix:client": "eslint --fix 'client/src/**/*.js'"
   },

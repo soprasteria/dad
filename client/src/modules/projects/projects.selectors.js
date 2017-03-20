@@ -19,7 +19,7 @@ export const getFilteredProjects = (projects, entities, filterValue) => {
         const filteredMatrixGoal = project.matrix.filter(m => m.goal >= 0);
         const filteredMatrixProgress = project.matrix.filter(m => m.progress >= 0);
         if(filterValue === 'started') {
-          // We keep all projects whose progession is >= 0% AND the projects with no Goals but with a progress status.
+          // We keep all projects whose progression is >= 0% AND the projects with no Goals but with a progress status.
           matchingProjects = Math.floor(calculateProgress(project)) >= 0 || filteredMatrixProgress.length > 0 ;
         }
         if(filterValue === 'no goal') {

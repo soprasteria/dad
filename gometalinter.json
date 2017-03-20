@@ -7,7 +7,6 @@
     "gofmt",
     "goimports",
     "golint",
-    "gotype",
     "ineffassign",
     "misspell",
     "vet",

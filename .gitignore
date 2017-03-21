@@ -10,3 +10,4 @@ vendor/*/
 debug
 logs/
 bin/*.csv
+coverage/

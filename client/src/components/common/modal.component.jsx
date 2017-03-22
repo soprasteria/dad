@@ -78,7 +78,7 @@ class ModalComponent extends React.Component {
       const dropdownOptions = opts.map(option => {
         return {
           icon: option.icon && <Icon name={option.icon} color={option.color || null}/>,
-          value: field.type == 'dropdown' ? option.id : option.value,
+          value: field.type === 'dropdown' ? option.id : option.value,
           text: option.value
         };
       });

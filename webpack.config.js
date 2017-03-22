@@ -6,6 +6,7 @@ const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const production = env === 'production';
+console.info(`Webpack config loaded in ${env} environment`);
 
 const projectRoot = __dirname;
 const developmentPort = 8081;

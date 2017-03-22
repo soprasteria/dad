@@ -214,7 +214,7 @@ class ProjectComponent extends React.Component {
               <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
                 type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
               />
-              {(!isFetching && canEditDetails && projectId != null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
+              {(!isFetching && canEditDetails && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
             <Divider hidden />

@@ -12,7 +12,7 @@ export const getFilteredEntities = (entities, filterValue) => {
 };
 
 export const getByType = (entities, type) => {
-  return entities.filter(entity => entity.type == type);
+  return entities.filter(entity => entity.type === type);
 };
 
 export const getEntitiesAsOptions = ({ entities, withType }) => {

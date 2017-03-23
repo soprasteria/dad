@@ -15,7 +15,8 @@
   "jest": {
     "moduleNameMapper": {
       "\\.(scss)$": "identity-obj-proxy"
-    }
+    },
+    "collectCoverageFrom" : ["client/src/**/*.{js,jsx}"]
   },
   "repository": {
     "type": "git",

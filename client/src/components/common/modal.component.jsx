@@ -30,7 +30,7 @@ class ModalComponent extends React.Component {
     modal.form.lines.forEach(line => {
       line.fields.forEach(field => {
         form[field.name] = field.value;
-        if(field.options) {
+        if (field.options) {
           options[field.name] = field.options;
         }
       });

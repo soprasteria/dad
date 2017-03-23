@@ -43,6 +43,7 @@
     "import/resolver": "webpack"
   },
   "rules": {
+    "keyword-spacing": "error",
     "eqeqeq": "error",
     "indent": ["error", 2],
     "strict": ["error", "never"],

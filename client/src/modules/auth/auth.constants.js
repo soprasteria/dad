@@ -41,7 +41,7 @@ export const getRoleIcon = role => {
 };
 
 export const getRoleData = role => {
-  return{
+  return {
     'value': getRoleLabel(role),
     'color': getRoleColor(role),
     'icon': getRoleIcon(role)

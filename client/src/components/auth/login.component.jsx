@@ -23,7 +23,7 @@ class LoginComponent extends React.Component {
 
   componentWillMount = () => {
     const errorMessage = this.props.errorMessage;
-    if(this.props.isAuthenticated && !errorMessage) {
+    if (this.props.isAuthenticated && !errorMessage) {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {
@@ -33,7 +33,7 @@ class LoginComponent extends React.Component {
 
   componentWillReceiveProps = (nextProps) => {
     const errorMessage = nextProps.errorMessage;
-    if(this.props.isAuthenticated && !errorMessage) {
+    if (this.props.isAuthenticated && !errorMessage) {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {

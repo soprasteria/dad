@@ -3,10 +3,15 @@ import { sortby } from '../utils/arrays';
 
 export const sortUsers = (u1, u2) => {
   let comp = 0;
-  if (u1.role === 'admin' && (u2.role === 'ri' || u2.role === 'cp')) {comp = -1;}
-  else if (u1.role === 'ri' && u2.role === 'cp') {comp = -1;}
-  else if (u1.role === 'ri' && u2.role === 'admin') {comp = 1;}
-  else if (u1.role === 'cp' && (u2.role === 'admin' || u2.role === 'ri')) {comp = 1;}
+  if (u1.role === 'admin' && (u2.role === 'ri' || u2.role === 'cp')) {
+    comp = -1;
+  } else if (u1.role === 'ri' && u2.role === 'cp') {
+    comp = -1;
+  } else if (u1.role === 'ri' && u2.role === 'admin') {
+    comp = 1;
+  } else if (u1.role === 'cp' && (u2.role === 'admin' || u2.role === 'ri')) {
+    comp = 1;
+  }
   if (comp === 0) {
     return `${u1.lastName} ${u1.firstName}`.localeCompare(`${u2.lastName} ${u2.firstName}`);
   }

@@ -51,6 +51,7 @@
     "semi": "warn",
     "no-undef": "error",
     "curly": ["warn", "all"],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
     "object-curly-spacing": ["warn", "always"],
     "comma-spacing": "warn",
     "space-before-blocks": ["warn", "always"],

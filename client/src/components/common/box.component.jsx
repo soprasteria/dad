@@ -15,7 +15,9 @@ class Box extends React.Component {
   }
 
   toggle = () => {
-    this.setState((prevState) => {return { stacked: !prevState.stacked };});
+    this.setState((prevState) => {
+      return { stacked: !prevState.stacked };
+    });
   }
 
   render = () => {

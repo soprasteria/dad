@@ -35,7 +35,7 @@ import './project.page.scss';
 // Project Component
 class ProjectComponent extends React.Component {
 
-  state = { errors: { details: [], fields: {} }, project: {}, matrix: {} }
+  state = { errors: { details: [], fields: {} }, project: {}, matrix: {}, options: [] }
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
@@ -221,10 +221,7 @@ class ProjectComponent extends React.Component {
             <Form.TextArea readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
               type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']} />
             <Form.Group>
-              <Form.Field width='two'>
-                <Label size='large' className='form-label' content='URLs' />
-              </Form.Field>
-              <Form.Field width='fourteen'>
+              <Form.Field width='sixteen'>
                 <Label.Group>
                   {project.urls && project.urls.map((url, index) => {
                     return (
@@ -244,7 +241,31 @@ class ProjectComponent extends React.Component {
                 </Label.Group>
               </Form.Field>
             </Form.Group>
+            <Form.Group>
+              <Form.Field width='sixteen'>
+                <Label.Group>
+                  <Label as='a' color='blue' image>
+                    <Icon name='at' />
+                    Thibaut Rousseau
+                  </Label>
+                  <Label as='a' color='blue' image>
+                    <Icon name='at' />
+                    Vincent Daniel
+                  </Label>
+                  <Label as='a' color='blue' image>
+                    <Icon name='at' />
+                    Mathieu Cornic
+                  </Label>
+                  <Label as='a' color='blue' image>
+                    <Icon name='at' />
+                    Axel Lebreton
+                  </Label>
+                  <Label as='a' color='green'><Icon name='plus' />Add Contact</Label>
+                </Label.Group>
+              </Form.Field>
+            </Form.Group>
           </Form>
+
           <Box icon='settings' title='Details' ref='details' stacked={Boolean(projectId)}>
             <Form error={Boolean(errors.details.length)}>
               <Form.Group widths='two'>
@@ -261,6 +282,73 @@ class ProjectComponent extends React.Component {
               <Message error list={errors.details} />
             </Form>
           </Box>
+
+          <Box icon='book' title='Inception'>
+            <Form>
+              <Form.Group widths='equal'>
+                <Form.Dropdown placeholder='TMA, Build...' fluid search selection 
+                  label='Project Type' options={[
+                    { text: '', value: '' },
+                    { text: 'Build', value: 'Build' },
+                    { text: 'TMA', value: 'TMA' },
+                    { text: 'TRA', value: 'TRA' }
+                  ]} />
+                <Form.Dropdown placeholder='eMedia, Agile...' fluid search selection
+                  label='Methodology' options={[
+                    { text: '', value: '' },
+                    { text: 'eMedia', value: 'eMedia' },
+                    { text: 'Agile', value: 'Agile' },
+                    { text: 'V-Model', value: 'V-Model' }
+                  ]} />
+                <Form.Input label='Size of the Team' defaultValue='1' min='1' type='number' />
+              </Form.Group>
+
+              <Form.Dropdown label='Technologies' placeholder='Java, .NET...' allowAdditions={true}
+                fluid multiple search selection options={this.state.options} onAddItem={(e, { value }) => {
+                  this.setState({
+                    options: [{ text: value, value }, ...this.state.options],
+                  });
+                }}
+              />
+
+              <Grid columns='equal' divided>
+                <Grid.Row>
+                  <Grid.Column>
+                    <h3>Localization</h3>
+                    <Form.Checkbox label='Multi-site' />
+                    <Form.Checkbox label='Multi-site Sopra Steria/Client' />
+                    <Form.Checkbox label='On Client Site' />
+                  </Grid.Column>
+                  <Grid.Column>
+                    <h3>Platforms</h3>
+                    <Form.Input label='Number of Testing Platforms' defaultValue='1' min='1' type='number' />
+                    <Form.Input label='Number of Client Platforms' defaultValue='1' min='1' type='number' />
+                  </Grid.Column>
+                  <Grid.Column>
+                    <h3>Version Control</h3>
+                    <Form.Checkbox label='Deliverables' />
+                    <Form.Checkbox label='Specifications' />
+                    <Form.Checkbox label='Source Code' />
+                    <Form.Dropdown placeholder='SVN, Git...' fluid search selection 
+                      label='Version Control System' options={[
+                        { text: '', value: '' },
+                        { text: 'None', value: 'None' },
+                        { text: 'SVN', value: 'SVN' },
+                        { text: 'Git', value: 'Git' },
+                        { text: 'Mercurial', value: 'Mercurial' },
+                        { text: 'CVS', value: 'CVS' },
+                        { text: 'TFS', value: 'TFS' }
+                      ]} />
+                  </Grid.Column>
+                  <Grid.Column>
+                    <h3>Deployment</h3>
+                    <Form.Checkbox label='Project Team in Charge of the Deployment' />
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+            </Form>
+          </Box>
+
           <Box icon='help circle' title='Maturity Legend' ref='legend'>
             <Grid columns={2} relaxed>
               <Grid.Column>

@@ -293,13 +293,6 @@ class ProjectComponent extends React.Component {
                     { text: 'TMA', value: 'TMA' },
                     { text: 'TRA', value: 'TRA' }
                   ]} />
-                <Form.Dropdown placeholder='eMedia, Agile...' fluid search selection
-                  label='Methodology' options={[
-                    { text: '', value: '' },
-                    { text: 'eMedia', value: 'eMedia' },
-                    { text: 'Agile', value: 'Agile' },
-                    { text: 'V-Model', value: 'V-Model' }
-                  ]} />
                 <Form.Input label='Size of the Team' defaultValue='1' min='1' type='number' />
               </Form.Group>
 
@@ -339,10 +332,6 @@ class ProjectComponent extends React.Component {
                         { text: 'CVS', value: 'CVS' },
                         { text: 'TFS', value: 'TFS' }
                       ]} />
-                  </Grid.Column>
-                  <Grid.Column>
-                    <h3>Deployment</h3>
-                    <Form.Checkbox label='Project Team in Charge of the Deployment' />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>

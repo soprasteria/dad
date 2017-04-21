@@ -124,7 +124,3 @@ func modifyCellBorder(cell *xlsx.Cell, left bool, right bool, top bool, bottom b
 func setWidthCols(sheet *xlsx.Sheet, width float64) {
 	sheet.SetColWidth(0, len(sheet.Cols), width)
 }
-
-func createFilter(sheet *xlsx.Sheet, topLeftCell string, bottomRightCell string) {
-	sheet.AutoFilter = &xlsx.AutoFilter{TopLeftCell: topLeftCell, BottomRightCell: bottomRightCell}
-}

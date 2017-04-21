@@ -172,9 +172,6 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	const widthDate = float64(12.0)
 	setWidthCols(sheet, widthDate)
 
-	// Create a filter for all projects
-	createFilter(sheet, "A3", "DD3")
-
 	// Write the file in-memory and returns is as a readable stream
 	var b bytes.Buffer
 	err = file.Write(&b)

@@ -23,6 +23,9 @@ gulp.task('client:webpack-dev-server', callback => {
   const compiler = webpack(webpackConfig);
   new WebpackDevServer(compiler, {
     hot: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
     stats: {
       colors: true
     }

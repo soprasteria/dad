@@ -1,6 +1,8 @@
 package export
 
 import (
+	"time"
+
 	"github.com/tealeg/xlsx"
 )
 
@@ -11,6 +13,20 @@ const black = "FF000000"
 func createCell(row *xlsx.Row, content string) *xlsx.Cell {
 	cell := row.AddCell()
 	cell.SetString(content)
+	return cell
+}
+
+func createDateCell(row *xlsx.Row, date time.Time) *xlsx.Cell {
+	cell := row.AddCell()
+	cell.SetDate(date)
+	return cell
+}
+
+func createFormattedValueCell(row *xlsx.Row, numberFormat string) *xlsx.Cell {
+	cell := row.AddCell()
+	cell.SetString(numberFormat)
+	cell.NumFmt = "0%"
+	cell.FormattedValue()
 	return cell
 }
 
@@ -103,4 +119,12 @@ func modifyCellBorder(cell *xlsx.Cell, left bool, right bool, top bool, bottom b
 	style.Border = *border
 	style.ApplyBorder = true
 	cell.SetStyle(style)
+}
+
+func setWidthCols(sheet *xlsx.Sheet, width float64) {
+	sheet.SetColWidth(0, len(sheet.Cols), width)
+}
+
+func createFilter(sheet *xlsx.Sheet, topLeftCell string, bottomRightCell string) {
+	sheet.AutoFilter = &xlsx.AutoFilter{TopLeftCell: topLeftCell, BottomRightCell: bottomRightCell}
 }

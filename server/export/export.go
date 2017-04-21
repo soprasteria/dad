@@ -35,18 +35,22 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 
 	serviceNameRow.SetHeightCM(10)
 
-	createMergedCell(servicePkgRow, "Matrix Maturity", 7)
+	// Number columns by category
+	const nbColsMatrixMaturity = 8
+	const nbColsService = 4
 
-	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), 7)
+	createMergedCell(servicePkgRow, "Matrix Maturity", nbColsMatrixMaturity)
+
+	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), nbColsMatrixMaturity)
 
 	createCell(serviceMaturityRow, "Project")
 	createCell(serviceMaturityRow, "Business Unit")
 	createCell(serviceMaturityRow, "Service Center")
 	createCell(serviceMaturityRow, "Domain")
 	createCell(serviceMaturityRow, "Project Manager")
-
-	// Add a "Comments" header merged vertically
-	createMergedCell(serviceMaturityRow, "Comments", 2)
+	createCell(serviceMaturityRow, "Creation Date")
+	createCell(serviceMaturityRow, "Last Update")
+	createCell(serviceMaturityRow, "Comments")
 
 	// Build a map of services indexed by their package name
 	servicesMap := make(map[string][]types.FunctionalService)
@@ -65,12 +69,14 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	for _, pkg := range servicesMapSortedKeys {
 		services := servicesMap[pkg]
 
-		createMergedCell(servicePkgRow, pkg, len(services)*2)
+		createMergedCell(servicePkgRow, pkg, len(services)*nbColsService)
 		for _, service := range services {
-			nameCell := createMergedCell(serviceNameRow, service.Name, 2)
+			nameCell := createMergedCell(serviceNameRow, service.Name, nbColsService)
 			rotateCell(nameCell, 90)
 			createCell(serviceMaturityRow, "Progress")
 			createCell(serviceMaturityRow, "Goal")
+			createCell(serviceMaturityRow, "Priority")
+			createCell(serviceMaturityRow, "Due Date")
 		}
 	}
 
@@ -105,6 +111,8 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		createCell(projectRow, serviceCenter.Name)
 		createCell(projectRow, project.Domain)
 		createCell(projectRow, projectManager.DisplayName)
+		createDateCell(projectRow, project.Created)
+		createDateCell(projectRow, project.Updated)
 
 		// Aggregate comments
 		for _, pkg := range servicesMapSortedKeys {
@@ -121,7 +129,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 			}
 		}
 		commentsString := strings.Join(comments, "\n")
-		createMergedCell(projectRow, commentsString, 2)
+		createCell(projectRow, commentsString)
 		projectRow.SetHeightCM(0.5*float64(strings.Count(commentsString, "\n")) + 0.5)
 
 		// Iterate on each service in the correct order
@@ -132,13 +140,21 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 				// Iterate on the project matrix and print the data for the current service
 				for _, line := range project.Matrix {
 					if line.Service == service.ID {
-						createCell(projectRow, types.Progress[line.Progress])
-						createCell(projectRow, types.Progress[line.Goal])
+						createFormattedValueCell(projectRow, types.Progress[line.Progress])
+						createFormattedValueCell(projectRow, types.Progress[line.Goal])
+						createCell(projectRow, line.Priority)
+						if line.DueDate != nil {
+							createDateCell(projectRow, *line.DueDate)
+						} else {
+							createCell(projectRow, "N/A")
+						}
 						applicable = true
 						break
 					}
 				}
 				if !applicable {
+					createCell(projectRow, "N/A")
+					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")
 				}
@@ -151,6 +167,13 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	colorRow(serviceMaturityRow, red, white)
 	modifySheetAlignment(sheet, "center", "center")
 	modifySheetBorder(sheet, black)
+
+	// Width for all cells
+	const widthDate = float64(12.0)
+	setWidthCols(sheet, widthDate)
+
+	// Create a filter for all projects
+	createFilter(sheet, "A3", "DD3")
 
 	// Write the file in-memory and returns is as a readable stream
 	var b bytes.Buffer

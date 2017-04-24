@@ -35,22 +35,23 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 
 	serviceNameRow.SetHeightCM(10)
 
-	// Number columns by category
-	const nbColsMatrixMaturity = 8
-	const nbColsService = 4
+	// Name of columns contained inside the Matrix maturity column
+	matrixMaturityColumns := []string{
+		"Project",
+		"Business",
+		"Service Center",
+		"Domain", "Project Manager",
+		"Creation Date",
+		"Last Update",
+		"Comments"}
 
-	createMergedCell(servicePkgRow, "Matrix Maturity", nbColsMatrixMaturity)
+	createMergedCell(servicePkgRow, "Matrix Maturity", len(matrixMaturityColumns))
 
-	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), nbColsMatrixMaturity)
+	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), len(matrixMaturityColumns))
 
-	createCell(serviceMaturityRow, "Project")
-	createCell(serviceMaturityRow, "Business Unit")
-	createCell(serviceMaturityRow, "Service Center")
-	createCell(serviceMaturityRow, "Domain")
-	createCell(serviceMaturityRow, "Project Manager")
-	createCell(serviceMaturityRow, "Creation Date")
-	createCell(serviceMaturityRow, "Last Update")
-	createCell(serviceMaturityRow, "Comments")
+	for _, column := range matrixMaturityColumns {
+		createCell(serviceMaturityRow, column)
+	}
 
 	// Build a map of services indexed by their package name
 	servicesMap := make(map[string][]types.FunctionalService)
@@ -64,6 +65,9 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		servicesMapSortedKeys = append(servicesMapSortedKeys, key)
 	}
 	sort.Strings(servicesMapSortedKeys)
+
+	// Number of columns by service
+	const nbColsService = 4
 
 	// Header generation: package and associated functional services
 	for _, pkg := range servicesMapSortedKeys {
@@ -169,7 +173,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	modifySheetBorder(sheet, black)
 
 	// Width for all cells
-	const widthDate = float64(12.0)
+	const widthDate = 12.0
 	setWidthCols(sheet, widthDate)
 
 	// Write the file in-memory and returns is as a readable stream

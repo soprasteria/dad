@@ -34,11 +34,44 @@ import './project.page.scss';
 // Project Component
 class ProjectComponent extends React.Component {
 
-  state = { errors: { details: [], fields: {} }, project: {}, matrix: {} }
+  state = {
+    errors: {
+      details: [],
+      fields: {}
+    },
+    project: {},
+    matrix: {},
+    modes: [
+      { text: '', value: '' },
+      { text: 'SaaS', value: 'SaaS' },
+      { text: 'DMZ', value: 'DMZ' },
+      { text: 'Isolated Network', value: 'Isolated Network' }
+    ],
+    versionControlSystems: [
+      { text: '', value: '' },
+      { text: 'SVN', value: 'SVN' },
+      { text: 'Git', value: 'Git' },
+      { text: 'Mercurial', value: 'Mercurial' },
+      { text: 'CVS', value: 'CVS' },
+      { text: 'TFS', value: 'TFS' }
+    ],
+    technologies: [
+      { text: 'Java', value: 'Java' },
+      { text: '.NET', value: '.NET' },
+      { text: 'PHP', value: 'PHP' },
+      { text: 'Pega', value: 'Pega' },
+      { text: 'Cobol', value: 'Cobol' }
+    ]
+  }
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
     domain: Joi.string().trim().empty('').label('Domain'),
+    client: Joi.string().trim().empty('').label('Client'),
+    mode: Joi.string().trim().empty('').label('Mode'),
+    deliverables: Joi.boolean().required().label('Deliverables'),
+    sourceCode: Joi.boolean().required().label('Source Code'),
+    specifications: Joi.boolean().required().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
     serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
     businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit')
@@ -84,11 +117,20 @@ class ProjectComponent extends React.Component {
     }
   }
 
-  handleChange = (e, { name, value }) => {
+  handleChange = (e, { name, value, checked }) => {
     const { project, errors } = this.state;
     const state = {
-      project: { ...project, [name]: value },
-      errors: { details: [...errors.details], fields: { ...errors.fields } }
+      project: {
+        ...project,
+        // "checked" is used for checkboxes, becausetheir "value" doesn't change
+        [name]: value || checked
+      },
+      errors: {
+        details: [...errors.details],
+        fields: {
+          ...errors.fields
+        }
+      }
     };
     delete state.errors.fields[name];
     this.setState(state);
@@ -101,9 +143,9 @@ class ProjectComponent extends React.Component {
   }
 
   isFormValid = () => {
-    const { error } = Joi.validate(this.state.project, this.schema, { abortEarly: false, allowUnknown: true });
-    if (error) {
-      const errors = parseError(error);
+    const result = Joi.validate(this.state.project, this.schema, { abortEarly: false, allowUnknown: true });
+    if (result.error) {
+      const errors = parseError(result.error);
       if (errors.fields['Service Center or Business Unit']) {
         errors.fields.serviceCenter = true;
         errors.fields.businessUnit = true;
@@ -113,14 +155,21 @@ class ProjectComponent extends React.Component {
       this.refs.details.setState({ stacked: false });
       this.setState({ errors: errors });
     }
-    return !Boolean(error);
+    return result;
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
-    if (this.isFormValid()) {
-      const { project, matrix } = this.state;
-      const modifiedProject = { ...project, matrix: Object.values(matrix) };
+    const formValidationResult = this.isFormValid();
+    if (!Boolean(formValidationResult.error)) {
+      const { matrix } = this.state;
+      // Use the "project" object returned by Joi.validate instead of `this.state.project` because
+      // Joi converts the type of the checkbox values to boolean automatically
+      const project = formValidationResult.value;
+      const modifiedProject = {
+        ...project,
+        matrix: Object.values(matrix)
+      };
       this.props.onSave(modifiedProject);
     }
   }
@@ -161,17 +210,17 @@ class ProjectComponent extends React.Component {
     return <DocumentTitle title={title}><div>{packageList}</div></DocumentTitle>;
   }
 
-  renderDropdown = (name, label, value, placeholder, width, options, isFetching, errors, readOnly) => {
+  renderDropdown = (name, label, value, placeholder, options, isFetching, errors, readOnly) => {
     if (readOnly) {
       const option = options.find(elm => elm.value === value);
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
-          type='text' autoComplete='off' placeholder={`No ${label}`} width={width}
+          type='text' autoComplete='off' placeholder={`No ${label}`}
         />
       );
     }
     return (
-      <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching} width={width}
+      <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
       />
     );
@@ -183,6 +232,7 @@ class ProjectComponent extends React.Component {
       isEntitiesFetching, services, isServicesFetching,
       users, projectId, canEditDetails
     } = this.props;
+
     const { project, errors } = this.state;
     const fetching = isFetching || isServicesFetching;
     const authUser = this.props.auth.user;
@@ -212,19 +262,68 @@ class ProjectComponent extends React.Component {
               />
             </Form.Group>
           </Form>
+
           <Box icon='settings' title='Details' ref='details' stacked={Boolean(projectId)}>
             <Form error={Boolean(errors.details.length)}>
-              <Form.Group widths='two'>
-                <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                  type='text' name='domain' autoComplete='on' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
-                />
-                {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors, !canEditDetails)}
-              </Form.Group>
+              <Grid columns='equal' divided>
+                <Grid.Row>
+                  <Grid.Column>
+                    <h3>Project Data</h3>
+                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
+                    <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
+                      type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
+                    />
+                    <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
+                      type='text' name='domain' autoComplete='on' placeholder='Project Domain' error={errors.fields['domain']}
+                    />
+                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
+                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
+                  </Grid.Column>
 
-              <Form.Group widths='two'>
-                {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', 'eight', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
-                {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', 'eight', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
-              </Form.Group>
+                  <Grid.Column>
+                    <h3>Technical Data</h3>
+
+                    <Form.Dropdown
+                      label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
+                      name='technologies' allowAdditions={true} search value={project.technologies || []} 
+                      options={
+                        // The list of options must contain the default technologies *and* the custom technologies
+                        // added by the user. If we don't do the concatenation, the component won't be able to
+                        // display the user-defined technologies
+                        this.state.technologies.concat(
+                          project.technologies
+                          ? project.technologies.map(technology => ({ text: technology, value: technology }))
+                          : []
+                        )
+                      }
+                      onAddItem={(e, { value }) => {
+                        // When an item is added by the user, we append it to the list of technologies
+                        // If we don't do that the component cannot display it
+                        this.setState({
+                          technologies: [
+                            ...this.state.technologies,
+                            { text: value, value }
+                          ]
+                        });
+                      }}
+                    />
+
+                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
+
+                    <h4>Version Control</h4>
+                    <Form.Checkbox readOnly={!canEditDetails} label='Deliverables' name='deliverables'
+                      checked={Boolean(project.deliverables)} onChange={this.handleChange} />
+
+                    <Form.Checkbox readOnly={!canEditDetails} label='Source Code' name='sourceCode'
+                      checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
+
+                    <Form.Checkbox readOnly={!canEditDetails} label='Specifications' name='specifications'
+                      checked={Boolean(project.specifications)} onChange={this.handleChange} />
+                    
+                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, !canEditDetails)}
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
 
               <Message error list={errors.details} />
             </Form>

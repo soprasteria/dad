@@ -190,7 +190,6 @@ func (u *Projects) Save(c echo.Context) error {
 		if err != nil || projectFromDB.ID.Hex() == "" {
 			return c.JSON(http.StatusBadRequest, types.NewErr("Trying to modify a non existing project"))
 		}
-
 	}
 
 	// Get project from body

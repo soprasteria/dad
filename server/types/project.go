@@ -41,18 +41,30 @@ type MatrixLine struct {
 // Matrix represent a slice of matrix lines
 type Matrix []MatrixLine
 
+// TechnicalData contains the technical data of a project
+type TechnicalData struct {
+	Technologies                   []string `bson:"technologies" json:"technologies"`
+	Mode                           string   `bson:"mode" json:"mode"`
+	DeliverablesInVersionControl   bool     `bson:"deliverables" json:"deliverables"`
+	SpecificationsInVersionControl bool     `bson:"specifications" json:"specifications"`
+	SourceCodeInVersionControl     bool     `bson:"sourceCode" json:"sourceCode"`
+	VersionControlSystem           string   `bson:"versionControlSystem" json:"versionControlSystem"`
+}
+
 // Project represents a Sopra Steria project
 type Project struct {
-	ID             bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
-	Name           string        `bson:"name" json:"name"`
-	Domain         string        `bson:"domain" json:"domain"`
-	ProjectManager string        `bson:"projectManager" json:"projectManager"`
-	BusinessUnit   string        `bson:"businessUnit" json:"businessUnit"`
-	ServiceCenter  string        `bson:"serviceCenter" json:"serviceCenter"`
-	Matrix         Matrix        `bson:"matrix" json:"matrix"`
-	Description    string        `bson:"description" json:"description"`
-	Created        time.Time     `bson:"created" json:"created"`
-	Updated        time.Time     `bson:"updated" json:"updated"`
+	ID             bson.ObjectId                  `bson:"_id,omitempty" json:"id,omitempty"`
+	Name           string                         `bson:"name" json:"name"`
+	Description    string                         `bson:"description" json:"description"`
+	Domain         string                         `bson:"domain" json:"domain"`
+	Client         string                         `bson:"client" json:"client"`
+	ProjectManager string                         `bson:"projectManager" json:"projectManager"`
+	BusinessUnit   string                         `bson:"businessUnit" json:"businessUnit"`
+	ServiceCenter  string                         `bson:"serviceCenter" json:"serviceCenter"`
+	TechnicalData  `bson:"technicalData" json:""` // json is an empty string because we want to flatten the object to avoid client-side null-checks
+	Matrix         Matrix                         `bson:"matrix" json:"matrix"`
+	Created        time.Time                      `bson:"created" json:"created"`
+	Updated        time.Time                      `bson:"updated" json:"updated"`
 }
 
 // Projects represents a slice of Project

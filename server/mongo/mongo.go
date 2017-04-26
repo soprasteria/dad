@@ -3,12 +3,14 @@ package mongo
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/soprasteria/dad/server/types"
+	"github.com/spf13/viper"
 	"gopkg.in/mgo.v2"
 
 	"strings"
-
-	"github.com/spf13/viper"
+	"time"
 )
+
+const mongoTimeout = 10 * time.Second
 
 //DadMongo containers all types of Mongo data ready to be used
 type DadMongo struct {
@@ -29,7 +31,8 @@ func Connect() {
 		panic("Mongo url is empty. A Mongo database is required for Dad to work.")
 	}
 	s, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs: strings.Split(uri, ","),
+		Addrs:   strings.Split(uri, ","),
+		Timeout: mongoTimeout,
 	})
 
 	if err != nil {

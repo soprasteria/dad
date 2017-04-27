@@ -22,7 +22,7 @@ const projectsReducer = (state, action) => {
 
   default:
     const projects = { ...entitiesState, items: { ...entitiesState.items } };
-    Object.values(projects.items).forEach(item => item = { ...item, isEditing: false });
+    Object.values(projects.items).forEach((item) => item = { ...item, isEditing: false });
     return projects;
   }
 };

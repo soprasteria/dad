@@ -27,15 +27,15 @@ class ModalComponent extends React.Component {
   syncModal = (modal) => {
     const form = {};
     const options = {};
-    modal.form.lines.forEach(line => {
-      line.fields.forEach(field => {
+    modal.form.lines.forEach((line) => {
+      line.fields.forEach((field) => {
         form[field.name] = field.value;
         if (field.options) {
           options[field.name] = field.options;
         }
       });
     });
-    modal.form.hidden.map(field => form[field.name] = field.value);
+    modal.form.hidden.map((field) => form[field.name] = field.value);
     this.setState({ schema: createSchemaModal(modal), form, errors: { details: [], fields: {} }, options });
   }
 
@@ -75,7 +75,7 @@ class ModalComponent extends React.Component {
     case 'tags':
       const search = field.type === 'autocomplete' || field.type === 'tags';
       const multiple = field.type === 'tags';
-      const dropdownOptions = opts.map(option => {
+      const dropdownOptions = opts.map((option) => {
         return {
           icon: option.icon && <Icon name={option.icon} color={option.color || null}/>,
           value: field.type === 'dropdown' ? option.id : option.value,
@@ -123,7 +123,7 @@ class ModalComponent extends React.Component {
             <Form error={Boolean(details.length)}>
               {modal.form.lines.map((line, index) => (
                 <Form.Group key={index} className={line.class}>
-                  {line.fields.map(field => this.renderField(field, fields))}
+                  {line.fields.map((field) => this.renderField(field, fields))}
                 </Form.Group>
               ))}
               <Message error list={details}/>

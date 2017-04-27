@@ -22,14 +22,14 @@ export const getFilteredUsers = (users, filterValue) => {
   if (!filterValue || filterValue === '') {
     return Object.values(users).sort(sortUsers);
   } else {
-    return Object.values(users).filter(user => {
+    return Object.values(users).filter((user) => {
       return containsWithoutAccents(JSON.stringify(Object.values(user)), filterValue);
     }).sort(sortUsers);
   }
 };
 
 export const getUsersAsOptions = (users) => {
-  return [{ value: '', text: 'None' }].concat(users.map(user => {
+  return [{ value: '', text: 'None' }].concat(users.map((user) => {
     return { value: user.id, text: `${user.lastName.toUpperCase()} ${user.firstName}` } ;
   }).sort(sortby('text')));
 };

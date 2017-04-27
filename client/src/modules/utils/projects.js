@@ -1,6 +1,6 @@
 export const calculateProgress = (project) => {
-  const filteredMatrix = project.matrix.filter(m => m.goal >= 0);
-  const goals = filteredMatrix.map(m => [m.progress, m.goal])
+  const filteredMatrix = project.matrix.filter((m) => m.goal >= 0);
+  const goals = filteredMatrix.map((m) => [m.progress, m.goal])
     .reduce((acc, [progress, goal]) => {
       if (progress === -1) {
         progress = 0;

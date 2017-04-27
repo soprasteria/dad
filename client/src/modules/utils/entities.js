@@ -188,7 +188,7 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
     };
   case CONST_RECEIVE:
     let items = {};
-    action.items.forEach(item => items[item.id] = { ...state.items[item.id], ...item });
+    action.items.forEach((item) => items[item.id] = { ...state.items[item.id], ...item });
     return {
       ...state,
       isFetching: false,
@@ -333,10 +333,10 @@ export const generateEntitiesThunks = (entitiesName) => {
       return fetch(`/api/${entitiesName}`, withAuth({ method: 'GET' }))
         .then(checkHttpStatus)
         .then(parseJSON)
-        .then(response => {
+        .then((response) => {
           dispatch(Actions.receiveSome(response));
         })
-        .catch(error => {
+        .catch((error) => {
           handleError(error, Actions.invalidRequest, dispatch);
         });
     };
@@ -347,10 +347,10 @@ export const generateEntitiesThunks = (entitiesName) => {
       return fetch(`/api/${entitiesName}/${id}`, withAuth({ method: 'GET' }))
         .then(checkHttpStatus)
         .then(parseJSON)
-        .then(response => {
+        .then((response) => {
           dispatch(Actions.receiveOne(response));
         })
-        .catch(error => {
+        .catch((error) => {
           handleError(error, Actions.invalidRequestEntity({ id }), dispatch);
         });
     };
@@ -374,12 +374,12 @@ export const generateEntitiesThunks = (entitiesName) => {
       return fetch(request)
         .then(checkHttpStatus)
         .then(parseJSON)
-        .then(response => {
+        .then((response) => {
           dispatch(Actions.saved(response));
           postActionRedirect && dispatch(postActionRedirect(response.id));
           postActionToast && dispatch(postActionToast);
         })
-        .catch(error => {
+        .catch((error) => {
           handleError(error, Actions.invalidSaveEntity(entity), dispatch);
         });
     };
@@ -393,11 +393,11 @@ export const generateEntitiesThunks = (entitiesName) => {
       return fetch(request)
         .then(checkHttpStatus)
         .then(parseText)
-        .then(response => {
+        .then((response) => {
           dispatch(Actions.deleted(response));
           postAction && dispatch(postAction);
         })
-        .catch(error => {
+        .catch((error) => {
           handleError(error, Actions.invalidDeleteEntity(entity), dispatch);
         });
     };

@@ -13,8 +13,8 @@ class ProjectCard extends React.Component {
   render = () => {
     const { project, businessUnit, serviceCenter } = this.props;
     project.matrix = project.matrix || [];
-    const filteredMatrixGoals = project.matrix.filter(m => m.goal >= 0);
-    const filteredMatrixProgress = project.matrix.filter(m => m.progress >= 0);
+    const filteredMatrixGoals = project.matrix.filter((m) => m.goal >= 0);
+    const filteredMatrixProgress = project.matrix.filter((m) => m.progress >= 0);
     const goalMessage = (filteredMatrixGoals.length === 0 && filteredMatrixProgress.length === 0) ? '-' :  // If nothing was specified, then the output is ''-'
           filteredMatrixGoals.length === 0 ? 'N/A' : Math.floor(calculateProgress(project)) + '%'; // Else if there is no goal specified the output is N/A, otherwise we do the maths.
     const domainClassnames = classNames({ filled: project.domain }, 'domain');

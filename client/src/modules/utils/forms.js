@@ -2,7 +2,7 @@ import Joi from 'joi-browser';
 
 export const createSchemaModal = (modal) => {
   let obj = {};
-  modal.form.lines.forEach(line => {
+  modal.form.lines.forEach((line) => {
     obj = { ...obj, ...createSchema(line.fields) };
   });
   return Joi.object().keys(obj);
@@ -14,7 +14,7 @@ export const createSchemaArray = (fields) => {
 
 const createSchema = (fields) => {
   const obj = {};
-  fields.forEach(field => {
+  fields.forEach((field) => {
     let rule;
     switch (field.type) {
     case 'email':
@@ -40,7 +40,7 @@ const createSchema = (fields) => {
 export const parseError = (error) => {
   const fields = {};
   const details = [];
-  error && error.details.forEach(err => {
+  error && error.details.forEach((err) => {
     fields[err.path] = true;
     details.push(err.message);
   });
@@ -50,7 +50,7 @@ export const parseError = (error) => {
 export const parseErrorArray = (error) => {
   const fields = {};
   const details = [];
-  error && error.details.forEach(err => {
+  error && error.details.forEach((err) => {
     const [index, path] = err.path.split('.');
     fields[index] = { ...fields[index], [path]: true };
     details.push(err.message);

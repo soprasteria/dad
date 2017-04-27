@@ -28,7 +28,7 @@ class Toasts extends React.Component {
         this.toastsToRemove.splice(index, 1);
       }
     });
-    Object.values(toasts).forEach(toast => this.addNotification(toast));
+    Object.values(toasts).forEach((toast) => this.addNotification(toast));
   }
 
   addNotification = (notification) => {
@@ -61,7 +61,7 @@ const mapStateToNotificationsProps = (state) => {
 
 // Function to map dispatch to container props
 const mapDispatchToNotificationsProps = (dispatch) => {
-  return { onClose: id => dispatch(ToastsActions.closeNotification(id)) };
+  return { onClose: (id) => dispatch(ToastsActions.closeNotification(id)) };
 };
 
 // Redux container to Sites component

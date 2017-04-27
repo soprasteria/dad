@@ -195,7 +195,7 @@ class ProjectComponent extends React.Component {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {servicesList.map(service => {
+            {servicesList.map((service) => {
               return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix} />;
             })}
           </Table.Body>
@@ -209,7 +209,7 @@ class ProjectComponent extends React.Component {
 
   renderDropdown = (name, label, value, placeholder, options, isFetching, errors, readOnly) => {
     if (readOnly) {
-      const option = options.find(elm => elm.value === value);
+      const option = options.find((elm) => elm.value === value);
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
           type='text' autoComplete='off' placeholder={`No ${label}`}
@@ -241,7 +241,7 @@ class ProjectComponent extends React.Component {
     const technologiesOptions =
       Array
         .from(new Set(this.props.technologies.concat(project.technologies || [])))
-        .map(technology => ({ text: technology, value: technology }));
+        .map((technology) => ({ text: technology, value: technology }));
 
     return (
       <Container className='project-page'>
@@ -316,7 +316,7 @@ class ProjectComponent extends React.Component {
           <Box icon='help circle' title='Maturity Legend' ref='legend'>
             <Grid columns={2} relaxed>
               <Grid.Column>
-                {options.slice(0, Math.ceil(options.length / 2)).map(opt => {
+                {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
                   return (
                     <List.Item key={opt.value}>
                       <Label color={opt.label.color} horizontal>{opt.text}</Label>
@@ -326,7 +326,7 @@ class ProjectComponent extends React.Component {
                 })}
               </Grid.Column>
               <Grid.Column>
-                {options.slice(Math.ceil(options.length / 2)).map(opt => {
+                {options.slice(Math.ceil(options.length / 2)).map((opt) => {
                   return (
                     <List.Item key={opt.value}>
                       <Label color={opt.label.color} horizontal>{opt.text}</Label>
@@ -388,14 +388,14 @@ const mapStateToProps = (state, ownProps) => {
   // * the entities assigned to the RI
   // * the businessUnit and serviceCenter assigned to the current project
   if (authUser.role !== AUTH_ADMIN_ROLE) {
-    entities = entities.filter(entity =>
+    entities = entities.filter((entity) =>
       authUser.entities
         .concat(selectedProject.businessUnit || [])
         .concat(selectedProject.serviceCenter || [])
         .includes(entity.id));
   }
 
-  const commonEntities = userEntities.find(id => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
+  const commonEntities = userEntities.find((id) => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
 
   // Details of the project can be edited if the user is an admin
   // or if the user is a RI and it's a project linked to that user
@@ -419,14 +419,14 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  fetchProject: id => dispatch(ProjectsThunks.fetch(id)),
+const mapDispatchToProps = (dispatch) => ({
+  fetchProject: (id) => dispatch(ProjectsThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
   fetchTechnologies: () => dispatch(TechnologiesThunks.fetchIfNeeded()),
-  onSave: project => dispatch(ProjectsThunks.save(project, (id) => push('/projects/' + id), ToastsActions.savedSuccessNotification('Project ' + project.name))),
-  onDelete: project => {
+  onSave: (project) => dispatch(ProjectsThunks.save(project, (id) => push('/projects/' + id), ToastsActions.savedSuccessNotification('Project ' + project.name))),
+  onDelete: (project) => {
     const del = () => dispatch(ProjectsThunks.delete(project, push('/projects')));
     dispatch(ModalActions.openRemoveProjectModal(project, del));
   }

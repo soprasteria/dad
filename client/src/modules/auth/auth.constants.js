@@ -3,7 +3,7 @@ export const AUTH_RI_ROLE = 'ri';
 export const AUTH_CP_ROLE = 'cp';
 export const ALL_ROLES = [AUTH_ADMIN_ROLE, AUTH_RI_ROLE, AUTH_CP_ROLE];
 
-export const getRoleLabel = role => {
+export const getRoleLabel = (role) => {
   switch (role) {
   case AUTH_ADMIN_ROLE:
     return 'Admin';
@@ -16,7 +16,7 @@ export const getRoleLabel = role => {
   }
 };
 
-export const getRoleColor = role => {
+export const getRoleColor = (role) => {
   switch (role) {
   case AUTH_ADMIN_ROLE:
     return 'teal';
@@ -27,7 +27,7 @@ export const getRoleColor = role => {
   }
 };
 
-export const getRoleIcon = role => {
+export const getRoleIcon = (role) => {
   switch (role) {
   case AUTH_ADMIN_ROLE:
     return 'unlock';
@@ -40,7 +40,7 @@ export const getRoleIcon = role => {
   }
 };
 
-export const getRoleData = role => {
+export const getRoleData = (role) => {
   return {
     'value': getRoleLabel(role),
     'color': getRoleColor(role),

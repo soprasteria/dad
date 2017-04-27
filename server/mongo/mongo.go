@@ -18,6 +18,7 @@ type DadMongo struct {
 	Entities           types.EntityRepo            // Repo for accessing entities methods
 	FunctionalServices types.FunctionalServiceRepo // Repo for accessing functional services methods
 	Projects           types.ProjectRepo           // Repo for accessing projects methods
+	Technologies       types.TechnologyRepo        // Repo for accessing technologies methods
 	Session            *mgo.Session                // Cloned session
 }
 
@@ -61,12 +62,14 @@ func Get() (*DadMongo, error) {
 	entities := types.NewEntityRepo(database)
 	functionalServices := types.NewFunctionalServiceRepo(database)
 	projects := types.NewProjectRepo(database)
+	technologies := types.NewTechnologyRepo(database)
 
 	return &DadMongo{
 		Users:              users,
 		Entities:           entities,
 		FunctionalServices: functionalServices,
 		Projects:           projects,
+		Technologies:       technologies,
 		Session:            s,
 	}, nil
 }

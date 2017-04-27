@@ -14,6 +14,7 @@ import Box from '../../common/box.component';
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
+import TechnologiesThunks from '../../../modules/technologies/technologies.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
 import { options } from '../../../modules/services/services.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
@@ -22,6 +23,7 @@ import ToastsActions from '../../../modules/toasts/toasts.actions';
 
 import { getEntitiesAsOptions, getByType } from '../../../modules/entities/entities.selectors';
 import { groupByPackage } from '../../../modules/services/services.selectors';
+import { flattenTechnologies } from '../../../modules/technologies/technologies.selectors';
 import { getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
@@ -55,13 +57,7 @@ class ProjectComponent extends React.Component {
       { text: 'CVS', value: 'CVS' },
       { text: 'TFS', value: 'TFS' }
     ],
-    technologies: [
-      { text: 'Java', value: 'Java' },
-      { text: '.NET', value: '.NET' },
-      { text: 'PHP', value: 'PHP' },
-      { text: 'Pega', value: 'Pega' },
-      { text: 'Cobol', value: 'Cobol' }
-    ]
+    technologies: []
   }
 
   schema = Joi.object().keys({
@@ -100,7 +96,8 @@ class ProjectComponent extends React.Component {
     Promise.all([
       this.props.fetchEntities(),
       this.props.fetchServices(),
-      this.props.fetchUsers()
+      this.props.fetchUsers(),
+      this.props.fetchTechnologies()
     ]).then(() => {
       if (projectId) {
         this.props.fetchProject(projectId);
@@ -238,6 +235,14 @@ class ProjectComponent extends React.Component {
     const authUser = this.props.auth.user;
     const canEditMatrix = canEditDetails || (authUser.role === AUTH_CP_ROLE && project.projectManager === authUser.id);
 
+    // The list of technologies options must contain the default technologies *and* the custom technologies
+    // added by the user. If we don't do the concatenation, the component won't be able to display the
+    // user-defined technologies. We dedupe the technologies using a Set.
+    const technologiesOptions =
+      Array
+        .from(new Set(this.props.technologies.concat(project.technologies || [])))
+        .map(technology => ({ text: technology, value: technology }));
+
     return (
       <Container className='project-page'>
 
@@ -285,27 +290,7 @@ class ProjectComponent extends React.Component {
 
                     <Form.Dropdown
                       label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
-                      name='technologies' allowAdditions={true} search value={project.technologies || []} 
-                      options={
-                        // The list of options must contain the default technologies *and* the custom technologies
-                        // added by the user. If we don't do the concatenation, the component won't be able to
-                        // display the user-defined technologies
-                        this.state.technologies.concat(
-                          project.technologies
-                          ? project.technologies.map(technology => ({ text: technology, value: technology }))
-                          : []
-                        )
-                      }
-                      onAddItem={(e, { value }) => {
-                        // When an item is added by the user, we append it to the list of technologies
-                        // If we don't do that the component cannot display it
-                        this.setState({
-                          technologies: [
-                            ...this.state.technologies,
-                            { text: value, value }
-                          ]
-                        });
-                      }}
+                      name='technologies' allowAdditions={true} search value={project.technologies || []} options={technologiesOptions}
                     />
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
@@ -370,12 +355,14 @@ ProjectComponent.propTypes = {
   isEntitiesFetching: React.PropTypes.bool,
   users: React.PropTypes.array,
   services: React.PropTypes.object,
+  technologies: React.PropTypes.array,
   isServicesFetching: React.PropTypes.bool,
   projectId: React.PropTypes.string,
   fetchProject: React.PropTypes.func.isRequired,
   fetchEntities: React.PropTypes.func.isRequired,
   fetchServices: React.PropTypes.func.isRequired,
   fetchUsers: React.PropTypes.func.isRequired,
+  fetchTechnologies: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired,
   onDelete: React.PropTypes.func.isRequired,
   canEditDetails: React.PropTypes.bool,
@@ -386,6 +373,7 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
+  const technologies = state.technologies.items;
   const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
   const isServicesFetching = state.services.isFetching;
@@ -423,6 +411,7 @@ const mapStateToProps = (state, ownProps) => {
     businessUnits: getEntitiesAsOptions({ entities: getByType(entities, 'businessUnit') }),
     serviceCenters: getEntitiesAsOptions({ entities: getByType(entities, 'serviceCenter') }),
     users: getUsersAsOptions(users),
+    technologies: flattenTechnologies(technologies),
     isEntitiesFetching: state.entities.isFetching,
     services,
     isServicesFetching,
@@ -435,6 +424,7 @@ const mapDispatchToProps = dispatch => ({
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
+  fetchTechnologies: () => dispatch(TechnologiesThunks.fetchIfNeeded()),
   onSave: project => dispatch(ProjectsThunks.save(project, (id) => push('/projects/' + id), ToastsActions.savedSuccessNotification('Project ' + project.name))),
   onDelete: project => {
     const del = () => dispatch(ProjectsThunks.delete(project, push('/projects')));

@@ -28,8 +28,6 @@ export const getFilteredUsers = (users, filterValue) => {
   }
 };
 
-
-
 export const getUsersAsOptions = (users) => {
   return [{ value: '', text:'None' }].concat(users.map(user => {
     return { value: user.id, text: `${user.lastName.toUpperCase()} ${user.firstName}` } ;

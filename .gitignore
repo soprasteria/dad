@@ -2,9 +2,6 @@ npm-debug.log*
 yarn-error.log
 node_modules/
 dist/
-client/dist/
-dad
-dad.zip
 .vscode/
 vendor/*/
 debug

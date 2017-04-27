@@ -15,18 +15,24 @@ Tools and dependencies:
 * [NodeJS 7.2.0](https://nodejs.org/en/)
 * [Docker](https://www.docker.com/)
 
-Get the dependencies:
+## Get the dependencies
 
 ```sh
 npm install
 govendor sync
 ```
 
-Run a MongoDB database:
+## Run a MongoDB database
 
 ```sh
 docker run --name mongo -p 27017:27017 -v /data/mongo:/data/db -d mongo
 ```
+
+## Populate the database with data
+
+You can use the shell scripts in [bin/](./bin). The scripts use CSV files. The format of these files is described in the shell scripts.
+
+## Specify the server configuration
 
 DAD requires a LDAP configuration. You can write a `~/.dad.toml` file with the following settings:
 
@@ -63,6 +69,8 @@ go run main.go serve --help
 * Use a config file as described above
 * Use environment variables (`server.mongo.addr` becomes `DAD_SERVER_MONGO_ADDR`)
 * Use CLI parameters (`--server.mongo.addr`)
+
+## Run the project
 
 Run DAD in dev mode, with live reload, with the command:
 

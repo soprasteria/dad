@@ -207,7 +207,7 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
     return {
       ...state,
       items: requestEntityItems,
-      selected : {
+      selected: {
         ...state.selected,
         isFetching: true,
         didInvalidate: false,
@@ -257,7 +257,7 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
         ...state.items,
         [newSavedEntity.id]: { ...oldEntitySaved, ...newSavedEntity, isFetching: false }
       },
-      selected : {
+      selected: {
         ...state.selected,
         isFetching: false,
         didInvalidate: false,
@@ -269,10 +269,10 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
     let deletedEntityState = {
       ...state,
       items: { ...state.items },
-      selected : {
+      selected: {
         isFetching: false,
         didInvalidate: true,
-        id : ''
+        id: ''
       }
     };
     delete deletedEntityState.items[action.id];
@@ -290,7 +290,7 @@ export const generateEntitiesReducer = (state = initialState, action, entitiesNa
     return {
       ...state,
       items: invalidEntityItems,
-      selected : {
+      selected: {
         ...state.selected,
         isFetching: false,
         didInvalidate: true,
@@ -330,7 +330,7 @@ export const generateEntitiesThunks = (entitiesName) => {
   const fetchAllFunc = () => {
     return (dispatch) => {
       dispatch(Actions.requestAll());
-      return fetch(`/api/${entitiesName}`, withAuth({ method:'GET' }))
+      return fetch(`/api/${entitiesName}`, withAuth({ method: 'GET' }))
         .then(checkHttpStatus)
         .then(parseJSON)
         .then(response => {
@@ -344,7 +344,7 @@ export const generateEntitiesThunks = (entitiesName) => {
   const fetchFunc = (id) => {
     return function (dispatch) {
       dispatch(Actions.requestOne(id));
-      return fetch(`/api/${entitiesName}/${id}`, withAuth({ method:'GET' }))
+      return fetch(`/api/${entitiesName}/${id}`, withAuth({ method: 'GET' }))
         .then(checkHttpStatus)
         .then(parseJSON)
         .then(response => {

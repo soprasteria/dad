@@ -52,7 +52,7 @@ class Toasts extends React.Component {
   }
 }
 
-Toasts.propTypes = { toasts: React.PropTypes.object, onClose:React.PropTypes.func };
+Toasts.propTypes = { toasts: React.PropTypes.object, onClose: React.PropTypes.func };
 
 // Function to map state to container props
 const mapStateToNotificationsProps = (state) => {

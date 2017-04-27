@@ -16,7 +16,7 @@ export const getByType = (entities, type) => {
 };
 
 export const getEntitiesAsOptions = ({ entities, withType }) => {
-  return [{ value: '', text:'None' }].concat(entities.map(entity => {
+  return [{ value: '', text: 'None' }].concat(entities.map(entity => {
     let type = entity.type;
     type = type.charAt(0).toUpperCase() + type.substring(1);
     const value = withType ? `${type}: ${entity.name}` : entity.name;

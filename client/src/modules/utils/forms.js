@@ -52,7 +52,7 @@ export const parseErrorArray = (error) => {
   const details = [];
   error && error.details.forEach(err => {
     const [index, path] = err.path.split('.');
-    fields[index] = { ...fields[index], [path]:true };
+    fields[index] = { ...fields[index], [path]: true };
     details.push(err.message);
   });
   return { details, fields };

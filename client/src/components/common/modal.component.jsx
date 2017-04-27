@@ -36,20 +36,20 @@ class ModalComponent extends React.Component {
       });
     });
     modal.form.hidden.map(field => form[field.name] = field.value);
-    this.setState({ schema:createSchemaModal(modal), form, errors: { details: [], fields: {} }, options });
+    this.setState({ schema: createSchemaModal(modal), form, errors: { details: [], fields: {} }, options });
   }
 
   handleAddition = (e, { name, value }) => {
     const options = this.state.options;
     const opts = options[name] || [];
     const state = {
-      options: { ...options, [name]: [...opts, { text:value, value }] }
+      options: { ...options, [name]: [...opts, { text: value, value }] }
     };
     this.setState(state);
   }
 
   handleChange = (e, { name, value }) => {
-    this.setState({ form: { ...this.state.form, [name]:value } });
+    this.setState({ form: { ...this.state.form, [name]: value } });
   }
 
   validate = (e) => {

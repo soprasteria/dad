@@ -11,7 +11,7 @@ const loginUser = (auth) => {
 
   let config = {
     method: 'POST',
-    headers: { 'Content-Type':'application/x-www-form-urlencoded' },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `username=${encodeURIComponent(auth.username)}&password=${encodeURIComponent(auth.password)}`
   };
 
@@ -53,7 +53,7 @@ const profile = () => {
   return dispatch => {
     dispatch(AuthActions.requestProfile());
 
-    return fetch('/api/profile', withAuth({ method:'GET' }))
+    return fetch('/api/profile', withAuth({ method: 'GET' }))
       .then(checkHttpStatus)
       .then(parseJSON)
       .then(response => {

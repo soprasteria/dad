@@ -17,7 +17,7 @@ const projectsReducer = (state, action) => {
     item.isEditing = true;
     return {
       ...entitiesState,
-      items: { ...entitiesState.items, [id]:item }
+      items: { ...entitiesState.items, [id]: item }
     };
 
   default:

@@ -18,7 +18,7 @@ const openRemoveProjectModal = (project, callback) => {
     validateText: 'Remove',
     validateColor: 'red',
     validateIcon: 'trash',
-    cancelText:'No',
+    cancelText: 'No',
     cancelColor: 'black',
     form,
     callback

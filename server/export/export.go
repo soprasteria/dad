@@ -40,10 +40,19 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		"Project",
 		"Business",
 		"Service Center",
-		"Domain", "Project Manager",
+		"Domain",
+		"Client",
+		"Project Manager",
+		"Technologies",
+		"Deployment Mode",
+		"Version Control System",
+		"Deliverables in VCS",
+		"Source Code in VCS",
+		"Specifications in VCS",
 		"Creation Date",
 		"Last Update",
-		"Comments"}
+		"Comments",
+	}
 
 	createMergedCell(servicePkgRow, "Matrix Maturity", len(matrixMaturityColumns))
 
@@ -114,7 +123,14 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		createCell(projectRow, businessUnit.Name)
 		createCell(projectRow, serviceCenter.Name)
 		createCell(projectRow, project.Domain)
+		createCell(projectRow, project.Client)
 		createCell(projectRow, projectManager.DisplayName)
+		createCell(projectRow, strings.Join(project.Technologies, ", "))
+		createCell(projectRow, project.Mode)
+		createCell(projectRow, project.VersionControlSystem)
+		createBoolCell(projectRow, project.DeliverablesInVersionControl)
+		createBoolCell(projectRow, project.SourceCodeInVersionControl)
+		createBoolCell(projectRow, project.SpecificationsInVersionControl)
 		createDateCell(projectRow, project.Created)
 		createDateCell(projectRow, project.Updated)
 

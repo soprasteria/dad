@@ -22,7 +22,7 @@ FILE=${3:-technologies.csv}
     while read -r name; do
         technology=$(printf '{"name": "%s"}' "$name")
         echo "Sending: $technology"
-        curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$technology" "$DAD_URL/api/projects/new"
+        curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$technology" "$DAD_URL/api/technologies/new"
         echo
     done < "$FILE"
 )

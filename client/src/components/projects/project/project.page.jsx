@@ -55,7 +55,8 @@ class ProjectComponent extends React.Component {
       { text: 'Git', value: 'Git' },
       { text: 'Mercurial', value: 'Mercurial' },
       { text: 'CVS', value: 'CVS' },
-      { text: 'TFS', value: 'TFS' }
+      { text: 'TFS', value: 'TFS' },
+      { text: 'Other', value: 'Other' }
     ],
     technologies: []
   }
@@ -119,7 +120,7 @@ class ProjectComponent extends React.Component {
     const state = {
       project: {
         ...project,
-        // "checked" is used for checkboxes, becausetheir "value" doesn't change
+        // "checked" is used for checkboxes, because their "value" doesn't change
         [name]: value || checked
       },
       errors: {
@@ -223,6 +224,22 @@ class ProjectComponent extends React.Component {
     );
   }
 
+  renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
+    if (readOnly) {
+      return (
+        <div>
+          {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
+        </div>
+      );
+    }
+    return (
+      <Form.Dropdown
+        label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
+        name='technologies' allowAdditions={true} search value={selectedTechnologies} options={technologies}
+      />
+    );
+  }
+
   render = () => {
     const {
       isFetching, serviceCenters, businessUnits,
@@ -288,10 +305,7 @@ class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    <Form.Dropdown
-                      label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
-                      name='technologies' allowAdditions={true} search value={project.technologies || []} options={technologiesOptions}
-                    />
+                    {this.renderTechnologiesField(project.technologies, technologiesOptions, !canEditDetails)}
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 

@@ -34,7 +34,7 @@ import { AUTH_CP_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/au
 import './project.page.scss';
 
 // Project Component
-class ProjectComponent extends React.Component {
+export class ProjectComponent extends React.Component {
 
   state = {
     errors: {

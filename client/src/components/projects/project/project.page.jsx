@@ -66,9 +66,9 @@ export class ProjectComponent extends React.Component {
     domain: Joi.string().trim().empty('').label('Domain'),
     client: Joi.string().trim().empty('').label('Client'),
     mode: Joi.string().trim().empty('').label('Mode'),
-    deliverables: Joi.boolean().required().label('Deliverables'),
-    sourceCode: Joi.boolean().required().label('Source Code'),
-    specifications: Joi.boolean().required().label('Specifications'),
+    deliverables: Joi.boolean().label('Deliverables'),
+    sourceCode: Joi.boolean().label('Source Code'),
+    specifications: Joi.boolean().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
     serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
     businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit')
@@ -318,7 +318,7 @@ export class ProjectComponent extends React.Component {
 
                     <Form.Checkbox readOnly={!canEditDetails} label='Specifications' name='specifications'
                       checked={Boolean(project.specifications)} onChange={this.handleChange} />
-                    
+
                     {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, !canEditDetails)}
                   </Grid.Column>
                 </Grid.Row>

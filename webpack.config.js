@@ -6,9 +6,10 @@ const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const production = env === 'production';
+console.info(`Webpack config loaded in ${env} environment`);
 
 const projectRoot = __dirname;
-const developmentPort = 8081
+const developmentPort = 8081;
 
 module.exports = {
   devtool: 'source-map',
@@ -33,10 +34,7 @@ module.exports = {
         test: /\.jsx?$/,
         enforce: 'pre',
         exclude: /node_modules/,
-        loader: 'eslint-loader',
-        options: {
-          configFile: path.join(projectRoot, '.eslintrc.js')
-        }
+        loader: 'eslint-loader'
       },
       {
         test: /\.jsx?$/,

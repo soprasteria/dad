@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+# This script populates the "entities" collection of the database.
+# Usage:
+#   bash populate-entities.sh <JWT token> [URL] [CSV file]
+#
+# JWT Token: the authentication token of an admin account
+# URL (optional, defaults to "http://localhost:8080"): the URL of a DAD instance
+# CSV file (optional, defaults to "entities.csv"): the file containing the data to insert
+#
+# The CSV file is semi-colon (;) separated. The expected fields are:
+# - Name: the name of the entity to insert
+# - Type: the type of the entity to insert (ie. businessUnit, serviceCenter)
+
 set -u
 
 DAD_JWT_TOKEN="$1"

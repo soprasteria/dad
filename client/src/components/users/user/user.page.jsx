@@ -56,7 +56,7 @@ class UserComponent extends React.Component {
 
   renderDropDownButton = (user, isFetching) => {
     return (
-      <Button loading={isFetching} color={getRoleColor(user.role)} className='role' onClick={e => e.preventDefault()}>
+      <Button loading={isFetching} color={getRoleColor(user.role)} className='role' onClick={(e) => e.preventDefault()}>
         <Icon name={getRoleIcon(user.role)} />
         {getRoleLabel(user.role)}
       </Button>
@@ -64,7 +64,7 @@ class UserComponent extends React.Component {
   }
 
   renderRoleDropdown = (user, isFetching, isReadOnly) => {
-    const options = ALL_ROLES.map(role => {
+    const options = ALL_ROLES.map((role) => {
       return {
         icon: <Icon name={getRoleIcon(role)} color={getRoleColor(role)} />,
         value: role,
@@ -177,10 +177,10 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  fetchUser: id => dispatch(UsersThunks.fetch(id)),
+const mapDispatchToProps = (dispatch) => ({
+  fetchUser: (id) => dispatch(UsersThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
-  onSave: user => dispatch(UsersThunks.save(user, () => push('/users'), ToastsActions.savedSuccessNotification('User ' + user.displayName))),
+  onSave: (user) => dispatch(UsersThunks.save(user, () => push('/users'), ToastsActions.savedSuccessNotification('User ' + user.displayName))),
 });
 
 const UserPage = connect(

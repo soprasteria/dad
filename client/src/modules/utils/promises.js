@@ -2,7 +2,7 @@ import AuthActions from '../auth/auth.actions';
 import { push } from 'react-router-redux';
 
 // Throw error if http response is in error
-export const checkHttpStatus = response => {
+export const checkHttpStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
@@ -13,12 +13,12 @@ export const checkHttpStatus = response => {
 };
 
 // Convert the response body as JSON object
-export const parseJSON = response => {
+export const parseJSON = (response) => {
   return response.json();
 };
 
 // Convert the response body as text
-export const parseText = response => {
+export const parseText = (response) => {
   return response.text();
 };
 
@@ -41,8 +41,8 @@ export const handleError = (error, action, dispatch) => {
   if (response) {
     const status = response.status;
     response.json()
-      .then(json => dispatchError(status, action, json.message, dispatch ))
-      .catch(() => response.text().then(text => dispatchError(status, action, text, dispatch )));
+      .then((json) => dispatchError(status, action, json.message, dispatch ))
+      .catch(() => response.text().then((text) => dispatchError(status, action, text, dispatch )));
   } else {
     dispatch(action(error.message));
   }

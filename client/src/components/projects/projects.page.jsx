@@ -33,7 +33,7 @@ class Projects extends React.Component {
     if (projects.length) {
       return (
         <Card.Group className='centered'>
-          {projects.map(project => {
+          {projects.map((project) => {
             return (
               <ProjectCard project={project} key={project.id} businessUnit={entities[project.businessUnit] || {}} serviceCenter={entities[project.serviceCenter] || {}} />
             );
@@ -120,7 +120,7 @@ const mapDispatchToProjectsProps = (dispatch) => {
   return {
     fetchProjects: () => dispatch(ProjectsThunks.fetchIfNeeded()),
     fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
-    changeFilter: filterValue => dispatch(ProjectsActions.changeFilter(filterValue))
+    changeFilter: (filterValue) => dispatch(ProjectsActions.changeFilter(filterValue))
   };
 };
 

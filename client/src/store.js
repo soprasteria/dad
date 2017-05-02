@@ -10,6 +10,7 @@ import projects from './modules/projects/projects.reducer';
 import users from './modules/users/users.reducer';
 import entities from './modules/entities/entities.reducer';
 import services from './modules/services/services.reducer';
+import technologies from './modules/technologies/technologies.reducer';
 import toasts from './modules/toasts/toasts.reducer';
 import modal from './modules/modal/modal.reducer';
 import exportReducer from './modules/export/export.reducer';
@@ -35,6 +36,7 @@ const store = createStore(
       users,
       entities,
       services,
+      technologies,
       toasts,
       modal,
       export: exportReducer,

@@ -23,21 +23,21 @@ class LoginComponent extends React.Component {
 
   componentWillMount = () => {
     const errorMessage = this.props.errorMessage;
-    if(this.props.isAuthenticated && !errorMessage) {
+    if (this.props.isAuthenticated && !errorMessage) {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {
-      this.setState({ errors: { details: [errorMessage], fields:{} }, auth: {} });
+      this.setState({ errors: { details: [errorMessage], fields: {} }, auth: {} });
     }
   }
 
   componentWillReceiveProps = (nextProps) => {
     const errorMessage = nextProps.errorMessage;
-    if(this.props.isAuthenticated && !errorMessage) {
+    if (this.props.isAuthenticated && !errorMessage) {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {
-      this.setState({ errors: { details: [errorMessage], fields:{} }, auth: {} });
+      this.setState({ errors: { details: [errorMessage], fields: {} }, auth: {} });
     }
   }
 
@@ -90,7 +90,7 @@ LoginComponent.propTypes = {
   logUser: React.PropTypes.func.isRequired,
   redirect: React.PropTypes.func.isRequired,
   errorMessage: React.PropTypes.string,
-  redirectTo : React.PropTypes.string
+  redirectTo: React.PropTypes.string
 };
 
 // Function to map state to container props

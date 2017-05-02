@@ -28,7 +28,7 @@ class Users extends React.Component {
     if (users.length) {
       return (
         <Card.Group className='centered'>
-          {users.map(user => {
+          {users.map((user) => {
             return (
               <UserCard user={user} key={user.id} />
             );
@@ -88,7 +88,7 @@ const mapStateToUsersProps = (state) => {
 const mapDispatchToUsersProps = (dispatch) => {
   return {
     fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
-    changeFilter: filterValue => dispatch(UsersActions.changeFilter(filterValue))
+    changeFilter: (filterValue) => dispatch(UsersActions.changeFilter(filterValue))
   };
 };
 

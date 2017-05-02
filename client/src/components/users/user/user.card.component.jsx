@@ -35,7 +35,7 @@ class UserCardComponent extends React.Component {
     const user = this.props.user;
     const connectedUser = this.props.auth.user;
     const disabled = connectedUser.role !== AUTH_ADMIN_ROLE;
-    const options = ALL_ROLES.map(role => {
+    const options = ALL_ROLES.map((role) => {
       return { icon: <Icon name={getRoleIcon(role)} color={getRoleColor(role) || null} />, value: role, text: getRoleLabel(role) };
     });
 

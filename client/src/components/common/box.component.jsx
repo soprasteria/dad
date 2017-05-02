@@ -8,14 +8,16 @@ import './box.component.scss';
 // Box is a box with heading
 class Box extends React.Component {
 
-  state = { stacked : false };
+  state = { stacked: false };
 
   componentWillMount = () => {
     this.setState({ stacked: this.props.stacked });
   }
 
   toggle = () => {
-    this.setState((prevState) => {return { stacked: !prevState.stacked };});
+    this.setState((prevState) => {
+      return { stacked: !prevState.stacked };
+    });
   }
 
   render = () => {

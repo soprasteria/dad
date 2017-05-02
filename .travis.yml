@@ -10,6 +10,7 @@ before_install:
 - nvm --version
 - nvm install 7.2.0
 - node --version && npm --version
+- npm install -g codecov
 - go version
 
 install:
@@ -24,6 +25,7 @@ script:
 - npm run lint:server
 - go test ./cmd/... ./server/...
 - npm test
+- npm run test:coverage && codecov
 
 before_deploy:
 - git config --global user.email "github@travis-ci.org"

@@ -7,7 +7,7 @@ import { LOCATION_CHANGE } from 'react-router-redux';
 const initialState = {
   isFetching: false,
   isAuthenticated: localStorage.getItem('id_token') ? true : false,
-  user : {}
+  user: {}
 };
 
 // The auth reducer. The starting state sets authentication
@@ -22,7 +22,7 @@ const authReducer = (state = initialState, action) => {
       ...state,
       isFetching: true,
       isAuthenticated: false,
-      user : {}
+      user: {}
     };
   case AuthConstants.LOGIN_SUCCESS:
     return {
@@ -30,14 +30,14 @@ const authReducer = (state = initialState, action) => {
       isFetching: false,
       isAuthenticated: true,
       errorMessage: '',
-      user : action.user
+      user: action.user
     };
   case AuthConstants.LOGIN_INVALID_REQUEST:
     return {
       ...state,
       isFetching: false,
       isAuthenticated: false,
-      user : {}
+      user: {}
     };
   case AuthConstants.LOGIN_NOT_AUTHORIZED:
     return {
@@ -45,14 +45,14 @@ const authReducer = (state = initialState, action) => {
       isFetching: false,
       isAuthenticated: false,
       errorMessage: action.error,
-      user : {}
+      user: {}
     };
   case AuthConstants.LOGOUT_SUCCESS:
     return {
       ...state,
       isFetching: false,
       isAuthenticated: false,
-      user : {}
+      user: {}
     };
   case AuthConstants.PROFILE_REQUEST:
     return {
@@ -65,7 +65,7 @@ const authReducer = (state = initialState, action) => {
       isFetching: false,
       isAuthenticated: true,
       errorMessage: '',
-      user : action.user
+      user: action.user
     };
   case AuthConstants.PROFILE_FAILURE:
     return {
@@ -73,7 +73,7 @@ const authReducer = (state = initialState, action) => {
       isFetching: false,
       isAuthenticated: false,
       errorMessage: action.message,
-      user : {}
+      user: {}
     };
   case UsersConstants.REQUEST_SAVE_USER:
     return { ...state, ...authenticatedUserIsFetching(state, action) };
@@ -85,7 +85,7 @@ const authReducer = (state = initialState, action) => {
     if (action.id === state.user.id) {
       return {
         ...state,
-        user : { ...state.user, isDeleting: true },
+        user: { ...state.user, isDeleting: true },
       };
     } else {
       return state;
@@ -93,7 +93,7 @@ const authReducer = (state = initialState, action) => {
   case UsersConstants.USER_DELETED:
     if (action.id === state.user.id) {
       return {
-        isAuthenticated : false,
+        isAuthenticated: false,
         user: {},
         isFetching: false
       };
@@ -104,7 +104,7 @@ const authReducer = (state = initialState, action) => {
     if (action.entity.id === state.user.id) {
       return {
         ...state,
-        user : { ...state.user, isDeleting: false },
+        user: { ...state.user, isDeleting: false },
       };
     } else {
       return state;

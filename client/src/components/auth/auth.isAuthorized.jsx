@@ -62,7 +62,7 @@ export function requireAuthorization(Component, Roles) {
   // Function to map dispatch to container props
   const mapDispatchToProps = (dispatch) => {
     return {
-      redirect: path => {
+      redirect: (path) => {
         dispatch(push(path));
       }
     };

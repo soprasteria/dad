@@ -41,9 +41,9 @@ class Matrix extends React.Component {
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
     matrix.priority = typeof matrix.priority === 'string' && matrix.priority !== '' ? matrix.priority : 'N/A';
 
-    const progressOption = options.find(elm => elm.value === matrix.progress);
-    const priorityOption = priorities.find(elm => elm.value === matrix.priority);
-    const goalOption = options.find(elm => elm.value === matrix.goal);
+    const progressOption = options.find((elm) => elm.value === matrix.progress);
+    const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
+    const goalOption = options.find((elm) => elm.value === matrix.goal);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
 

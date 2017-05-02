@@ -10,20 +10,20 @@ import moment from 'moment';
 // Calls the API to export data
 const exportAll = () => {
 
-  return dispatch => {
+  return (dispatch) => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(ExportActions.requestExportAll());
 
-    return fetch('/api/export', withAuth({ method:'GET' }))
+    return fetch('/api/export', withAuth({ method: 'GET' }))
       .then(checkHttpStatus)
-      .then(response => {
-        response.blob().then(blob => {
+      .then((response) => {
+        response.blob().then((blob) => {
           const currentDate = moment(new Date()).format('YYYY-MM-DD-HH-mm-ss');
           download(blob, `deployment-plan-${currentDate}.xlsx`);
           dispatch(ExportActions.receiveExportAll());
         });
       })
-      .catch(error => {
+      .catch((error) => {
         handleError(error, ExportActions.invalidRequestExportAll, dispatch);
       });
   };

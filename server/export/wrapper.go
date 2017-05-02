@@ -16,6 +16,12 @@ func createCell(row *xlsx.Row, content string) *xlsx.Cell {
 	return cell
 }
 
+func createBoolCell(row *xlsx.Row, boolean bool) *xlsx.Cell {
+	cell := row.AddCell()
+	cell.SetBool(boolean)
+	return cell
+}
+
 func createDateCell(row *xlsx.Row, date time.Time) *xlsx.Cell {
 	cell := row.AddCell()
 	cell.SetDate(date)

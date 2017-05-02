@@ -22,6 +22,7 @@ func New(version string) {
 	entitiesC := controllers.Entities{}
 	functionalServicesC := controllers.FunctionalServices{}
 	projectsC := controllers.Projects{}
+	technologiesC := controllers.Technologies{}
 	exportC := controllers.Export{}
 
 	engine.Use(middleware.Logger())
@@ -104,6 +105,12 @@ func New(version string) {
 				projectAPI.DELETE("", projectsC.Delete, hasRole(types.RIRole))
 				projectAPI.PUT("", projectsC.Save)
 			}
+		}
+
+		technologiesAPI := api.Group("/technologies")
+		{
+			technologiesAPI.GET("", technologiesC.GetAll)
+			technologiesAPI.POST("/new", technologiesC.Save, hasRole(types.AdminRole))
 		}
 
 		exportAPI := api.Group("/export")

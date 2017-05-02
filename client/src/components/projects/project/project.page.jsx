@@ -14,15 +14,16 @@ import Box from '../../common/box.component';
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
+import TechnologiesThunks from '../../../modules/technologies/technologies.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
 import { options } from '../../../modules/services/services.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
-import ProjectsActions from '../../../modules/projects/projects.actions';
 import ModalActions from '../../../modules/modal/modal.actions';
 import ToastsActions from '../../../modules/toasts/toasts.actions';
 
 import { getEntitiesAsOptions, getByType } from '../../../modules/entities/entities.selectors';
 import { groupByPackage } from '../../../modules/services/services.selectors';
+import { flattenTechnologies } from '../../../modules/technologies/technologies.selectors';
 import { getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
@@ -33,13 +34,41 @@ import { AUTH_CP_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/au
 import './project.page.scss';
 
 // Project Component
-class ProjectComponent extends React.Component {
+export class ProjectComponent extends React.Component {
 
-  state = { errors: { details: [], fields: {} }, project: {}, matrix: {} }
+  state = {
+    errors: {
+      details: [],
+      fields: {}
+    },
+    project: {},
+    matrix: {},
+    modes: [
+      { text: '', value: '' },
+      { text: 'SaaS', value: 'SaaS' },
+      { text: 'DMZ', value: 'DMZ' },
+      { text: 'Isolated Network', value: 'Isolated Network' }
+    ],
+    versionControlSystems: [
+      { text: '', value: '' },
+      { text: 'SVN', value: 'SVN' },
+      { text: 'Git', value: 'Git' },
+      { text: 'Mercurial', value: 'Mercurial' },
+      { text: 'CVS', value: 'CVS' },
+      { text: 'TFS', value: 'TFS' },
+      { text: 'Other', value: 'Other' }
+    ],
+    technologies: []
+  }
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
     domain: Joi.string().trim().empty('').label('Domain'),
+    client: Joi.string().trim().empty('').label('Client'),
+    mode: Joi.string().trim().empty('').label('Mode'),
+    deliverables: Joi.boolean().required().label('Deliverables'),
+    sourceCode: Joi.boolean().required().label('Source Code'),
+    specifications: Joi.boolean().required().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
     serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
     businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit')
@@ -59,7 +88,7 @@ class ProjectComponent extends React.Component {
       project.matrix.forEach((m) => matrix[m.service] = m);
       this.setState({ project: { ...project }, errors: { details: [], fields: {} }, matrix });
     } else {
-      this.setState({ project: { ...this.state.project, urls: [...project.urls] } });
+      this.setState({ project: { ...this.state.project } });
     }
   }
 
@@ -68,7 +97,8 @@ class ProjectComponent extends React.Component {
     Promise.all([
       this.props.fetchEntities(),
       this.props.fetchServices(),
-      this.props.fetchUsers()
+      this.props.fetchUsers(),
+      this.props.fetchTechnologies()
     ]).then(() => {
       if (projectId) {
         this.props.fetchProject(projectId);
@@ -85,11 +115,20 @@ class ProjectComponent extends React.Component {
     }
   }
 
-  handleChange = (e, { name, value }) => {
+  handleChange = (e, { name, value, checked }) => {
     const { project, errors } = this.state;
     const state = {
-      project: { ...project, [name]: value },
-      errors: { details: [...errors.details], fields: { ...errors.fields } }
+      project: {
+        ...project,
+        // "checked" is used for checkboxes, because their "value" doesn't change
+        [name]: value || checked
+      },
+      errors: {
+        details: [...errors.details],
+        fields: {
+          ...errors.fields
+        }
+      }
     };
     delete state.errors.fields[name];
     this.setState(state);
@@ -102,9 +141,9 @@ class ProjectComponent extends React.Component {
   }
 
   isFormValid = () => {
-    const { error } = Joi.validate(this.state.project, this.schema, { abortEarly: false, allowUnknown: true });
-    if (error) {
-      const errors = parseError(error);
+    const result = Joi.validate(this.state.project, this.schema, { abortEarly: false, allowUnknown: true });
+    if (result.error) {
+      const errors = parseError(result.error);
       if (errors.fields['Service Center or Business Unit']) {
         errors.fields.serviceCenter = true;
         errors.fields.businessUnit = true;
@@ -114,14 +153,21 @@ class ProjectComponent extends React.Component {
       this.refs.details.setState({ stacked: false });
       this.setState({ errors: errors });
     }
-    return !Boolean(error);
+    return result;
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
-    if (this.isFormValid()) {
-      const { project, matrix } = this.state;
-      const modifiedProject = { ...project, matrix: Object.values(matrix) };
+    const formValidationResult = this.isFormValid();
+    if (!Boolean(formValidationResult.error)) {
+      const { matrix } = this.state;
+      // Use the "project" object returned by Joi.validate instead of `this.state.project` because
+      // Joi converts the type of the checkbox values to boolean automatically
+      const project = formValidationResult.value;
+      const modifiedProject = {
+        ...project,
+        matrix: Object.values(matrix)
+      };
       this.props.onSave(modifiedProject);
     }
   }
@@ -150,7 +196,7 @@ class ProjectComponent extends React.Component {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {servicesList.map(service => {
+            {servicesList.map((service) => {
               return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix} />;
             })}
           </Table.Body>
@@ -162,18 +208,34 @@ class ProjectComponent extends React.Component {
     return <DocumentTitle title={title}><div>{packageList}</div></DocumentTitle>;
   }
 
-  renderDropdown = (name, label, value, placeholder, width, options, isFetching, errors, readOnly) => {
+  renderDropdown = (name, label, value, placeholder, options, isFetching, errors, readOnly) => {
     if (readOnly) {
-      const option = options.find(elm => elm.value === value);
+      const option = options.find((elm) => elm.value === value);
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
-          type='text' autoComplete='off' placeholder={`No ${label}`} width={width}
+          type='text' autoComplete='off' placeholder={`No ${label}`}
         />
       );
     }
     return (
-      <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching} width={width}
+      <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
+      />
+    );
+  }
+
+  renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
+    if (readOnly) {
+      return (
+        <div>
+          {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
+        </div>
+      );
+    }
+    return (
+      <Form.Dropdown
+        label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
+        name='technologies' allowAdditions={true} search value={selectedTechnologies} options={technologies}
       />
     );
   }
@@ -182,25 +244,22 @@ class ProjectComponent extends React.Component {
     const {
       isFetching, serviceCenters, businessUnits,
       isEntitiesFetching, services, isServicesFetching,
-      users, projectId, onCreateUrl, onEditUrl, onRemoveUrl,
-      canEditDetails
+      users, projectId, canEditDetails
     } = this.props;
+
     const { project, errors } = this.state;
     const fetching = isFetching || isServicesFetching;
     const authUser = this.props.auth.user;
     const canEditMatrix = canEditDetails || (authUser.role === AUTH_CP_ROLE && project.projectManager === authUser.id);
-    const createUrl = (e) => {
-      e.preventDefault();
-      onCreateUrl(projectId);
-    };
-    const editUrl = (index, url) => e => {
-      e.preventDefault();
-      onEditUrl(projectId, index, url);
-    };
-    const removeUrl = (index) => e => {
-      e.preventDefault();
-      onRemoveUrl(projectId, index);
-    };
+
+    // The list of technologies options must contain the default technologies *and* the custom technologies
+    // added by the user. If we don't do the concatenation, the component won't be able to display the
+    // user-defined technologies. We dedupe the technologies using a Set.
+    const technologiesOptions =
+      Array
+        .from(new Set(this.props.technologies.concat(project.technologies || [])))
+        .map((technology) => ({ text: technology, value: technology }));
+
     return (
       <Container className='project-page'>
 
@@ -218,53 +277,60 @@ class ProjectComponent extends React.Component {
             </h1>
 
             <Divider hidden />
-            <Form.TextArea readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
-              type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']} />
             <Form.Group>
-              <Form.Field width='two'>
-                <Label size='large' className='form-label' content='URLs' />
-              </Form.Field>
-              <Form.Field width='fourteen'>
-                <Label.Group>
-                  {project.urls && project.urls.map((url, index) => {
-                    return (
-                      <Label as='a' href={url.link} color='blue' key={index} image>
-                        <Icon name='linkify' />
-                        {url.name}
-                        {canEditDetails &&
-                          <Label.Detail>
-                            <Icon link fitted name='edit' title='Edit URL' onClick={editUrl(index, url)} />
-                            <Icon link fitted name='delete' title='Remove URL' onClick={removeUrl(index)} />
-                          </Label.Detail>
-                        }
-                      </Label>
-                    );
-                  })}
-                  {canEditDetails && <Label as='a' color='green' onClick={createUrl}><Icon name='plus' />Add URL</Label>}
-                </Label.Group>
-              </Form.Field>
+              <Form.TextArea
+                readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
+                type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}
+              />
             </Form.Group>
           </Form>
+
           <Box icon='settings' title='Details' ref='details' stacked={Boolean(projectId)}>
             <Form error={Boolean(errors.details.length)}>
-              <Form.Group widths='two'>
-                <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                  type='text' name='domain' autoComplete='on' placeholder='Project Domain' width='eight' error={errors.fields['domain']}
-                />
-                {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', 'eight', users, isEntitiesFetching, errors, !canEditDetails)}
-              </Form.Group>
+              <Grid columns='equal' divided>
+                <Grid.Row>
+                  <Grid.Column>
+                    <h3>Project Data</h3>
+                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
+                    <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
+                      type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
+                    />
+                    <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
+                      type='text' name='domain' autoComplete='on' placeholder='Project Domain' error={errors.fields['domain']}
+                    />
+                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
+                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
+                  </Grid.Column>
 
-              <Form.Group widths='two'>
-                {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', 'eight', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
-                {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', 'eight', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
-              </Form.Group>
+                  <Grid.Column>
+                    <h3>Technical Data</h3>
+
+                    {this.renderTechnologiesField(project.technologies, technologiesOptions, !canEditDetails)}
+
+                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
+
+                    <h4>Version Control</h4>
+                    <Form.Checkbox readOnly={!canEditDetails} label='Deliverables' name='deliverables'
+                      checked={Boolean(project.deliverables)} onChange={this.handleChange} />
+
+                    <Form.Checkbox readOnly={!canEditDetails} label='Source Code' name='sourceCode'
+                      checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
+
+                    <Form.Checkbox readOnly={!canEditDetails} label='Specifications' name='specifications'
+                      checked={Boolean(project.specifications)} onChange={this.handleChange} />
+                    
+                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, !canEditDetails)}
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+
               <Message error list={errors.details} />
             </Form>
           </Box>
           <Box icon='help circle' title='Maturity Legend' ref='legend'>
             <Grid columns={2} relaxed>
               <Grid.Column>
-                {options.slice(0, Math.ceil(options.length / 2)).map(opt => {
+                {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
                   return (
                     <List.Item key={opt.value}>
                       <Label color={opt.label.color} horizontal>{opt.text}</Label>
@@ -274,7 +340,7 @@ class ProjectComponent extends React.Component {
                 })}
               </Grid.Column>
               <Grid.Column>
-                {options.slice(Math.ceil(options.length / 2)).map(opt => {
+                {options.slice(Math.ceil(options.length / 2)).map((opt) => {
                   return (
                     <List.Item key={opt.value}>
                       <Label color={opt.label.color} horizontal>{opt.text}</Label>
@@ -303,15 +369,14 @@ ProjectComponent.propTypes = {
   isEntitiesFetching: React.PropTypes.bool,
   users: React.PropTypes.array,
   services: React.PropTypes.object,
+  technologies: React.PropTypes.array,
   isServicesFetching: React.PropTypes.bool,
   projectId: React.PropTypes.string,
   fetchProject: React.PropTypes.func.isRequired,
   fetchEntities: React.PropTypes.func.isRequired,
   fetchServices: React.PropTypes.func.isRequired,
   fetchUsers: React.PropTypes.func.isRequired,
-  onCreateUrl: React.PropTypes.func.isRequired,
-  onEditUrl: React.PropTypes.func.isRequired,
-  onRemoveUrl: React.PropTypes.func.isRequired,
+  fetchTechnologies: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired,
   onDelete: React.PropTypes.func.isRequired,
   canEditDetails: React.PropTypes.bool,
@@ -322,13 +387,13 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
-  const emptyProject = { matrix: [], urls: [] };
+  const technologies = state.technologies.items;
+  const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
   const isServicesFetching = state.services.isFetching;
   const users = Object.values(state.users.items);
   const authUser = auth.user;
   const selectedProject = { ...emptyProject, ...projects.items[paramId] };
-  selectedProject.urls = selectedProject.urls || [];
 
   let entities = Object.values(state.entities.items);
   const userEntities = authUser.entities || [];
@@ -337,14 +402,15 @@ const mapStateToProps = (state, ownProps) => {
   // * the entities assigned to the RI
   // * the businessUnit and serviceCenter assigned to the current project
   if (authUser.role !== AUTH_ADMIN_ROLE) {
-    entities = entities.filter(entity =>
+    entities = entities.filter((entity) =>
       authUser.entities
         .concat(selectedProject.businessUnit || [])
         .concat(selectedProject.serviceCenter || [])
         .includes(entity.id));
   }
 
-  const commonEntities = userEntities.find(id => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
+  const commonEntities = userEntities.find((id) => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
+
   // Details of the project can be edited if the user is an admin
   // or if the user is a RI and it's a project linked to that user
   // or if the user is a RI and it's a new project
@@ -359,6 +425,7 @@ const mapStateToProps = (state, ownProps) => {
     businessUnits: getEntitiesAsOptions({ entities: getByType(entities, 'businessUnit') }),
     serviceCenters: getEntitiesAsOptions({ entities: getByType(entities, 'serviceCenter') }),
     users: getUsersAsOptions(users),
+    technologies: flattenTechnologies(technologies),
     isEntitiesFetching: state.entities.isFetching,
     services,
     isServicesFetching,
@@ -366,22 +433,14 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  fetchProject: id => dispatch(ProjectsThunks.fetch(id)),
+const mapDispatchToProps = (dispatch) => ({
+  fetchProject: (id) => dispatch(ProjectsThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
-  onCreateUrl: (id) => {
-    const cb = (url) => dispatch(ProjectsActions.addUrl(id, url));
-    dispatch(ModalActions.openNewUrlModal(cb));
-  },
-  onEditUrl: (id, index, url) => {
-    const cb = (url) => dispatch(ProjectsActions.editUrl(id, index, url));
-    dispatch(ModalActions.openEditUrlModal(url, cb));
-  },
-  onRemoveUrl: (id, index) => dispatch(ProjectsActions.removeUrl(id, index)),
-  onSave: project => dispatch(ProjectsThunks.save(project, (id) => push('/projects/' + id), ToastsActions.savedSuccessNotification('Project ' + project.name))),
-  onDelete: project => {
+  fetchTechnologies: () => dispatch(TechnologiesThunks.fetchIfNeeded()),
+  onSave: (project) => dispatch(ProjectsThunks.save(project, (id) => push('/projects/' + id), ToastsActions.savedSuccessNotification('Project ' + project.name))),
+  onDelete: (project) => {
     const del = () => dispatch(ProjectsThunks.delete(project, push('/projects')));
     dispatch(ModalActions.openRemoveProjectModal(project, del));
   }

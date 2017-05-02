@@ -11,7 +11,7 @@ import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 const history = syncHistoryWithStore(browserHistory, store);
 
-const render = Root => {
+const render = (Root) => {
   ReactDOM.render(
     <AppContainer>{Root}</AppContainer>,
     document.getElementById('root')

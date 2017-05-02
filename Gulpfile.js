@@ -13,7 +13,7 @@ const webpack = require('webpack'),
   webpackConfig = require('./webpack.config'),
   WebpackDevServer = require('webpack-dev-server');
 
-gulp.task('client:webpack-dev-server', callback => {
+gulp.task('client:webpack-dev-server', (callback) => {
   const port = webpackConfig.devServer.port;
   webpackConfig.entry.unshift(
     'react-hot-loader/patch',
@@ -23,10 +23,13 @@ gulp.task('client:webpack-dev-server', callback => {
   const compiler = webpack(webpackConfig);
   new WebpackDevServer(compiler, {
     hot: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
     stats: {
       colors: true
     }
-  }).listen(port, 'localhost', err => {
+  }).listen(port, 'localhost', (err) => {
     if (err) {
       throw new util.PluginError('webpack-dev-server', err);
     }
@@ -34,8 +37,8 @@ gulp.task('client:webpack-dev-server', callback => {
   });
 });
 
-gulp.task('client:webpack', callback => {
-  webpack(webpackConfig, err => {
+gulp.task('client:webpack', (callback) => {
+  webpack(webpackConfig, (err) => {
     if (err) {
       throw new util.PluginError('webpack', err);
     }
@@ -43,7 +46,7 @@ gulp.task('client:webpack', callback => {
   });
 });
 
-gulp.task('client:dist', callback => {
+gulp.task('client:dist', (callback) => {
   seq(
     'client:webpack',
     callback
@@ -72,7 +75,7 @@ gulp.task('server:watch', () => {
     'server:spawn'
   ], 'server:watch'));
 
-  watcher.on('change', e => {
+  watcher.on('change', (e) => {
     util.log(util.colors.yellow(`File ${e.path} was ${e.type}`));
   });
 });
@@ -93,8 +96,8 @@ gulp.task('server:spawn', () => {
   });
 });
 
-gulp.task('server:dist', callback =>
-  git.long(gitHash => {
+gulp.task('server:dist', (callback) =>
+  git.long((gitHash) => {
     const flags = `
       -X github.com/soprasteria/dad/cmd.Version=${dad.version}
       -X github.com/soprasteria/dad/cmd.BuildDate=${now()}
@@ -118,7 +121,7 @@ gulp.task('archive', () =>
     .pipe(gulp.dest('dist'))
 );
 
-gulp.task('dev', callback => {
+gulp.task('dev', (callback) => {
   seq(
     'clean',
     'client:webpack-dev-server',
@@ -129,7 +132,7 @@ gulp.task('dev', callback => {
   );
 });
 
-gulp.task('dist', callback => {
+gulp.task('dist', (callback) => {
   seq(
     'clean',
     'client:dist',

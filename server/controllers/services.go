@@ -22,7 +22,7 @@ func (u *FunctionalServices) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	functionalServices, err := database.FunctionalServices.FindAll()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, types.NewErr("Error while retreiving all functional services"))
+		return c.JSON(http.StatusInternalServerError, types.NewErr("Error while retrieving all functional services"))
 	}
 	return c.JSON(http.StatusOK, functionalServices)
 }
@@ -72,7 +72,7 @@ func (u *FunctionalServices) Save(c echo.Context) error {
 
 	exists, err := database.FunctionalServices.Exists(functionalService.Name, functionalService.Package)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Error checking while checking if the functional service already exists: %v", err)))
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Error while checking if the functional service already exists: %v", err)))
 	}
 	if exists {
 		return c.JSON(http.StatusConflict, types.NewErr(fmt.Sprintf("Received functional service already exists")))

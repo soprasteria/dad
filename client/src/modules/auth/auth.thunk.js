@@ -11,11 +11,11 @@ const loginUser = (auth) => {
 
   let config = {
     method: 'POST',
-    headers: { 'Content-Type':'application/x-www-form-urlencoded' },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `username=${encodeURIComponent(auth.username)}&password=${encodeURIComponent(auth.password)}`
   };
 
-  return dispatch => {
+  return (dispatch) => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(AuthActions.requestLogin());
 
@@ -26,7 +26,7 @@ const loginUser = (auth) => {
           // When uer is authorized, add the JWT token in the localstorage for authentication purpose
         localStorage.setItem('id_token', user.id_token);
         dispatch(AuthActions.receiveLogin(user));
-      }).catch(error => {
+      }).catch((error) => {
         // When error happens.
         // Dispatch differents actions wether the user is not authorized
         // or if the server encounters any other error
@@ -41,7 +41,7 @@ const loginUser = (auth) => {
 
 // Logs the user out
 const logoutUser = () => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(AuthActions.requestLogout());
     localStorage.removeItem('id_token');
     dispatch(AuthActions.receiveLogout());
@@ -50,16 +50,16 @@ const logoutUser = () => {
 
 // Get the profile of the authenticated user
 const profile = () => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(AuthActions.requestProfile());
 
-    return fetch('/api/profile', withAuth({ method:'GET' }))
+    return fetch('/api/profile', withAuth({ method: 'GET' }))
       .then(checkHttpStatus)
       .then(parseJSON)
-      .then(response => {
+      .then((response) => {
         dispatch(AuthActions.receiveProfile(response));
       })
-      .catch(error => {
+      .catch((error) => {
         handleError(error, AuthActions.profileError, dispatch);
       });
   };

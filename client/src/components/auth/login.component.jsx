@@ -27,7 +27,7 @@ class LoginComponent extends React.Component {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {
-      this.setState({ errors: { details: [errorMessage], fields:{} }, auth: {} });
+      this.setState({ errors: { details: [errorMessage], fields: {} }, auth: {} });
     }
   }
 
@@ -37,7 +37,7 @@ class LoginComponent extends React.Component {
       this.props.redirect(this.props.redirectTo);
     }
     if (errorMessage) {
-      this.setState({ errors: { details: [errorMessage], fields:{} }, auth: {} });
+      this.setState({ errors: { details: [errorMessage], fields: {} }, auth: {} });
     }
   }
 
@@ -90,7 +90,7 @@ LoginComponent.propTypes = {
   logUser: React.PropTypes.func.isRequired,
   redirect: React.PropTypes.func.isRequired,
   errorMessage: React.PropTypes.string,
-  redirectTo : React.PropTypes.string
+  redirectTo: React.PropTypes.string
 };
 
 // Function to map state to container props

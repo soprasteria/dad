@@ -67,7 +67,7 @@ type Project struct {
 	ProjectManager string                         `bson:"projectManager" json:"projectManager"`
 	BusinessUnit   string                         `bson:"businessUnit" json:"businessUnit"`
 	ServiceCenter  string                         `bson:"serviceCenter" json:"serviceCenter"`
-	URLDocktor     `bson:"urlDoctor" json:""`     // json is an empty string because we want to flatten the object to avoid client-side null-checks
+	URLDocktor     `bson:"urlDocktor" json:""`    // json is an empty string because we want to flatten the object to avoid client-side null-checks
 	TechnicalData  `bson:"technicalData" json:""` // json is an empty string because we want to flatten the object to avoid client-side null-checks
 	Matrix         Matrix                         `bson:"matrix" json:"matrix"`
 	Created        time.Time                      `bson:"created" json:"created"`

@@ -21,6 +21,7 @@ func New(version string) {
 	usersC := controllers.Users{}
 	entitiesC := controllers.Entities{}
 	functionalServicesC := controllers.FunctionalServices{}
+	usageIndicatorsC := controllers.UsageIndicators{}
 	projectsC := controllers.Projects{}
 	technologiesC := controllers.Technologies{}
 	exportC := controllers.Export{}
@@ -111,6 +112,14 @@ func New(version string) {
 		{
 			technologiesAPI.GET("", technologiesC.GetAll)
 			technologiesAPI.POST("/new", technologiesC.Save, hasRole(types.AdminRole))
+		}
+
+		usageIndicatorsAPI := api.Group("/usage-indicators")
+		{
+			// Indicators are created with bulk operations. Operations on single usages indicators is not possible.
+			// Therefore, only GetAll operation is available
+			usageIndicatorsAPI.GET("", usageIndicatorsC.GetAll, hasRole(types.AdminRole))
+			usageIndicatorsAPI.POST("/import", usageIndicatorsC.BulkImport, hasRole(types.AdminRole))
 		}
 
 		exportAPI := api.Group("/export")

@@ -16,7 +16,7 @@ import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
 import TechnologiesThunks from '../../../modules/technologies/technologies.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
-import { options } from '../../../modules/services/services.constants';
+import { options, status } from '../../../modules/services/services.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 import ModalActions from '../../../modules/modal/modal.actions';
 import ToastsActions from '../../../modules/toasts/toasts.actions';
@@ -235,7 +235,7 @@ export class ProjectComponent extends React.Component {
     }
     return (
       <Form.Dropdown
-        label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
+        label='Technologies' placeholder='Java, .NET...' fluid l selection onChange={this.handleChange}
         name='technologies' allowAdditions={true} search value={selectedTechnologies} options={technologies}
       />
     );
@@ -329,6 +329,7 @@ export class ProjectComponent extends React.Component {
             </Form>
           </Box>
           <Box icon='help circle' title='Maturity Legend' ref='legend'>
+            <Divider horizontal> Maturity Legend </Divider>
             <Grid columns={2} relaxed>
               <Grid.Column>
                 {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
@@ -346,6 +347,33 @@ export class ProjectComponent extends React.Component {
                     <List.Item key={opt.value}>
                       <Label color={opt.label.color} horizontal>{opt.text}</Label>
                       {opt.title}
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+            </Grid>
+            <Divider horizontal> Indicator Legend </Divider>
+            <Grid columns={2} relaxed>
+              <Grid.Column>
+                {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                    <List.Item key={stat.value}>
+                      <div className='status'>
+                        <Label circular empty color={stat.color}/>
+                      </div>
+                      <div className='name'>
+                        {stat.title}
+                      </div>                      
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+              <Grid.Column>
+                {status.slice(Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                    <List.Item key={stat.value}>
+                      <Label circular empty color={stat.color}/>
+                      {stat.title}
                     </List.Item>
                   );
                 })}

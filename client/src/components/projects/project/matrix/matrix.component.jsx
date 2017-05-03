@@ -53,7 +53,7 @@ class Matrix extends React.Component {
     const serviceNameCell = (<Table.Cell key='service'>
                               <div className='service'>
                                 <div className={classNames({ default: !serviceStatus }, 'status')}>
-                                  <Label className='statusLabel' circular 
+                                  <Label className='statusLabel' circular
                                         title = {!serviceStatus ? '' : serviceStatus.title} 
                                         color={!serviceStatus ? 'black' : serviceStatus.color}/>
                                 </div>

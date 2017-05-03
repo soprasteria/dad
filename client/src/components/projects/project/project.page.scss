@@ -14,8 +14,23 @@
     margin: .2em .6em .2em 0 !important;
   }
 
+  .item .ui.label {
+    min-width: 2em;
+    min-height: 2em;
+    margin: .2em .6em .2em 0 !important;
+  }
+
+  .name {
+    display: table-cell;
+  }
+
+  .status {
+    display: table-cell;
+    padding-top: .08em;
+  }  
+
   .ui.labels {
-    padding-top: .33em;
+    padding-top: 5em;
     .ui.image.label {
       margin-bottom: .5em;
       .detail {

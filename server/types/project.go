@@ -51,16 +51,23 @@ type TechnicalData struct {
 	VersionControlSystem           string   `bson:"versionControlSystem" json:"versionControlSystem"`
 }
 
+// URLDocktor represents the url of the Docktor project linked to the DAD project
+type URLDocktor struct {
+	Name string `bson:"name" json:"name"`
+	Link string `bson:"link" json:"link"`
+}
+
 // Project represents a Sopra Steria project
 type Project struct {
-	ID             bson.ObjectId                  `bson:"_id,omitempty" json:"id,omitempty"`
-	Name           string                         `bson:"name" json:"name"`
-	Description    string                         `bson:"description" json:"description"`
-	Domain         string                         `bson:"domain" json:"domain"`
-	Client         string                         `bson:"client" json:"client"`
-	ProjectManager string                         `bson:"projectManager" json:"projectManager"`
-	BusinessUnit   string                         `bson:"businessUnit" json:"businessUnit"`
-	ServiceCenter  string                         `bson:"serviceCenter" json:"serviceCenter"`
+	ID             bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
+	Name           string        `bson:"name" json:"name"`
+	Description    string        `bson:"description" json:"description"`
+	Domain         string        `bson:"domain" json:"domain"`
+	Client         string        `bson:"client" json:"client"`
+	ProjectManager string        `bson:"projectManager" json:"projectManager"`
+	BusinessUnit   string        `bson:"businessUnit" json:"businessUnit"`
+	ServiceCenter  string        `bson:"serviceCenter" json:"serviceCenter"`
+	URLDocktor     `bson:"urlDoctor" json:"urlDoctor"`
 	TechnicalData  `bson:"technicalData" json:""` // json is an empty string because we want to flatten the object to avoid client-side null-checks
 	Matrix         Matrix                         `bson:"matrix" json:"matrix"`
 	Created        time.Time                      `bson:"created" json:"created"`

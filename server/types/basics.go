@@ -16,6 +16,12 @@ type IsDatabase interface {
 	isInitialized() bool
 }
 
+// IsDatabaseWithIndexes is an interface representing a database which needs indexes to be created
+type IsDatabaseWithIndexes interface {
+	IsDatabase
+	CreateIndexes() error
+}
+
 // IsDocument is an interface representing a data being a collection in Mongo
 type IsDocument interface {
 	GetID() bson.ObjectId

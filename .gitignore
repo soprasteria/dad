@@ -7,4 +7,5 @@ vendor/*/
 debug
 logs/
 bin/*.csv
+bin/*.md
 coverage/

@@ -1,4 +1,27 @@
-.matrix-component {
+.matrix-component {  
+  .service {
+    border-spacing: .7em;
+    margin-left: -.7em;
+  }
+
+  .name {
+    display: table-cell;
+  }
+
+  .status {
+    display: table-cell;
+    padding-top: .08em;
+    .statusLabel {
+      min-width: 1em;
+      min-height: 1em;
+    }
+  }
+
+  .default {
+    opacity: 0;
+  }
+
+
   .field.readonly {
     padding-right: 2.5em !important;
     opacity: 1 !important;

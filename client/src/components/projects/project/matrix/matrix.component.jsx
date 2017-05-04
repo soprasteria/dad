@@ -44,7 +44,7 @@ class Matrix extends React.Component {
     const progressOption = options.find((elm) => elm.value === matrix.progress);
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
-    //const serviceStatus = status.find((elm) => elm.value === matrix.status);
+    // Next 2 lines to delete&Replace when indicator status will be implemented from end to end 
     const statusValue = Math.floor(Math.random() * 6);
     const serviceStatus = status.find((elm) => elm.value === statusValue);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';

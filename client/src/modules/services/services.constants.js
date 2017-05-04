@@ -12,10 +12,10 @@ export const options = [
 
 
 export const status = [
-  { value: 0, color: 'black', title: 'Undetermined' },
-  { value: 1, color: 'red', title: 'Empty' },
-  { value: 2, color: 'orange', title: 'Inactive' },
-  { value: 3, color: 'green', title: 'Active' },
+  { value: 0, color: 'black', title: 'We can\'t get the indicator status for this service' },
+  { value: 1, color: 'red', title: 'The service was never used by the project' },
+  { value: 2, color: 'orange', title: 'The service has not been active recently' },
+  { value: 3, color: 'green', title: 'The service has been recently active' },
 ];
 
 export const priorities = [

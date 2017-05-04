@@ -11,26 +11,28 @@
 
   .item .ui.horizontal.label {
     width: 4em !important;
-    margin: .2em .6em .2em 0 !important;
   }
 
   .item .ui.label {
-    min-width: 2em;
-    min-height: 2em;
     margin: .2em .6em .2em 0 !important;
   }
 
-  .name {
+  .legend {
     display: table-cell;
   }
 
   .status {
     display: table-cell;
-    padding-top: .08em;
-  }  
+    padding-top: .1em;
+    vertical-align: middle;
+    .statusLabel {
+      min-width: 1em;
+      min-height: 1em;
+    }
+  }
 
   .ui.labels {
-    padding-top: 5em;
+    padding-top: .33em;
     .ui.image.label {
       margin-bottom: .5em;
       .detail {

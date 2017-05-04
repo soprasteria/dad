@@ -235,7 +235,7 @@ export class ProjectComponent extends React.Component {
     }
     return (
       <Form.Dropdown
-        label='Technologies' placeholder='Java, .NET...' fluid l selection onChange={this.handleChange}
+        label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
         name='technologies' allowAdditions={true} search value={selectedTechnologies} options={technologies}
       />
     );
@@ -328,7 +328,7 @@ export class ProjectComponent extends React.Component {
               <Message error list={errors.details} />
             </Form>
           </Box>
-          <Box icon='help circle' title='Maturity Legend' ref='legend'>
+          <Box icon='help circle' title='Color Legend' ref='legend'>
             <Divider horizontal> Maturity Legend </Divider>
             <Grid columns={2} relaxed>
               <Grid.Column>
@@ -361,9 +361,9 @@ export class ProjectComponent extends React.Component {
                       <div className='status'>
                         <Label circular empty color={stat.color}/>
                       </div>
-                      <div className='name'>
+                      <div className='legend'>
                         {stat.title}
-                      </div>                      
+                      </div>
                     </List.Item>
                   );
                 })}
@@ -371,10 +371,16 @@ export class ProjectComponent extends React.Component {
               <Grid.Column>
                 {status.slice(Math.ceil(status.length / 2)).map((stat) => {
                   return (
-                    <List.Item key={stat.value}>
-                      <Label circular empty color={stat.color}/>
-                      {stat.title}
-                    </List.Item>
+                    <div classNamme= 'legendList'>
+                      <List.Item key={stat.value}>
+                        <div className='status'>
+                          <Label circular empty color={stat.color}/>
+                        </div>
+                        <div className='legend'>
+                          {stat.title}
+                        </div>      
+                      </List.Item>
+                    </div>
                   );
                 })}
               </Grid.Column>

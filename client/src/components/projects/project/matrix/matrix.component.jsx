@@ -45,17 +45,17 @@ class Matrix extends React.Component {
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
     //const serviceStatus = status.find((elm) => elm.value === matrix.status);
-    const statusValue = Math.floor(Math.random() * 4);
+    const statusValue = Math.floor(Math.random() * 6);
     const serviceStatus = status.find((elm) => elm.value === statusValue);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
-
     const serviceNameCell = (<Table.Cell key='service'>
                               <div className='service'>
+                                {/* If serviceStatus is in an unknown status, the indicator will not be visible for users */}
                                 <div className={classNames({ default: !serviceStatus }, 'status')}>
                                   <Label className='statusLabel' circular
                                         title = {!serviceStatus ? '' : serviceStatus.title} 
-                                        color={!serviceStatus ? 'black' : serviceStatus.color}/>
+                                        color={!serviceStatus ? 'grey' : serviceStatus.color}/>
                                 </div>
                                 <div className='name'>
                                   {service.name}

@@ -51,10 +51,10 @@ type TechnicalData struct {
 	VersionControlSystem           string   `bson:"versionControlSystem" json:"versionControlSystem"`
 }
 
-// URLDocktor represents the url of the Docktor project linked to the DAD project
-type URLDocktor struct {
-	NameDocktor string `bson:"nameDocktor" json:"nameDocktor"`
-	LinkDocktor string `bson:"linkDocktor" json:"linkDocktor"`
+// DocktorURL represents the url of the Docktor project linked to the DAD project
+type DocktorURL struct {
+	DocktorGroupName string `bson:"docktorGroupName" json:"docktorGroupName"`
+	DocktorGroupURL  string `bson:"docktorGroupURL" json:"docktorGroupURL"`
 }
 
 // Project represents a Sopra Steria project
@@ -67,7 +67,7 @@ type Project struct {
 	ProjectManager string                         `bson:"projectManager" json:"projectManager"`
 	BusinessUnit   string                         `bson:"businessUnit" json:"businessUnit"`
 	ServiceCenter  string                         `bson:"serviceCenter" json:"serviceCenter"`
-	URLDocktor     `bson:"urlDocktor" json:""`    // json is an empty string because we want to flatten the object to avoid client-side null-checks
+	DocktorURL     `bson:"docktorURL" json:""`    // json is an empty string because we want to flatten the object to avoid client-side null-checks
 	TechnicalData  `bson:"technicalData" json:""` // json is an empty string because we want to flatten the object to avoid client-side null-checks
 	Matrix         Matrix                         `bson:"matrix" json:"matrix"`
 	Created        time.Time                      `bson:"created" json:"created"`

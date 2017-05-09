@@ -185,7 +185,7 @@ func getProject(id string) func(next echo.HandlerFunc) echo.HandlerFunc {
 				return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID)))
 			}
 			c.Set("project", project)
-			c.Set("DocktorGroupName", project.DocktorGroupName)
+			c.Set("DocktorGroupName", project.DocktorGroupName) // Setting DocktorGroupName is useful with the Api used to get indicators for a project
 			return next(c)
 		}
 	}

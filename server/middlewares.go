@@ -185,7 +185,7 @@ func getProject(id string) func(next echo.HandlerFunc) echo.HandlerFunc {
 				return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID)))
 			}
 			c.Set("project", project)
-			c.Set("DocktorName", project.NameDocktor)
+			c.Set("DocktorGroupName", project.DocktorGroupName)
 			return next(c)
 		}
 	}

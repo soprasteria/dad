@@ -225,6 +225,7 @@ export class ProjectComponent extends React.Component {
   }
 
   renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
+    selectedTechnologies = selectedTechnologies || []
     if (readOnly) {
       return (
         <div>
@@ -305,7 +306,7 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderTechnologiesField(project.technologies, technologiesOptions, !canEditDetails)}
+                    {this.renderTechnologiesField(project.technologies || [], technologiesOptions, !canEditDetails)}
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 

@@ -53,9 +53,9 @@ class Matrix extends React.Component {
                               <div className='service'>
                                 {/* If serviceStatus is in an unknown status, the indicator will not be visible for users */}
                                 <div className={classNames({ default: !serviceStatus }, 'status')}>
-                                  <Label className='statusLabel' circular
-                                        title = {!serviceStatus ? '' : serviceStatus.title} 
-                                        color={!serviceStatus ? 'grey' : serviceStatus.color}/>
+                                  <Label className='status-label' circular
+                                        title={serviceStatus ? serviceStatus.title : ''} 
+                                        color={serviceStatus ? serviceStatus.color : 'grey'}/>
                                 </div>
                                 <div className='name'>
                                   {service.name}

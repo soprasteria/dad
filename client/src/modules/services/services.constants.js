@@ -19,7 +19,7 @@ export const status = [
 ];
 
 export const priorities = [
-  { value: 'N/A', text: 'N/A', title: 'Non applicable' },
+  { value: 'N/A', text: 'N/A', title: 'Not applicable' },
   { value: 'P0', text: 'P0', title: 'High priority' },
   { value: 'P1', text: 'P1', title: 'Medium priority' },
   { value: 'P2', text: 'P2', title: 'Low priority' },

@@ -5,14 +5,16 @@
   }
 
   .name {
-    display: table-cell;
+    float: left;
+    //display: table-cell;
   }
 
   .status {
-    display: table-cell;
+    // display: table-cell;
+    float: left;
     padding-top: .08em;
     vertical-align: middle;
-    .statusLabel {
+    .status-label {
       min-width: 1em;
       min-height: 1em;
     }

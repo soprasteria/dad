@@ -14,6 +14,7 @@ import Box from '../../common/box.component';
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
+import IndicatorsThunks from '../../../modules/indicators/indicators.thunks';
 import TechnologiesThunks from '../../../modules/technologies/technologies.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
 import { options, status } from '../../../modules/services/services.constants';
@@ -102,6 +103,9 @@ export class ProjectComponent extends React.Component {
       this.props.fetchTechnologies()
     ]).then(() => {
       if (projectId) {
+        console.log('DEBUT');
+        this.props.fetchIndicators(projectId);
+        console.log('FIN');
         this.props.fetchProject(projectId);
       }
     });
@@ -396,6 +400,7 @@ ProjectComponent.propTypes = {
   isFetching: React.PropTypes.bool,
   businessUnits: React.PropTypes.array,
   serviceCenters: React.PropTypes.array,
+  indicators: React.PropTypes.object,
   isEntitiesFetching: React.PropTypes.bool,
   users: React.PropTypes.array,
   services: React.PropTypes.object,
@@ -404,6 +409,7 @@ ProjectComponent.propTypes = {
   projectId: React.PropTypes.string,
   fetchProject: React.PropTypes.func.isRequired,
   fetchEntities: React.PropTypes.func.isRequired,
+  fetchIndicators: React.PropTypes.func.isRequired,
   fetchServices: React.PropTypes.func.isRequired,
   fetchUsers: React.PropTypes.func.isRequired,
   fetchTechnologies: React.PropTypes.func.isRequired,
@@ -417,6 +423,7 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
+  const indicators = project.indicators;
   const technologies = state.technologies.items;
   const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
@@ -438,14 +445,12 @@ const mapStateToProps = (state, ownProps) => {
         .concat(selectedProject.serviceCenter || [])
         .includes(entity.id));
   }
-
   const commonEntities = userEntities.find((id) => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
 
   // Details of the project can be edited if the user is an admin
   // or if the user is a RI and it's a project linked to that user
   // or if the user is a RI and it's a new project
   const canEditDetails = authUser.role === AUTH_ADMIN_ROLE || (authUser.role === AUTH_RI_ROLE && (commonEntities.length > 0 || !project.id));
-
   const services = groupByPackage(state.services.items);
   return {
     auth,
@@ -458,6 +463,7 @@ const mapStateToProps = (state, ownProps) => {
     technologies: flattenTechnologies(technologies),
     isEntitiesFetching: state.entities.isFetching,
     services,
+    indicators,
     isServicesFetching,
     canEditDetails
   };
@@ -466,6 +472,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch) => ({
   fetchProject: (id) => dispatch(ProjectsThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
+  fetchIndicators: (id) => dispatch(IndicatorsThunks.fetchIndics(id)),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
   fetchTechnologies: () => dispatch(TechnologiesThunks.fetchIfNeeded()),

@@ -314,7 +314,7 @@ const shouldFetch = (state, entitiesName) => {
   }
 };
 
-// Thunk to fech only if needed
+// Thunk to fetch only if needed
 const fetchIfNeeded = (entitiesName, fetchFunc) => {
   return (dispatch, getState) => {
     if (shouldFetch(getState(), entitiesName)) {
@@ -345,6 +345,21 @@ export const generateEntitiesThunks = (entitiesName) => {
     return function (dispatch) {
       dispatch(Actions.requestOne(id));
       return fetch(`/api/${entitiesName}/${id}`, withAuth({ method: 'GET' }))
+        .then(checkHttpStatus)
+        .then(parseJSON)
+        .then((response) => {
+          dispatch(Actions.receiveOne(response));
+        })
+        .catch((error) => {
+          handleError(error, Actions.invalidRequestEntity({ id }), dispatch);
+        });
+    };
+  };
+  const fetchIndics = (id) => {
+    return function (dispatch) {
+      dispatch(Actions.requestOne(id));
+      console.log('PATATOS');
+      return fetch(`/api/projects/${id}/indicators`, withAuth({ method: 'GET' }))
         .then(checkHttpStatus)
         .then(parseJSON)
         .then((response) => {
@@ -406,6 +421,7 @@ export const generateEntitiesThunks = (entitiesName) => {
     fetchAll: fetchAllFunc,
     fetchIfNeeded: () => fetchIfNeeded(entitiesName, fetchAllFunc),
     fetch: fetchFunc,
+    fetchIndics: fetchIndics,
     save: saveFunc,
     delete: deleteFunc
   };

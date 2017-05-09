@@ -242,17 +242,28 @@ export class ProjectComponent extends React.Component {
     );
   }
 
-  renderDocktorURL = (DocktorGroupName , DocktorGroupURL) => {
-    if (DocktorGroupName  !== undefined && DocktorGroupURL !== undefined) {
+  renderDocktorURL = (DocktorGroupName, DocktorGroupURL) => {
+    if (DocktorGroupName && DocktorGroupURL) {
       return (
-        <div>
-          <Label size='large'>{<a href={DocktorGroupURL}>{DocktorGroupName}</a>}</Label>
+        <div className='docktor-url'>
+          <Label className='label-ui' id='underline-url' size='large'>
+            {<a className='truncate-docktor-url' href={DocktorGroupURL} title={DocktorGroupName} target='_blank'>{DocktorGroupName}</a>}
+          </Label>
+        </div>
+      );
+    }
+    if (DocktorGroupURL) {
+      return (
+        <div className='docktor-url'>
+          <Label className='label-ui' id='underline-url' size='large'>
+            {<a className='truncate-docktor-url' href={DocktorGroupURL} title={DocktorGroupName} target='_blank'>{DocktorGroupURL}</a>}
+          </Label>
         </div>
       );
     }
     return (
-        <div>
-          <Label size='large'>+ Docktor URL</Label>
+        <div className='docktor-url'>
+          <Label className='label-ui' size='large'>+ Add Docktor URL</Label>
         </div>
     );
   }
@@ -317,7 +328,10 @@ export class ProjectComponent extends React.Component {
                     />
                     {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
-                    {this.renderDocktorURL('Iterhotel', 'http://docktor.cdk.corp.sopra/#!/groups/574d88a1757f0714006c9448')}
+                    <Form.Field>
+                      <label>Docktor URL</label>
+                      {this.renderDocktorURL('', 'http://docktor.cdk.corp.sopra/#!/groups/574d88a1757f0714006c9448')}
+                    </Form.Field>
                   </Grid.Column>
 
                   <Grid.Column>

@@ -3,7 +3,6 @@ import { shallow } from 'enzyme';
 
 import { ProjectComponent } from '../project.page';
 import { AUTH_ADMIN_ROLE } from '../../../../modules/auth/auth.constants';
-import { Form } from 'semantic-ui-react';
 
 const defaultProps = {
   auth: {

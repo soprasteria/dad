@@ -225,7 +225,7 @@ export class ProjectComponent extends React.Component {
   }
 
   renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
-    selectedTechnologies = selectedTechnologies || []
+    selectedTechnologies = selectedTechnologies || [];
     if (readOnly) {
       return (
         <div>

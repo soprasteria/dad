@@ -10,6 +10,7 @@ import Joi from 'joi-browser';
 
 import Matrix from './matrix/matrix.component';
 import Box from '../../common/box.component';
+import EditableLink from './editableLink/editable.link';
 
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
@@ -66,7 +67,6 @@ export class ProjectComponent extends React.Component {
     domain: Joi.string().trim().empty('').label('Domain'),
     client: Joi.string().trim().empty('').label('Client'),
     mode: Joi.string().trim().empty('').label('Mode'),
-    docktorURL: Joi.string().trim().empty('').label('Docktor URL'),
     deliverables: Joi.boolean().label('Deliverables'),
     sourceCode: Joi.boolean().label('Source Code'),
     specifications: Joi.boolean().label('Specifications'),
@@ -242,32 +242,6 @@ export class ProjectComponent extends React.Component {
     );
   }
 
-  renderDocktorURL = (DocktorGroupName, DocktorGroupURL) => {
-    if (DocktorGroupName && DocktorGroupURL) {
-      return (
-        <div className='docktor-url'>
-          <Label className='label-ui' id='underline-url' size='large'>
-            {<a className='truncate-docktor-url' href={DocktorGroupURL} title={DocktorGroupName} target='_blank'>{DocktorGroupName}</a>}
-          </Label>
-        </div>
-      );
-    }
-    if (DocktorGroupURL) {
-      return (
-        <div className='docktor-url'>
-          <Label className='label-ui' id='underline-url' size='large'>
-            {<a className='truncate-docktor-url' href={DocktorGroupURL} title={DocktorGroupName} target='_blank'>{DocktorGroupURL}</a>}
-          </Label>
-        </div>
-      );
-    }
-    return (
-        <div className='docktor-url'>
-          <Label className='label-ui' size='large'>+ Add Docktor URL</Label>
-        </div>
-    );
-  }
-
   render = () => {
     const {
       isFetching, serviceCenters, businessUnits,
@@ -328,10 +302,7 @@ export class ProjectComponent extends React.Component {
                     />
                     {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
-                    <Form.Field>
-                      <label>Docktor URL</label>
-                      {this.renderDocktorURL('', 'http://docktor.cdk.corp.sopra/#!/groups/574d88a1757f0714006c9448')}
-                    </Form.Field>
+                    <EditableLink labelValue='Docktor URL' title='Iterhotel' url='http://docktor.cdk.corp.sopra/#!/groups/574d88a1757f0714006c9448'/>
                   </Grid.Column>
 
                   <Grid.Column>

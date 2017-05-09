@@ -1,0 +1,16 @@
+.label-ui {
+  width: 100%;
+  padding-right: 1em;
+
+  .truncated-url {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+  }
+}
+
+#underline-url {
+  color: blue;
+  text-decoration: underline;
+}

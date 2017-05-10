@@ -21,7 +21,7 @@ type DadMongo struct {
 	Technologies       types.TechnologyRepo        // Repo for accessing technologies methods
 	UsageIndicators    types.UsageIndicatorRepo    // Repo for accessing usage indicators methods
 	Session            *mgo.Session                // Cloned session
-	collections        []types.IsCollection        // Cache for listing all databases. Useful when doing operations on all databases at once (e.g. index creation at startup)
+	collections        []types.IsCollection        // Cache for listing all collections. Useful when doing operations on all collections at once (e.g. index creation at startup)
 }
 
 // CreateIndexes creates all indexes for every collections if needed

@@ -21,14 +21,14 @@ type DadMongo struct {
 	Technologies       types.TechnologyRepo        // Repo for accessing technologies methods
 	UsageIndicators    types.UsageIndicatorRepo    // Repo for accessing usage indicators methods
 	Session            *mgo.Session                // Cloned session
-	databases          []types.IsDatabase          // Cache for listing all databases. Useful when doing operations on all databases at once (e.g. index creation at startup)
+	collections        []types.IsCollection        // Cache for listing all collections. Useful when doing operations on all collections at once (e.g. index creation at startup)
 }
 
 // CreateIndexes creates all indexes for every collections if needed
 func (dm *DadMongo) CreateIndexes() {
-	if dm.databases != nil {
-		for _, db := range dm.databases {
-			if dbWithIndex, ok := db.(types.IsDatabaseWithIndexes); ok {
+	if dm.collections != nil {
+		for _, db := range dm.collections {
+			if dbWithIndex, ok := db.(types.IsCollectionWithIndexes); ok {
 				err := dbWithIndex.CreateIndexes()
 				if err != nil {
 					log.WithError(err).Error("Cannot create index")
@@ -83,7 +83,7 @@ func Get() (*DadMongo, error) {
 		}
 	}
 
-	databases := []types.IsDatabase{}
+	collections := []types.IsCollection{}
 	users := types.NewUserRepo(database)
 	entities := types.NewEntityRepo(database)
 	functionalServices := types.NewFunctionalServiceRepo(database)
@@ -91,12 +91,12 @@ func Get() (*DadMongo, error) {
 	projects := types.NewProjectRepo(database)
 	technologies := types.NewTechnologyRepo(database)
 
-	databases = append(databases, &users)
-	databases = append(databases, &entities)
-	databases = append(databases, &functionalServices)
-	databases = append(databases, &usageIndicators)
-	databases = append(databases, &projects)
-	databases = append(databases, &technologies)
+	collections = append(collections, &users)
+	collections = append(collections, &entities)
+	collections = append(collections, &functionalServices)
+	collections = append(collections, &usageIndicators)
+	collections = append(collections, &projects)
+	collections = append(collections, &technologies)
 
 	return &DadMongo{
 		Users:              users,
@@ -106,6 +106,6 @@ func Get() (*DadMongo, error) {
 		Projects:           projects,
 		Technologies:       technologies,
 		Session:            s,
-		databases:          databases,
+		collections:        collections,
 	}, nil
 }

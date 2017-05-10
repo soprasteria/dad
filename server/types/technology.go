@@ -35,7 +35,7 @@ func (r *TechnologyRepo) isInitialized() bool {
 // FindAll get all technologies from the database
 func (r *TechnologyRepo) FindAll() ([]Technology, error) {
 	if !r.isInitialized() {
-		return []Technology{}, ErrDatabaseNotInitialiazed
+		return []Technology{}, ErrDatabaseNotInitialized
 	}
 	technologies := []Technology{}
 	err := r.col().Find(bson.M{}).All(&technologies)
@@ -60,7 +60,7 @@ func (r *TechnologyRepo) Exists(name string) (bool, error) {
 // Save updates or creates the technology in database
 func (r *TechnologyRepo) Save(technology Technology) (Technology, error) {
 	if !r.isInitialized() {
-		return Technology{}, ErrDatabaseNotInitialiazed
+		return Technology{}, ErrDatabaseNotInitialized
 	}
 
 	if technology.ID.Hex() == "" {

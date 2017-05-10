@@ -127,7 +127,7 @@ func (r *ProjectRepo) FindByID(id string) (Project, error) {
 // FindByIDBson get the project by its id (as a bson object)
 func (r *ProjectRepo) FindByIDBson(id bson.ObjectId) (Project, error) {
 	if !r.isInitialized() {
-		return Project{}, ErrDatabaseNotInitialiazed
+		return Project{}, ErrDatabaseNotInitialized
 	}
 	result := Project{}
 	err := r.col().FindId(id).One(&result)
@@ -137,7 +137,7 @@ func (r *ProjectRepo) FindByIDBson(id bson.ObjectId) (Project, error) {
 // FindByName find a project by its name (case insensitive)
 func (r *ProjectRepo) FindByName(name string) (Project, error) {
 	if !r.isInitialized() {
-		return Project{}, ErrDatabaseNotInitialiazed
+		return Project{}, ErrDatabaseNotInitialized
 	}
 	result := Project{}
 	regex := "^" + name + "$"
@@ -148,7 +148,7 @@ func (r *ProjectRepo) FindByName(name string) (Project, error) {
 // FindAll get all projects from the database
 func (r *ProjectRepo) FindAll() ([]Project, error) {
 	if !r.isInitialized() {
-		return []Project{}, ErrDatabaseNotInitialiazed
+		return []Project{}, ErrDatabaseNotInitialized
 	}
 	projects := []Project{}
 	err := r.col().Find(bson.M{}).All(&projects)
@@ -229,7 +229,7 @@ func (r *ProjectRepo) FindModifiableForUser(user User) (Projects, error) {
 // FindByEntities get all projects with a matching businessUnit or serviceCenter
 func (r *ProjectRepo) FindByEntities(ids []bson.ObjectId) ([]Project, error) {
 	if !r.isInitialized() {
-		return []Project{}, ErrDatabaseNotInitialiazed
+		return []Project{}, ErrDatabaseNotInitialized
 	}
 
 	idsString := []string{}
@@ -253,7 +253,7 @@ func (r *ProjectRepo) FindByEntities(ids []bson.ObjectId) ([]Project, error) {
 // FindByProjectManager get all projects with a specific project manager
 func (r *ProjectRepo) FindByProjectManager(id bson.ObjectId) ([]Project, error) {
 	if !r.isInitialized() {
-		return []Project{}, ErrDatabaseNotInitialiazed
+		return []Project{}, ErrDatabaseNotInitialized
 	}
 	projects := []Project{}
 	err := r.col().Find(bson.M{"projectManager": id.Hex()}).All(&projects)
@@ -266,7 +266,7 @@ func (r *ProjectRepo) FindByProjectManager(id bson.ObjectId) ([]Project, error) 
 // Save updates or create the functional service in database
 func (r *ProjectRepo) Save(project Project) (Project, error) {
 	if !r.isInitialized() {
-		return Project{}, ErrDatabaseNotInitialiazed
+		return Project{}, ErrDatabaseNotInitialized
 	}
 
 	if project.ID.Hex() == "" {
@@ -281,7 +281,7 @@ func (r *ProjectRepo) Save(project Project) (Project, error) {
 // This is used for cascade deletions
 func (r *ProjectRepo) RemoveEntity(id string) error {
 	if !r.isInitialized() {
-		return ErrDatabaseNotInitialiazed
+		return ErrDatabaseNotInitialized
 	}
 
 	_, err := r.col().UpdateAll(

@@ -68,7 +68,7 @@ func (r *EntityRepo) FindByID(id string) (Entity, error) {
 // FindByIDBson get the entity by its id (as a bson object)
 func (r *EntityRepo) FindByIDBson(id bson.ObjectId) (Entity, error) {
 	if !r.isInitialized() {
-		return Entity{}, ErrDatabaseNotInitialiazed
+		return Entity{}, ErrDatabaseNotInitialized
 	}
 	result := Entity{}
 	err := r.col().FindId(id).One(&result)
@@ -78,7 +78,7 @@ func (r *EntityRepo) FindByIDBson(id bson.ObjectId) (Entity, error) {
 // FindAll get all entities from the database
 func (r *EntityRepo) FindAll() ([]Entity, error) {
 	if !r.isInitialized() {
-		return []Entity{}, ErrDatabaseNotInitialiazed
+		return []Entity{}, ErrDatabaseNotInitialized
 	}
 	entities := []Entity{}
 	err := r.col().Find(bson.M{}).All(&entities)
@@ -113,7 +113,7 @@ func (r *EntityRepo) Exists(name string) (bool, error) {
 // Save updates or create the entity in database
 func (r *EntityRepo) Save(entity Entity) (Entity, error) {
 	if !r.isInitialized() {
-		return Entity{}, ErrDatabaseNotInitialiazed
+		return Entity{}, ErrDatabaseNotInitialized
 	}
 
 	if entity.ID.Hex() == "" {

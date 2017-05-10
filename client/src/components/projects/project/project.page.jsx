@@ -332,6 +332,7 @@ export class ProjectComponent extends React.Component {
             <Divider horizontal> Maturity Legend </Divider>
             <Grid columns={2} relaxed>
               <Grid.Column>
+                {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
                 {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
                   return (
                     <List.Item key={opt.value}>

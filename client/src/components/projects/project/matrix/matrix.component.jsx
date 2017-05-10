@@ -49,19 +49,19 @@ class Matrix extends React.Component {
     const serviceStatus = status.find((elm) => elm.value === statusValue);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
-    const serviceNameCell = (<Table.Cell key='service'>
-                              <div className='service'>
-                                {/* If serviceStatus is in an unknown status, the indicator will not be visible for users */}
-                                <div className={classNames({ default: !serviceStatus }, 'status')}>
-                                  <Label className='status-label' circular
-                                        title={serviceStatus ? serviceStatus.title : ''} 
-                                        color={serviceStatus ? serviceStatus.color : 'grey'}/>
-                                </div>
-                                <div className='name'>
-                                  {service.name}
-                                </div> 
-                              </div>
-                            </Table.Cell>);
+    const serviceNameCell = (
+      <Table.Cell key='service'>
+        {/* If serviceStatus is in an unknown status, the label indicator will not be visible for users */}
+        <Label
+          className={classNames({ invisible: !serviceStatus }, 'status-label')} circular
+          title={serviceStatus ? serviceStatus.title : ''}
+          color={serviceStatus ? serviceStatus.color : 'grey'}
+        />
+        <span>
+          {service.name}
+        </span>
+      </Table.Cell>
+    );
 
     const setExpandComment = (expandComment) => this.setState((prevState) => {
       return {

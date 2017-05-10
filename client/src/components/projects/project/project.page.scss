@@ -8,27 +8,12 @@
     box-shadow: 0 0 0 1px #d4d4d5, 0 2px 4px 0 rgba(34, 36, 38, .12), 0 2px 10px 0 rgba(34, 36, 38, .15);
   }
 
-
   .item .ui.horizontal.label {
     width: 4em !important;
   }
 
   .item .ui.label {
     margin: .2em .6em .2em 0 !important;
-  }
-
-  .legend {
-    display: table-cell;
-  }
-
-  .status {
-    display: table-cell;
-    padding-top: .1em;
-    vertical-align: middle;
-    .status-label {
-      min-width: 1em;
-      min-height: 1em;
-    }
   }
 
   .ui.labels {

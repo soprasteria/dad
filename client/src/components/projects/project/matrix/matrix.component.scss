@@ -1,29 +1,13 @@
-.matrix-component {  
-  .service {
-    border-spacing: .7em;
-    margin-left: -.7em;
+.matrix-component {
+  .status-label {
+    margin-right: .7em;
+    min-width: 1em !important;
+    min-height: 1em !important;
   }
 
-  .name {
-    float: left;
-    //display: table-cell;
-  }
-
-  .status {
-    // display: table-cell;
-    float: left;
-    padding-top: .08em;
-    vertical-align: middle;
-    .status-label {
-      min-width: 1em;
-      min-height: 1em;
-    }
-  }
-
-  .default {
+  .invisible {
     opacity: 0;
   }
-
 
   .field.readonly {
     padding-right: 2.5em !important;

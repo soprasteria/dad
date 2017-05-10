@@ -358,12 +358,8 @@ export class ProjectComponent extends React.Component {
                 {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
                   return (
                     <List.Item key={stat.value}>
-                      <div className='status'>
-                        <Label circular empty color={stat.color}/>
-                      </div>
-                      <div className='legend'>
-                        {stat.title}
-                      </div>
+                      <Label className='status' circular empty color={stat.color}/>
+                      <span>{stat.title}</span>
                     </List.Item>
                   );
                 })}
@@ -371,16 +367,10 @@ export class ProjectComponent extends React.Component {
               <Grid.Column>
                 {status.slice(Math.ceil(status.length / 2)).map((stat) => {
                   return (
-                    <div classNamme= 'legendList'>
                       <List.Item key={stat.value}>
-                        <div className='status'>
-                          <Label circular empty color={stat.color}/>
-                        </div>
-                        <div className='legend'>
-                          {stat.title}
-                        </div>      
+                        <Label className='status' circular empty color={stat.color}/>
+                        <span>{stat.title}</span>
                       </List.Item>
-                    </div>
                   );
                 })}
               </Grid.Column>

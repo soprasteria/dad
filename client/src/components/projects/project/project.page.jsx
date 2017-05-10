@@ -65,6 +65,7 @@ export class ProjectComponent extends React.Component {
     name: Joi.string().trim().required().label('Project Name'),
     domain: Joi.string().trim().empty('').label('Domain'),
     client: Joi.string().trim().empty('').label('Client'),
+    docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),
     deliverables: Joi.boolean().label('Deliverables'),
     sourceCode: Joi.boolean().label('Source Code'),
@@ -301,6 +302,9 @@ export class ProjectComponent extends React.Component {
                     />
                     {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
+                    <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
+                      type='text' name='docktorGroupURL' autoComplete='on' placeholder='Add Docktor Group URL' error={errors.fields['docktorGroupURL']}
+                    />
                   </Grid.Column>
 
                   <Grid.Column>
@@ -405,7 +409,7 @@ ProjectComponent.propTypes = {
   fetchTechnologies: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired,
   onDelete: React.PropTypes.func.isRequired,
-  canEditDetails: React.PropTypes.bool,
+  canEditDetails: React.PropTypes.bool
 };
 
 const mapStateToProps = (state, ownProps) => {

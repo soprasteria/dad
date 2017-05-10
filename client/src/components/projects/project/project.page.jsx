@@ -423,7 +423,7 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
-  const indicators = project.indicators;
+  const indicators = state.indicators;
   const technologies = state.technologies.items;
   const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);

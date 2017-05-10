@@ -16,13 +16,13 @@ type IsCollection interface {
 	isInitialized() bool
 }
 
-// IsCollectionWithIndexes is an interface representing a database which needs indexes to be created
+// IsCollectionWithIndexes is an interface representing a collection which needs indexes to be created
 type IsCollectionWithIndexes interface {
 	IsCollection
 	CreateIndexes() error
 }
 
-// IsDocument is an interface representing a data being a collection in Mongo
+// IsDocument is an interface representing a data being in a collection in Mongo
 type IsDocument interface {
 	GetID() bson.ObjectId
 }

@@ -16,7 +16,7 @@ import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
 import TechnologiesThunks from '../../../modules/technologies/technologies.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
-import { options } from '../../../modules/services/services.constants';
+import { options, status } from '../../../modules/services/services.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 import ModalActions from '../../../modules/modal/modal.actions';
 import ToastsActions from '../../../modules/toasts/toasts.actions';
@@ -225,6 +225,7 @@ export class ProjectComponent extends React.Component {
   }
 
   renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
+    selectedTechnologies = selectedTechnologies || [];
     if (readOnly) {
       return (
         <div>
@@ -305,7 +306,7 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderTechnologiesField(project.technologies, technologiesOptions, !canEditDetails)}
+                    {this.renderTechnologiesField(project.technologies || [], technologiesOptions, !canEditDetails)}
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 
@@ -327,9 +328,11 @@ export class ProjectComponent extends React.Component {
               <Message error list={errors.details} />
             </Form>
           </Box>
-          <Box icon='help circle' title='Maturity Legend' ref='legend'>
+          <Box icon='help circle' title='Color Legend' ref='legend'>
+            <Divider horizontal> Maturity Legend </Divider>
             <Grid columns={2} relaxed>
               <Grid.Column>
+                {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
                 {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
                   return (
                     <List.Item key={opt.value}>
@@ -346,6 +349,29 @@ export class ProjectComponent extends React.Component {
                       <Label color={opt.label.color} horizontal>{opt.text}</Label>
                       {opt.title}
                     </List.Item>
+                  );
+                })}
+              </Grid.Column>
+            </Grid>
+            <Divider horizontal> Indicator Legend </Divider>
+            <Grid columns={2} relaxed>
+              <Grid.Column>
+                {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                    <List.Item key={stat.value}>
+                      <Label className='status-label' circular empty color={stat.color}/>
+                      <span>{stat.title}</span>
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+              <Grid.Column>
+                {status.slice(Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                      <List.Item key={stat.value}>
+                        <Label className='status-label' circular empty color={stat.color}/>
+                        <span>{stat.title}</span>
+                      </List.Item>
                   );
                 })}
               </Grid.Column>

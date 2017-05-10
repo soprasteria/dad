@@ -4,30 +4,34 @@ import { shallow } from 'enzyme';
 import { ProjectComponent } from '../project.page';
 import { AUTH_ADMIN_ROLE } from '../../../../modules/auth/auth.constants';
 
+const defaultProps = {
+  auth: {
+    user: {
+      role: AUTH_ADMIN_ROLE,
+      entities: []
+    }
+  },
+  canEditDetails: true,
+  technologies: [],
+  users: [],
+  serviceCenters: [],
+  businessUnits: [],
+  services: {},
+  project: {
+    matrix: []
+  },
+  fetchProject: jest.fn(),
+  fetchEntities: jest.fn(),
+  fetchServices: jest.fn(),
+  fetchUsers: jest.fn(),
+  fetchTechnologies: jest.fn(),
+  onSave: jest.fn(),
+  onDelete: jest.fn(),
+};
+
 function setup(customProps = {}) {
   const props = {
-    auth: {
-      user: {
-        role: AUTH_ADMIN_ROLE,
-        entities: []
-      }
-    },
-    canEditDetails: true,
-    technologies: [],
-    users: [],
-    serviceCenters: [],
-    businessUnits: [],
-    services: {},
-    project: {
-      matrix: []
-    },
-    fetchProject: jest.fn(),
-    fetchEntities: jest.fn(),
-    fetchServices: jest.fn(),
-    fetchUsers: jest.fn(),
-    fetchTechnologies: jest.fn(),
-    onSave: jest.fn(),
-    onDelete: jest.fn(),
+    ...defaultProps,
     ...customProps,
   };
 
@@ -59,5 +63,48 @@ describe('<ProjectComponent />', () => {
         expect(wrapper.find('FormDropdown').length).toEqual(0);
       });
     });
+  });
+});
+
+describe('renderTechnologiesField', () => {
+  it('renders a drop down with technologies', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField(['java', '.NET', 'Pega'], ['java', '.NET'], false);
+    expect(result).not.toBeNull();
+  });
+  it('renders div with technologies in readonly mode', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField(['java', '.NET', 'Pega'], ['java', '.NET'], true);
+    expect(result).not.toBeNull();
+  });
+  it('renders a drop down with empty technologies', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField([], ['java', '.NET'], false);
+    expect(result).not.toBeNull();
+  });
+  it('renders div with empty technologies in readonly mode', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField([], ['java', '.NET'], true);
+    expect(result).not.toBeNull();
+  });
+  it('renders a drop down with null technologies', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField(null, ['java', '.NET'], false);
+    expect(result).not.toBeNull();
+  });
+  it('renders div with null technologies in readonly mode', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField(null, ['java', '.NET'], true);
+    expect(result).not.toBeNull();
+  });
+  it('renders a drop down with undefined technologies', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField(undefined, ['java', '.NET'], false);
+    expect(result).not.toBeNull();
+  });
+  it('renders div with undefined technologies in readonly mode', () => {
+    const projectComponent = new ProjectComponent(defaultProps);
+    const result = projectComponent.renderTechnologiesField(undefined, ['java', '.NET'], true);
+    expect(result).not.toBeNull();
   });
 });

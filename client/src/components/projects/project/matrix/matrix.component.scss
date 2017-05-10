@@ -1,4 +1,14 @@
 .matrix-component {
+  .status-label {
+    margin-right: .7em;
+    min-width: 1em !important;
+    min-height: 1em !important;
+  }
+
+  .invisible {
+    opacity: 0;
+  }
+
   .field.readonly {
     padding-right: 2.5em !important;
     opacity: 1 !important;

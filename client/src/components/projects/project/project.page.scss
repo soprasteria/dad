@@ -16,15 +16,9 @@
     margin: .2em .6em .2em 0 !important;
   }
 
-  .ui.labels {
-    padding-top: .33em;
-    .ui.image.label {
-      margin-bottom: .5em;
-      .detail {
-        padding-left: .5em;
-        padding-right: .3em;
-      }
-    }
+  // rule applied Span preceded by a status-label element
+  .status-label ~ span {
+    vertical-align: top;
   }
 
   .add-button {

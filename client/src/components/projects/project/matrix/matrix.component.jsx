@@ -1,14 +1,14 @@
 // React
 import React from 'react';
 import DebounceInput from 'react-debounce-input';
-import { Form, Table, Button, Icon, Popup } from 'semantic-ui-react';
+import { Form, Table, Button, Icon, Popup, Label } from 'semantic-ui-react';
 import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
 import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { options, priorities } from '../../../../modules/services/services.constants';
+import { options, priorities, status } from '../../../../modules/services/services.constants';
 
 import './matrix.component.scss';
 
@@ -44,10 +44,24 @@ class Matrix extends React.Component {
     const progressOption = options.find((elm) => elm.value === matrix.progress);
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
+    // Next 2 lines to delete&Replace when indicator status will be implemented from end to end 
+    const statusValue = Math.floor(Math.random() * 6);
+    const serviceStatus = status.find((elm) => elm.value === statusValue);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
-
-    const serviceNameCell = (<Table.Cell key='service'>{service.name}</Table.Cell>);
+    const serviceNameCell = (
+      <Table.Cell key='service'>
+        {/* If serviceStatus is in an unknown status, the label indicator will not be visible for users */}
+        <Label
+          className={classNames({ invisible: !serviceStatus }, 'status-label')} circular
+          title={serviceStatus ? serviceStatus.title : ''}
+          color={serviceStatus ? serviceStatus.color : 'grey'}
+        />
+        <span>
+          {service.name}
+        </span>
+      </Table.Cell>
+    );
 
     const setExpandComment = (expandComment) => this.setState((prevState) => {
       return {

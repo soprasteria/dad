@@ -2,7 +2,6 @@ package types
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	mgo "gopkg.in/mgo.v2"
@@ -46,7 +45,7 @@ func (r *UsageIndicatorRepo) isInitialized() bool {
 // CreateIndexes creates Index
 func (r *UsageIndicatorRepo) CreateIndexes() error {
 	if !r.isInitialized() {
-		return ErrDatabaseNotInitialiazed
+		return ErrDatabaseNotInitialized
 	}
 	return r.col().EnsureIndex(mgo.Index{
 		Key:      []string{"docktorGroup", "service"},
@@ -58,7 +57,7 @@ func (r *UsageIndicatorRepo) CreateIndexes() error {
 // FindAll get all usage indicators from the database
 func (r *UsageIndicatorRepo) FindAll() ([]UsageIndicator, error) {
 	if !r.isInitialized() {
-		return []UsageIndicator{}, ErrDatabaseNotInitialiazed
+		return []UsageIndicator{}, ErrDatabaseNotInitialized
 	}
 	usageIndicators := []UsageIndicator{}
 	err := r.col().Find(bson.M{}).All(&usageIndicators)
@@ -71,7 +70,7 @@ func (r *UsageIndicatorRepo) FindAll() ([]UsageIndicator, error) {
 // FindAllFromGroup get all usage indicators with a given Docktor group
 func (r *UsageIndicatorRepo) FindAllFromGroup(docktorGroup string) ([]UsageIndicator, error) {
 	if !r.isInitialized() {
-		return []UsageIndicator{}, ErrDatabaseNotInitialiazed
+		return []UsageIndicator{}, ErrDatabaseNotInitialized
 	}
 	usageIndicators := []UsageIndicator{}
 
@@ -85,7 +84,7 @@ func (r *UsageIndicatorRepo) FindAllFromGroup(docktorGroup string) ([]UsageIndic
 // BulkImportUsageIndicatorsResults is the result of a bulk import of usage indicators
 type BulkImportUsageIndicatorsResults struct {
 	All      int                `json:"all"`      // Number of usage indicators to import
-	Upserted int                `json:"upserted"` // Number of usage indicators actually imported (inserted or updated)
+	Imported int                `json:"imported"` // Number of usage indicators actually imported (inserted or updated)
 	InError  int                `json:"inError"`  // Number of usage indicators not imported because an error happened
 	Errors   []IndicatorInError `json:"errors"`   // Occurred errors and its details
 }
@@ -101,7 +100,7 @@ type IndicatorInError struct {
 // It updates existing indicators (with given service and Docktor group name), or create new ones.
 func (r *UsageIndicatorRepo) BulkImport(usageIndicators []UsageIndicator) (BulkImportUsageIndicatorsResults, error) {
 	if !r.isInitialized() {
-		return BulkImportUsageIndicatorsResults{}, ErrDatabaseNotInitialiazed
+		return BulkImportUsageIndicatorsResults{}, ErrDatabaseNotInitialized
 	}
 
 	errs := []IndicatorInError{}
@@ -112,18 +111,10 @@ func (r *UsageIndicatorRepo) BulkImport(usageIndicators []UsageIndicator) (BulkI
 	b.Unordered()
 	for i, indicator := range usageIndicators {
 		// Handle business errors
-		if indicator.DocktorGroup == "" || indicator.Service == "" {
+		if indicator.DocktorGroup == "" || indicator.Service == "" || indicator.Status == "" {
 			errs = append(errs, IndicatorInError{
 				Indicator: indicator,
-				Message:   "Docktor group name or service is mandatory and should not be empty. Skipped",
-				Index:     i,
-			})
-			continue
-		}
-		if indicator.Status == "" {
-			errs = append(errs, IndicatorInError{
-				Indicator: indicator,
-				Message:   "Status is mandatory and should not be empty. Skipped",
+				Message:   "Docktor group name, status and service are mandatory and should not be empty. Skipped",
 				Index:     i,
 			})
 			continue
@@ -131,7 +122,7 @@ func (r *UsageIndicatorRepo) BulkImport(usageIndicators []UsageIndicator) (BulkI
 		indicator.Updated = time.Now()
 		b.Upsert(bson.M{"docktorGroup": indicator.DocktorGroup, "service": indicator.Service}, indicator)
 	}
-	mgoResult, err := b.Run()
+	_, err := b.Run()
 
 	// Handles technical errors, not previously handled by business checking
 	if err != nil {
@@ -141,7 +132,6 @@ func (r *UsageIndicatorRepo) BulkImport(usageIndicators []UsageIndicator) (BulkI
 			if c.Index >= 0 && c.Index < len(usageIndicators) {
 				indicatorInError = usageIndicators[c.Index]
 			}
-			fmt.Println(c.Err.Error())
 			errs = append(errs, IndicatorInError{
 				Indicator: indicatorInError,
 				Message:   c.Err.Error(),
@@ -150,16 +140,9 @@ func (r *UsageIndicatorRepo) BulkImport(usageIndicators []UsageIndicator) (BulkI
 		}
 	}
 
-	// When a technical error happens on Mongo, result is nil
-	// So number of upserted document has to be approximated manually
-	nbUpserted := len(usageIndicators) - len(errs)
-	if mgoResult != nil {
-		nbUpserted = mgoResult.Modified
-	}
-
 	return BulkImportUsageIndicatorsResults{
 		All:      len(usageIndicators),
-		Upserted: nbUpserted,
+		Imported: len(usageIndicators) - len(errs),
 		InError:  len(errs),
 		Errors:   errs,
 	}, nil

@@ -10,15 +10,15 @@ type ErrorMsg struct {
 	Message string `json:"message"`
 }
 
-// IsDatabase is an interface representing a database accessing mongod documents
-type IsDatabase interface {
+// IsCollection is an interface representing a collection accessing mongod documents
+type IsCollection interface {
 	col() *mgo.Collection
 	isInitialized() bool
 }
 
-// IsDatabaseWithIndexes is an interface representing a database which needs indexes to be created
-type IsDatabaseWithIndexes interface {
-	IsDatabase
+// IsCollectionWithIndexes is an interface representing a database which needs indexes to be created
+type IsCollectionWithIndexes interface {
+	IsCollection
 	CreateIndexes() error
 }
 
@@ -28,9 +28,9 @@ type IsDocument interface {
 }
 
 // BasicDelete is a basic delete of a collection document
-func BasicDelete(collection IsDatabase, id bson.ObjectId) (bson.ObjectId, error) {
+func BasicDelete(collection IsCollection, id bson.ObjectId) (bson.ObjectId, error) {
 	if !collection.isInitialized() {
-		return bson.ObjectIdHex(""), ErrDatabaseNotInitialiazed
+		return bson.ObjectIdHex(""), ErrDatabaseNotInitialized
 	}
 
 	err := collection.col().RemoveId(id)

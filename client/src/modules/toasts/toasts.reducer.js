@@ -10,6 +10,7 @@ import UsersConstants from '../users/users.constants';
 import ServicesConstants from '../services/services.constants';
 import AuthConstants from '../auth/auth.constants';
 import ExportConstants from '../export/export.constants';
+import IndicatorsConstants from '../indicators/indicators.constants';
 import ToastsConstants from './toasts.constants';
 
 const initialState = {};
@@ -34,6 +35,7 @@ const toastsReducer = (state = initialState, action) => {
   case UsersConstants.INVALID_DELETE_USER:
   case AuthConstants.LOGIN_INVALID_REQUEST:
   case ExportConstants.EXPORT_ALL_INVALID_REQUEST:
+  case IndicatorsConstants.INVALID_INDICATORS:
     return { ...state, ...createGenericToast(action) };
   case ToastsConstants.COMFIRM_DELETION:
     return { ...state, ...createConfirmDelToast(action) };

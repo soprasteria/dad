@@ -51,10 +51,10 @@ func (p *Projects) Get(c echo.Context) error {
 // GetIndicators corresponding to a specific project in database. The project was stored by a middleware which use id to get project informations
 func (p *Projects) GetIndicators(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
-	DocktorGroupName := c.Get("DocktorGroupName").(string)
-	indicators, err := database.UsageIndicators.FindAllFromGroup(DocktorGroupName)
+	project := c.Get("project").(types.Project)
+	indicators, err := database.UsageIndicators.FindAllFromGroup(project.DocktorGroupName)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the indicators of the project %s", DocktorGroupName)))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the indicators of the project %s: %v", project.DocktorGroupName, err.Error())))
 	}
 	return c.JSON(http.StatusOK, indicators)
 }

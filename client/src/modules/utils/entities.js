@@ -355,21 +355,6 @@ export const generateEntitiesThunks = (entitiesName) => {
         });
     };
   };
-  const fetchIndics = (id) => {
-    return function (dispatch) {
-      dispatch(Actions.requestOne(id));
-      console.log('PATATOS');
-      return fetch(`/api/projects/${id}/indicators`, withAuth({ method: 'GET' }))
-        .then(checkHttpStatus)
-        .then(parseJSON)
-        .then((response) => {
-          dispatch(Actions.receiveOne(response));
-        })
-        .catch((error) => {
-          handleError(error, Actions.invalidRequestEntity({ id }), dispatch);
-        });
-    };
-  };
   const saveFunc = (form, postActionRedirect, postActionToast) => {
     let entity = { ...form };
     entity.created = entity.created ? new Date(entity.created) : new Date();
@@ -421,7 +406,6 @@ export const generateEntitiesThunks = (entitiesName) => {
     fetchAll: fetchAllFunc,
     fetchIfNeeded: () => fetchIfNeeded(entitiesName, fetchAllFunc),
     fetch: fetchFunc,
-    fetchIndics: fetchIndics,
     save: saveFunc,
     delete: deleteFunc
   };

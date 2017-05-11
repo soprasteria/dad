@@ -14,7 +14,7 @@ import Box from '../../common/box.component';
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
-import IndicatorsThunks from '../../../modules/indicators/indicators.thunks';
+import { fetchIndics } from '../../../modules/indicators/indicators.thunks';
 import TechnologiesThunks from '../../../modules/technologies/technologies.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
 import { options, status } from '../../../modules/services/services.constants';
@@ -103,9 +103,7 @@ export class ProjectComponent extends React.Component {
       this.props.fetchTechnologies()
     ]).then(() => {
       if (projectId) {
-        console.log('DEBUT');
-        this.props.fetchIndicators(projectId);
-        console.log('FIN');
+        this.props.fetchIndics(projectId);
         this.props.fetchProject(projectId);
       }
     });
@@ -409,7 +407,7 @@ ProjectComponent.propTypes = {
   projectId: React.PropTypes.string,
   fetchProject: React.PropTypes.func.isRequired,
   fetchEntities: React.PropTypes.func.isRequired,
-  fetchIndicators: React.PropTypes.func.isRequired,
+  fetchIndics: React.PropTypes.func.isRequired,
   fetchServices: React.PropTypes.func.isRequired,
   fetchUsers: React.PropTypes.func.isRequired,
   fetchTechnologies: React.PropTypes.func.isRequired,
@@ -472,7 +470,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch) => ({
   fetchProject: (id) => dispatch(ProjectsThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
-  fetchIndicators: (id) => dispatch(IndicatorsThunks.fetchIndics(id)),
+  fetchIndics: (id) => dispatch(fetchIndics(id)),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
   fetchTechnologies: () => dispatch(TechnologiesThunks.fetchIfNeeded()),

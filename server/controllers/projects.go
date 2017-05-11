@@ -281,7 +281,7 @@ func (p *Projects) Save(c echo.Context) error {
 				"dad.project.previousDocktorGroupName": projectSaved.DocktorGroupName,
 			}
 			log.WithFields(logFields).Debug("Updating DocktorGroupURL and Name to DAD project...")
-			err := u.updateDocktorGroupName(c, projectSaved)
+			err := p.updateDocktorGroupName(c, projectSaved)
 			if err != nil {
 				log.WithFields(logFields).WithError(err).Error("Unable to fetch and/or save Docktor Group Name to the project")
 			} else {

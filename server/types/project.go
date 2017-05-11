@@ -303,3 +303,18 @@ func (r *ProjectRepo) RemoveEntity(id string) error {
 func (r *ProjectRepo) Delete(id bson.ObjectId) (bson.ObjectId, error) {
 	return BasicDelete(r, id)
 }
+
+// UpdateDocktorGroupURL updates Docktor Group URL to project in database
+func (r *ProjectRepo) UpdateDocktorGroupURL(id bson.ObjectId, docktorGroupURL, docktorGroupName string) error {
+	if !r.isInitialized() {
+		return ErrDatabaseNotInitialized
+	}
+	return r.col().UpdateId(
+		id,
+		bson.M{"$set": bson.M{
+			"docktorURL.docktorGroupURL":  docktorGroupURL,
+			"docktorURL.docktorGroupName": docktorGroupName,
+			"updated":                     time.Now(),
+		}},
+	)
+}

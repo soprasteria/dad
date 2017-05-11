@@ -10,12 +10,11 @@ export const options = [
   { value: 5, text: '100%', label: { color: 'green', empty: true, circular: false }, title: 'Fully used by the team' },
 ];
 
-
 export const status = [
-  { value: 0, color: 'black', title: 'We can\'t get the indicator status for this service' },
-  { value: 1, color: 'red', title: 'The service was never used by the project' },
-  { value: 2, color: 'orange', title: 'The service has not been active recently' },
-  { value: 3, color: 'green', title: 'The service has been recently active' },
+  { value: 0, text: 'Undetermined', color: 'black', title: 'We can\'t get the indicator status for this service' },
+  { value: 1, text: 'Empty', color: 'red', title: 'The service was never used by the project' },
+  { value: 2, text: 'Inactive', color: 'orange', title: 'The service has not been active recently' },
+  { value: 3, text: 'Active', color: 'green', title: 'The service has been recently active' },
 ];
 
 export const priorities = [

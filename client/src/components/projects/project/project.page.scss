@@ -16,9 +16,8 @@
     margin: .2em .6em .2em 0 !important;
   }
 
-  // rule applied Span preceded by a status-label element
-  .status-label ~ span {
-    vertical-align: top;
+  .ui.empty.circular.label {
+    vertical-align: text-top;
   }
 
   .add-button {

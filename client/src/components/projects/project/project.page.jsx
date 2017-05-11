@@ -180,7 +180,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderServices = (project, services, isFetching, readOnly) => {
+  renderServices = (project, services, indicators, isFetching, readOnly) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -200,7 +200,7 @@ export class ProjectComponent extends React.Component {
           </Table.Header>
           <Table.Body>
             {servicesList.map((service) => {
-              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix} />;
+              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix} />;
             })}
           </Table.Body>
         </Table>
@@ -246,7 +246,7 @@ export class ProjectComponent extends React.Component {
 
   render = () => {
     const {
-      isFetching, serviceCenters, businessUnits,
+      isFetching, serviceCenters, businessUnits, indicators,
       isEntitiesFetching, services, isServicesFetching,
       users, projectId, canEditDetails
     } = this.props;
@@ -384,7 +384,7 @@ export class ProjectComponent extends React.Component {
             </Grid>
           </Box>
           <Divider hidden />
-          {this.renderServices(project, services, fetching, !canEditMatrix)}
+          {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
           {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>
       </Container>

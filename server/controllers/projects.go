@@ -43,34 +43,20 @@ func (p *Projects) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, projects)
 }
 
-// Get project from database
-func (p *Projects) Get(c echo.Context) error {
+// Get project from database. The project was stored by a middleware which use id to get project informations
+func (u *Projects) Get(c echo.Context) error {
+	return c.JSON(http.StatusOK, c.Get("project"))
+}
+
+// GetIndicators corresponding to a specific project in database. The project was stored by a middleware which use id to get project informations
+func (u *Projects) GetIndicators(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
-
-	id := c.Param("id")
-
-	authUser := c.Get("authuser").(types.User)
-	log.WithFields(log.Fields{
-		"username":  authUser.Username,
-		"role":      authUser.Role,
-		"projectID": id,
-	}).Info("User trying to retrieve a project")
-
-	project, err := database.Projects.FindByID(id)
-	if err != nil || project.ID.Hex() == "" {
-		return c.JSON(http.StatusNotFound, types.NewErr(fmt.Sprintf("Project not found %v", id)))
-	}
-
-	userProjects, err := database.Projects.FindForUser(authUser)
+	DocktorName := c.Get("DocktorName").(string)
+	indicators, err := database.UsageIndicators.FindAllFromGroup(DocktorName)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the indicators of the project %s", DocktorName)))
 	}
-
-	if !userProjects.ContainsBsonID(project.ID) {
-		return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID)))
-	}
-
-	return c.JSON(http.StatusOK, project)
+	return c.JSON(http.StatusOK, indicators)
 }
 
 // Delete project from database

@@ -8,7 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// UsageIndicator represents an Sopra Steria entity
+// UsageIndicator represents a Sopra Steria entity
 type UsageIndicator struct {
 	ID bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
 	// Name of the Docktor Group, owner of the service instance which generated this indicator
@@ -17,7 +17,7 @@ type UsageIndicator struct {
 	Service string `bson:"service,omitempty" json:"service,omitempty"`
 	// Name of the instance of service generating the indicator. e.g. GROUP1-jenkins
 	ServiceInstanceName string `bson:"serviceInstance" json:"serviceInstance,omitempty"`
-	// Indicator status of the instance of the service. e.g. active, inactive, undetermined...
+	// Indicator status of the service instance. e.g. active, inactive, undetermined...
 	Status string `bson:"status,omitempty" json:"status,omitempty"`
 	// Date when the indicator was last updated
 	Updated time.Time `bson:"updated,omitempty" json:"updated,omitempty"`

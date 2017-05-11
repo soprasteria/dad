@@ -156,6 +156,41 @@ func isValidID(id string) func(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// getProject is a middleware used to get project informations based on his Id
+func getProject(id string) func(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			database := c.Get("database").(*mongo.DadMongo)
+
+			id := c.Param("id")
+
+			authUser := c.Get("authuser").(types.User)
+			log.WithFields(log.Fields{
+				"username":  authUser.Username,
+				"role":      authUser.Role,
+				"projectID": id,
+			}).Info("User trying to retrieve a project")
+
+			project, err := database.Projects.FindByID(id)
+			if err != nil || project.ID.Hex() == "" {
+				return c.JSON(http.StatusNotFound, types.NewErr(fmt.Sprintf("Project not found %v", id)))
+			}
+
+			userProjects, err := database.Projects.FindForUser(authUser)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
+			}
+
+			if !userProjects.ContainsBsonID(project.ID) {
+				return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID)))
+			}
+			c.Set("project", project)
+			c.Set("DocktorName", project.NameDocktor)
+			return next(c)
+		}
+	}
+}
+
 // RetrieveUser is a middleware setting the user in context
 func RetrieveUser(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {

@@ -102,10 +102,11 @@ func New(version string) {
 			projectAPI := projectsAPI.Group("/:id")
 			{
 				projectAPI.Use(isValidID("id"))
-				projectAPI.GET("", projectsC.Get)
+				projectAPI.GET("", projectsC.Get, getProject("id"))
 				projectAPI.DELETE("", projectsC.Delete, hasRole(types.RIRole))
 				projectAPI.PUT("", projectsC.Save)
 				projectAPI.PATCH("", projectsC.UpdateDocktorInfo, hasRole(types.AdminRole))
+				projectAPI.GET("/indicators", projectsC.GetIndicators, getProject("id")) // api used to get project's usage indicators
 			}
 		}
 

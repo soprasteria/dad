@@ -1,7 +1,7 @@
 // import constants
 import IndicatorsConstants from './indicators.constants';
 
-export const Actions = {
+export default {
   requestSome: (id) => {
     return {
       type: IndicatorsConstants.REQUEST_INDICATORS,
@@ -24,9 +24,4 @@ export const Actions = {
       items
     };
   },
-};
-
-
-export default {
-  Actions
 };

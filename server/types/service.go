@@ -13,6 +13,7 @@ type FunctionalService struct {
 	Name     string        `bson:"name" json:"name"`
 	Package  string        `bson:"package" json:"package"`
 	Position int           `bson:"position" json:"position"`
+	Services []string      `bson:"services" json:"services"`
 }
 
 // FunctionalServiceRepo wraps all requests to database for accessing functional services

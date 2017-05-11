@@ -1,6 +1,3 @@
-import { generateEntitiesConstants } from '../utils/entities';
-
-export default {
-  ...generateEntitiesConstants('indicators'),
-  CHANGE_FILTER: 'CHANGE_FILTER_INDICATORS'
-};
+export const REQUEST_INDICATORS = 'REQUEST_INDICATORS';
+export const RECEIVE_INDICATORS = 'RECEIVE_INDICATORS';
+export const INVALID_INDICATORS = 'INVALID_INDICATORS';

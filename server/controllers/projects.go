@@ -25,7 +25,7 @@ type Projects struct {
 }
 
 // GetAll functional services from database
-func (u *Projects) GetAll(c echo.Context) error {
+func (p *Projects) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 
 	authUser := c.Get("authuser").(types.User)
@@ -44,7 +44,7 @@ func (u *Projects) GetAll(c echo.Context) error {
 }
 
 // Get project from database
-func (u *Projects) Get(c echo.Context) error {
+func (p *Projects) Get(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 
 	id := c.Param("id")
@@ -74,7 +74,7 @@ func (u *Projects) Get(c echo.Context) error {
 }
 
 // Delete project from database
-func (u *Projects) Delete(c echo.Context) error {
+func (p *Projects) Delete(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
 
@@ -162,7 +162,7 @@ func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB 
 }
 
 // Save creates or update given project
-func (u *Projects) Save(c echo.Context) error {
+func (p *Projects) Save(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
 
@@ -299,8 +299,8 @@ func (u *Projects) Save(c echo.Context) error {
 }
 
 // updateDocktorGroupName updates the Docktor Group Name in saved project
-// It gets the Groupe name from Docktor Group URL by fetching Docktor API directly
-func (u *Projects) updateDocktorGroupName(c echo.Context, project types.Project) error {
+// It gets the Group name from Docktor Group URL by fetching Docktor API directly
+func (p *Projects) updateDocktorGroupName(c echo.Context, project types.Project) error {
 	// Open new Mongo session because function is called in a goroutine
 	database, err := mongo.Get()
 	if err != nil {

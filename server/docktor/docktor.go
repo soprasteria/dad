@@ -27,8 +27,8 @@ type ExternalAPI struct {
 // user is the username used to authenticate to Docktor instance
 // password is the password used in association to user
 func NewExternalAPI(addr, user, password string) (ExternalAPI, error) {
-	if addr == "" || user == "" {
-		return ExternalAPI{}, fmt.Errorf("Docktor address and user are mandatory. Addr=%v User=%v", addr, user)
+	if addr == "" || user == "" || password == "" {
+		return ExternalAPI{}, fmt.Errorf("Docktor address, user and password are mandatory. Addr=%v User=%v", addr, user)
 	}
 	return ExternalAPI{
 		docktorAddr:     addr,
@@ -64,7 +64,7 @@ func (api *ExternalAPI) authenticate() ([]*http.Cookie, error) {
 			"DocktorURL": api.docktorAddr,
 			"user":       api.docktorUser,
 		}).WithError(err).Error("Failed to authenticate to Docktor")
-		return []*http.Cookie{}, fmt.Errorf("Failed to authenticate to Docktor: %v", err.Error())
+		return nil, fmt.Errorf("Failed to authenticate to Docktor: %v", err.Error())
 	}
 	defer resp.Body.Close()
 
@@ -75,7 +75,7 @@ func (api *ExternalAPI) authenticate() ([]*http.Cookie, error) {
 			"HTTP_STATUS": resp.StatusCode,
 			"Status":      resp.Status,
 		}).Error("Failed to authenticate to Docktor because server did not return OK")
-		return []*http.Cookie{}, fmt.Errorf("Failed to authenticate to Docktor because server did not return OK: %v", resp.Status)
+		return nil, fmt.Errorf("Failed to authenticate to Docktor because server did not return OK: %v", resp.Status)
 	}
 
 	log.WithFields(log.Fields{
@@ -93,7 +93,7 @@ type GroupDocktor struct {
 	Title string `json:"title,omitempty"`
 }
 
-// GetGroup gets a Docktor group name from it's ID
+// GetGroup gets a Docktor group name from its ID
 func (api *ExternalAPI) GetGroup(groupID string) (GroupDocktor, error) {
 	cookies, err := api.authenticate()
 	if err != nil {

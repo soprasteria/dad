@@ -44,12 +44,12 @@ func (p *Projects) GetAll(c echo.Context) error {
 }
 
 // Get project from database. The project was stored by a middleware which use id to get project informations
-func (u *Projects) Get(c echo.Context) error {
+func (p *Projects) Get(c echo.Context) error {
 	return c.JSON(http.StatusOK, c.Get("project"))
 }
 
 // GetIndicators corresponding to a specific project in database. The project was stored by a middleware which use id to get project informations
-func (u *Projects) GetIndicators(c echo.Context) error {
+func (p *Projects) GetIndicators(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	DocktorGroupName := c.Get("DocktorGroupName").(string)
 	indicators, err := database.UsageIndicators.FindAllFromGroup(DocktorGroupName)

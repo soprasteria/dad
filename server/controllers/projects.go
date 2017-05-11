@@ -281,7 +281,14 @@ func (p *Projects) Save(c echo.Context) error {
 				"dad.project.previousDocktorGroupName": projectSaved.DocktorGroupName,
 			}
 			log.WithFields(logFields).Debug("Updating DocktorGroupURL and Name to DAD project...")
-			err := p.updateDocktorGroupName(c, projectSaved)
+
+			// Open new Mongo session because function is called in a goroutine
+			database, err := mongo.Get()
+			if err != nil {
+				log.WithField("database", database).WithError(err).Error("Unable to open a connection to the database")
+			}
+
+			err = p.updateDocktorGroupName(database, projectSaved.ID, projectSaved.DocktorGroupURL)
 			if err != nil {
 				log.WithFields(logFields).WithError(err).Error("Unable to fetch and/or save Docktor Group Name to the project")
 			} else {
@@ -300,14 +307,10 @@ func (p *Projects) Save(c echo.Context) error {
 
 // updateDocktorGroupName updates the Docktor Group Name in saved project
 // It gets the Group name from Docktor Group URL by fetching Docktor API directly
-func (p *Projects) updateDocktorGroupName(c echo.Context, project types.Project) error {
-	// Open new Mongo session because function is called in a goroutine
-	database, err := mongo.Get()
-	if err != nil {
-		return err
-	}
+func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bson.ObjectId, docktorGroupURL string) error {
+
 	// Parse Docktor URL to get the Docktor group ID
-	id, err := getGroupIDFromURL(project.DocktorGroupURL)
+	idDocktorGroup, err := getGroupIDFromURL(docktorGroupURL)
 	if err != nil {
 		return err
 	}
@@ -320,12 +323,12 @@ func (p *Projects) updateDocktorGroupName(c echo.Context, project types.Project)
 	if err != nil {
 		return err
 	}
-	group, err := docktorAPI.GetGroup(id)
+	group, err := docktorAPI.GetGroup(idDocktorGroup)
 	if err != nil {
 		return err
 	}
 	// Update project in database
-	err = database.Projects.UpdateDocktorGroupURL(project.ID, project.DocktorGroupURL, group.Title)
+	err = database.Projects.UpdateDocktorGroupURL(idProject, docktorGroupURL, group.Title)
 	if err != nil {
 		return fmt.Errorf("Unable to update project in Mongo database because: %v", err.Error())
 	}
@@ -349,4 +352,42 @@ func getGroupIDFromURL(docktorURL string) (string, error) {
 		return "", fmt.Errorf("Unable to get project id from URL parsed path : %v. URL=%v", path, u.Path)
 	}
 	return id, nil
+}
+
+// UpdateDocktorInfo updates docktor info of a specific project
+func (p *Projects) UpdateDocktorInfo(c echo.Context) error {
+	database := c.Get("database").(*mongo.DadMongo)
+	id := c.Param("id")
+
+	// Get project from body
+	var projectToSave types.Project
+
+	err := c.Bind(&projectToSave)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
+	}
+
+	log.WithFields(log.Fields{
+		"id":              id,
+		"docktorGroupURL": projectToSave.DocktorGroupURL,
+	}).Debug("Updating Docktor Group for given project...")
+
+	err = p.updateDocktorGroupName(database, bson.ObjectIdHex(id), projectToSave.DocktorGroupURL)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to update docktor info to database: %v", err)))
+	}
+
+	project, err := database.Projects.FindByID(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to get the updated project to database: %v", err)))
+	}
+
+	log.WithFields(log.Fields{
+		"id":                       id,
+		"project.name":             project.Name,
+		"project.docktorGroupURL":  project.DocktorGroupURL,
+		"project.docktorGroupName": project.DocktorGroupName,
+	}).Debug("Updated Docktor Group for given project")
+
+	return c.JSON(http.StatusOK, project)
 }

@@ -105,6 +105,7 @@ func New(version string) {
 				projectAPI.GET("", projectsC.Get)
 				projectAPI.DELETE("", projectsC.Delete, hasRole(types.RIRole))
 				projectAPI.PUT("", projectsC.Save)
+				projectAPI.PATCH("", projectsC.UpdateDocktorInfo, hasRole(types.AdminRole))
 			}
 		}
 

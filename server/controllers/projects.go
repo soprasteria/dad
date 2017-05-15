@@ -3,6 +3,8 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -12,8 +14,10 @@ import (
 	"time"
 
 	"github.com/labstack/echo"
+	"github.com/soprasteria/dad/server/docktor"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
+	"github.com/spf13/viper"
 )
 
 // Projects is the controller type
@@ -21,7 +25,7 @@ type Projects struct {
 }
 
 // GetAll functional services from database
-func (u *Projects) GetAll(c echo.Context) error {
+func (p *Projects) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 
 	authUser := c.Get("authuser").(types.User)
@@ -39,38 +43,24 @@ func (u *Projects) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, projects)
 }
 
-// Get project from database
-func (u *Projects) Get(c echo.Context) error {
+// Get project from database. The project was stored by a middleware which use id to get project informations
+func (p *Projects) Get(c echo.Context) error {
+	return c.JSON(http.StatusOK, c.Get("project"))
+}
+
+// GetIndicators corresponding to a specific project in database. The project was stored by a middleware which use id to get project informations
+func (p *Projects) GetIndicators(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
-
-	id := c.Param("id")
-
-	authUser := c.Get("authuser").(types.User)
-	log.WithFields(log.Fields{
-		"username":  authUser.Username,
-		"role":      authUser.Role,
-		"projectID": id,
-	}).Info("User trying to retrieve a project")
-
-	project, err := database.Projects.FindByID(id)
-	if err != nil || project.ID.Hex() == "" {
-		return c.JSON(http.StatusNotFound, types.NewErr(fmt.Sprintf("Project not found %v", id)))
-	}
-
-	userProjects, err := database.Projects.FindForUser(authUser)
+	project := c.Get("project").(types.Project)
+	indicators, err := database.UsageIndicators.FindAllFromGroup(project.DocktorGroupName)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the indicators of the project %s: %v", project.DocktorGroupName, err.Error())))
 	}
-
-	if !userProjects.ContainsBsonID(project.ID) {
-		return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot see the project %s", authUser.Username, project.ID)))
-	}
-
-	return c.JSON(http.StatusOK, project)
+	return c.JSON(http.StatusOK, indicators)
 }
 
 // Delete project from database
-func (u *Projects) Delete(c echo.Context) error {
+func (p *Projects) Delete(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
 
@@ -158,7 +148,7 @@ func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB 
 }
 
 // Save creates or update given project
-func (u *Projects) Save(c echo.Context) error {
+func (p *Projects) Save(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
 
@@ -220,23 +210,26 @@ func (u *Projects) Save(c echo.Context) error {
 		projectToSave.Domain != existingProject.Domain ||
 		projectToSave.ProjectManager != existingProject.ProjectManager ||
 		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
-		projectToSave.BusinessUnit != existingProject.BusinessUnit
+		projectToSave.BusinessUnit != existingProject.BusinessUnit ||
+		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
 	// A Project Manager can't update details, if any of the details has changed it's an issue and we shouldn't update the project
 	if authUser.Role == types.CPRole && modifiedDetails {
 		log.WithFields(log.Fields{
-			"username":                       authUser.Username,
-			"role":                           authUser.Role,
-			"projectID":                      id,
-			"projectToSave.Name":             projectToSave.Name,
-			"existingProject.Name":           existingProject.Name,
-			"projectToSave.Domain":           projectToSave.Domain,
-			"existingProject.Domain":         existingProject.Domain,
-			"projectToSave.ProjectManager":   projectToSave.ProjectManager,
-			"existingProject.ProjectManager": existingProject.ProjectManager,
-			"projectToSave.ServiceCenter":    projectToSave.ServiceCenter,
-			"existingProject.ServiceCenter":  existingProject.ServiceCenter,
-			"projectToSave.BusinessUnit":     projectToSave.BusinessUnit,
-			"existingProject.BusinessUnit":   existingProject.BusinessUnit,
+			"username":                        authUser.Username,
+			"role":                            authUser.Role,
+			"projectID":                       id,
+			"projectToSave.Name":              projectToSave.Name,
+			"existingProject.Name":            existingProject.Name,
+			"projectToSave.Domain":            projectToSave.Domain,
+			"existingProject.Domain":          existingProject.Domain,
+			"projectToSave.ProjectManager":    projectToSave.ProjectManager,
+			"existingProject.ProjectManager":  existingProject.ProjectManager,
+			"projectToSave.ServiceCenter":     projectToSave.ServiceCenter,
+			"existingProject.ServiceCenter":   existingProject.ServiceCenter,
+			"projectToSave.BusinessUnit":      projectToSave.BusinessUnit,
+			"existingProject.BusinessUnit":    existingProject.BusinessUnit,
+			"projectToSave.DocktorGroupURL":   projectToSave.DocktorGroupURL,
+			"existingProject.DocktorGroupURL": existingProject.DocktorGroupURL,
 		}).Warn("User isn't allowed to update the project")
 		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("A project manager isn't allowed to update project details")))
 	}
@@ -263,5 +256,124 @@ func (u *Projects) Save(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to save project to database: %v", err)))
 	}
 
+	if projectSaved.DocktorGroupURL != "" && existingProject.DocktorGroupURL != projectSaved.DocktorGroupURL {
+		// Updates Docktor group name from url in background, when url changed
+		// because we don't want to block the project update with calls to external APIs.
+		go func() {
+			logFields := log.Fields{
+				"dad.project.id":                       projectSaved.ID,
+				"dad.project.name":                     projectSaved.Name,
+				"dad.project.docktorGroupURL":          projectSaved.DocktorGroupURL,
+				"dad.project.previousDocktorGroupName": projectSaved.DocktorGroupName,
+			}
+			log.WithFields(logFields).Debug("Updating DocktorGroupURL and Name to DAD project...")
+
+			// Open new Mongo session because function is called in a goroutine
+			database, err := mongo.Get()
+			if err != nil {
+				log.WithField("database", database).WithError(err).Error("Unable to open a connection to the database")
+			}
+
+			err = p.updateDocktorGroupName(database, projectSaved.ID, projectSaved.DocktorGroupURL)
+			if err != nil {
+				log.WithFields(logFields).WithError(err).Error("Unable to fetch and/or save Docktor Group Name to the project")
+			} else {
+				log.WithFields(logFields).Debug("Saved DocktorGroupURL and Name to DAD project")
+			}
+		}()
+	}
+
+	log.WithFields(log.Fields{
+		"id":   projectSaved.ID,
+		"name": projectSaved.Name,
+	}).Debug("Project is saved")
+
 	return c.JSON(http.StatusOK, projectSaved)
+}
+
+// updateDocktorGroupName updates the Docktor Group Name in saved project
+// It gets the Group name from Docktor Group URL by fetching Docktor API directly
+func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bson.ObjectId, docktorGroupURL string) error {
+
+	// Parse Docktor URL to get the Docktor group ID
+	idDocktorGroup, err := getGroupIDFromURL(docktorGroupURL)
+	if err != nil {
+		return err
+	}
+	// Call Docktor API to get the real name of the group
+	docktorAPI, err := docktor.NewExternalAPI(
+		viper.GetString("docktor.addr"),
+		viper.GetString("docktor.user"),
+		viper.GetString("docktor.password"),
+	)
+	if err != nil {
+		return err
+	}
+	group, err := docktorAPI.GetGroup(idDocktorGroup)
+	if err != nil {
+		return err
+	}
+	// Update project in database
+	err = database.Projects.UpdateDocktorGroupURL(idProject, docktorGroupURL, group.Title)
+	if err != nil {
+		return fmt.Errorf("Unable to update project in Mongo database because: %v", err.Error())
+	}
+
+	return nil
+}
+
+// getGroupIDFromURL returns the Docktor group ID from its URL
+// URL is expected to be format : http://<docktor-host>/groups/<id>
+func getGroupIDFromURL(docktorURL string) (string, error) {
+	u, err := url.ParseRequestURI(docktorURL)
+	if err != nil {
+		return "", fmt.Errorf("docktorGroupURL is not a valid URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", docktorURL)
+	}
+	path := strings.Split(u.Path, "/")
+	if len(path) == 0 {
+		return "", fmt.Errorf("Unable to get project id from URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", u.Path)
+	}
+	id := path[len(path)-1]
+	if id == "" {
+		return "", fmt.Errorf("Unable to get project id from URL parsed path : %v. URL=%v", path, u.Path)
+	}
+	return id, nil
+}
+
+// UpdateDocktorInfo updates docktor info of a specific project
+func (p *Projects) UpdateDocktorInfo(c echo.Context) error {
+	database := c.Get("database").(*mongo.DadMongo)
+	id := c.Param("id")
+
+	// Get project from body
+	var projectToSave types.Project
+
+	err := c.Bind(&projectToSave)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
+	}
+
+	log.WithFields(log.Fields{
+		"id":              id,
+		"docktorGroupURL": projectToSave.DocktorGroupURL,
+	}).Debug("Updating Docktor Group for given project...")
+
+	err = p.updateDocktorGroupName(database, bson.ObjectIdHex(id), projectToSave.DocktorGroupURL)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to update docktor info to database: %v", err)))
+	}
+
+	project, err := database.Projects.FindByID(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to get the updated project to database: %v", err)))
+	}
+
+	log.WithFields(log.Fields{
+		"id":                       id,
+		"project.name":             project.Name,
+		"project.docktorGroupURL":  project.DocktorGroupURL,
+		"project.docktorGroupName": project.DocktorGroupName,
+	}).Debug("Updated Docktor Group for given project")
+
+	return c.JSON(http.StatusOK, project)
 }

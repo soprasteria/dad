@@ -8,21 +8,16 @@
     box-shadow: 0 0 0 1px #d4d4d5, 0 2px 4px 0 rgba(34, 36, 38, .12), 0 2px 10px 0 rgba(34, 36, 38, .15);
   }
 
-
   .item .ui.horizontal.label {
     width: 4em !important;
+  }
+
+  .item .ui.label {
     margin: .2em .6em .2em 0 !important;
   }
 
-  .ui.labels {
-    padding-top: .33em;
-    .ui.image.label {
-      margin-bottom: .5em;
-      .detail {
-        padding-left: .5em;
-        padding-right: .3em;
-      }
-    }
+  .ui.empty.circular.label {
+    vertical-align: text-top;
   }
 
   .add-button {

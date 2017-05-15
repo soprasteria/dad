@@ -314,7 +314,7 @@ const shouldFetch = (state, entitiesName) => {
   }
 };
 
-// Thunk to fech only if needed
+// Thunk to fetch only if needed
 const fetchIfNeeded = (entitiesName, fetchFunc) => {
   return (dispatch, getState) => {
     if (shouldFetch(getState(), entitiesName)) {

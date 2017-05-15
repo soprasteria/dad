@@ -21,6 +21,7 @@ func New(version string) {
 	usersC := controllers.Users{}
 	entitiesC := controllers.Entities{}
 	functionalServicesC := controllers.FunctionalServices{}
+	usageIndicatorsC := controllers.UsageIndicators{}
 	projectsC := controllers.Projects{}
 	technologiesC := controllers.Technologies{}
 	exportC := controllers.Export{}
@@ -101,9 +102,11 @@ func New(version string) {
 			projectAPI := projectsAPI.Group("/:id")
 			{
 				projectAPI.Use(isValidID("id"))
-				projectAPI.GET("", projectsC.Get)
+				projectAPI.GET("", projectsC.Get, getProject("id"))
 				projectAPI.DELETE("", projectsC.Delete, hasRole(types.RIRole))
 				projectAPI.PUT("", projectsC.Save)
+				projectAPI.PATCH("", projectsC.UpdateDocktorInfo, hasRole(types.AdminRole))
+				projectAPI.GET("/indicators", projectsC.GetIndicators, getProject("id")) // api used to get project's usage indicators
 			}
 		}
 
@@ -111,6 +114,14 @@ func New(version string) {
 		{
 			technologiesAPI.GET("", technologiesC.GetAll)
 			technologiesAPI.POST("/new", technologiesC.Save, hasRole(types.AdminRole))
+		}
+
+		usageIndicatorsAPI := api.Group("/usage-indicators")
+		{
+			// Indicators are created with bulk operations. Operations on single usages indicators is not possible.
+			// Therefore, only GetAll operation is available
+			usageIndicatorsAPI.GET("", usageIndicatorsC.GetAll, hasRole(types.AdminRole))
+			usageIndicatorsAPI.POST("/import", usageIndicatorsC.BulkImport, hasRole(types.AdminRole))
 		}
 
 		exportAPI := api.Group("/export")

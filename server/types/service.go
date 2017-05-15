@@ -13,6 +13,7 @@ type FunctionalService struct {
 	Name     string        `bson:"name" json:"name"`
 	Package  string        `bson:"package" json:"package"`
 	Position int           `bson:"position" json:"position"`
+	Services []string      `bson:"services" json:"services"`
 }
 
 // FunctionalServiceRepo wraps all requests to database for accessing functional services
@@ -42,7 +43,7 @@ func (r *FunctionalServiceRepo) FindByID(id string) (FunctionalService, error) {
 // FindByIDBson get the functional service by its id (as a bson object)
 func (r *FunctionalServiceRepo) FindByIDBson(id bson.ObjectId) (FunctionalService, error) {
 	if !r.isInitialized() {
-		return FunctionalService{}, ErrDatabaseNotInitialiazed
+		return FunctionalService{}, ErrDatabaseNotInitialized
 	}
 	result := FunctionalService{}
 	err := r.col().FindId(id).One(&result)
@@ -52,7 +53,7 @@ func (r *FunctionalServiceRepo) FindByIDBson(id bson.ObjectId) (FunctionalServic
 // FindAll get all functional services from the database
 func (r *FunctionalServiceRepo) FindAll() ([]FunctionalService, error) {
 	if !r.isInitialized() {
-		return []FunctionalService{}, ErrDatabaseNotInitialiazed
+		return []FunctionalService{}, ErrDatabaseNotInitialized
 	}
 	functionalServices := []FunctionalService{}
 	err := r.col().Find(bson.M{}).Sort("package", "position").All(&functionalServices)
@@ -78,7 +79,7 @@ func (r *FunctionalServiceRepo) Exists(name, pkg string) (bool, error) {
 // Save updates or create the functional service in database
 func (r *FunctionalServiceRepo) Save(functionalService FunctionalService) (FunctionalService, error) {
 	if !r.isInitialized() {
-		return FunctionalService{}, ErrDatabaseNotInitialiazed
+		return FunctionalService{}, ErrDatabaseNotInitialized
 	}
 
 	if functionalService.ID.Hex() == "" {

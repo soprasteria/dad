@@ -1,7 +1,7 @@
 import { generateEntitiesConstants } from '../utils/entities';
 
 export const options = [
-  { value: -1, text: 'N/A', label: { color: 'black', empty: true, circular: false }, title: 'Non applicable' },
+  { value: -1, text: 'N/A', label: { color: 'black', empty: true, circular: false }, title: 'Not applicable' },
   { value: 0, text: '0%', label: { color: 'grey', empty: true, circular: false }, title: 'No action launched on the service' },
   { value: 1, text: '20%', label: { color: 'red', empty: true, circular: false }, title: 'Deployed empty by CDK core team' },
   { value: 2, text: '40%', label: { color: 'orange', empty: true, circular: false }, title: 'Configured by project team and ready to use' },
@@ -10,8 +10,15 @@ export const options = [
   { value: 5, text: '100%', label: { color: 'green', empty: true, circular: false }, title: 'Fully used by the team' },
 ];
 
+export const status = [
+  { value: 0, text: 'Undetermined', color: 'black', title: 'We can\'t get the indicator status for this service' },
+  { value: 1, text: 'Empty', color: 'red', title: 'The service was never used by the project' },
+  { value: 2, text: 'Inactive', color: 'orange', title: 'The service has not been active recently' },
+  { value: 3, text: 'Active', color: 'green', title: 'The service has been recently active' },
+];
+
 export const priorities = [
-  { value: 'N/A', text: 'N/A', title: 'Non applicable' },
+  { value: 'N/A', text: 'N/A', title: 'Not applicable' },
   { value: 'P0', text: 'P0', title: 'High priority' },
   { value: 'P1', text: 'P1', title: 'Medium priority' },
   { value: 'P2', text: 'P2', title: 'Low priority' },

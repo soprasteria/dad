@@ -14,9 +14,10 @@ import Box from '../../common/box.component';
 // Thunks / Actions
 import ProjectsThunks from '../../../modules/projects/projects.thunks';
 import EntitiesThunks from '../../../modules/entities/entities.thunks';
+import { fetchIndicators } from '../../../modules/indicators/indicators.thunks';
 import TechnologiesThunks from '../../../modules/technologies/technologies.thunks';
 import ServicesThunks from '../../../modules/services/services.thunks';
-import { options } from '../../../modules/services/services.constants';
+import { options, status } from '../../../modules/services/services.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 import ModalActions from '../../../modules/modal/modal.actions';
 import ToastsActions from '../../../modules/toasts/toasts.actions';
@@ -65,6 +66,7 @@ export class ProjectComponent extends React.Component {
     name: Joi.string().trim().required().label('Project Name'),
     domain: Joi.string().trim().empty('').label('Domain'),
     client: Joi.string().trim().empty('').label('Client'),
+    docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),
     deliverables: Joi.boolean().label('Deliverables'),
     sourceCode: Joi.boolean().label('Source Code'),
@@ -101,6 +103,7 @@ export class ProjectComponent extends React.Component {
       this.props.fetchTechnologies()
     ]).then(() => {
       if (projectId) {
+        this.props.fetchIndicators(projectId);
         this.props.fetchProject(projectId);
       }
     });
@@ -177,7 +180,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderServices = (project, services, isFetching, readOnly) => {
+  renderServices = (project, services, indicators, isFetching, readOnly) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -197,7 +200,7 @@ export class ProjectComponent extends React.Component {
           </Table.Header>
           <Table.Body>
             {servicesList.map((service) => {
-              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} onChange={this.handleMatrix} />;
+              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix} />;
             })}
           </Table.Body>
         </Table>
@@ -243,7 +246,7 @@ export class ProjectComponent extends React.Component {
 
   render = () => {
     const {
-      isFetching, serviceCenters, businessUnits,
+      isFetching, serviceCenters, businessUnits, indicators,
       isEntitiesFetching, services, isServicesFetching,
       users, projectId, canEditDetails
     } = this.props;
@@ -301,6 +304,9 @@ export class ProjectComponent extends React.Component {
                     />
                     {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
+                    <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
+                      type='text' name='docktorGroupURL' autoComplete='on' placeholder='Add Docktor Group URL' error={errors.fields['docktorGroupURL']}
+                    />
                   </Grid.Column>
 
                   <Grid.Column>
@@ -328,9 +334,11 @@ export class ProjectComponent extends React.Component {
               <Message error list={errors.details} />
             </Form>
           </Box>
-          <Box icon='help circle' title='Maturity Legend' ref='legend'>
+          <Box icon='help circle' title='Color Legend' ref='legend'>
+            <Divider horizontal> Maturity Legend </Divider>
             <Grid columns={2} relaxed>
               <Grid.Column>
+                {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
                 {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
                   return (
                     <List.Item key={opt.value}>
@@ -351,9 +359,32 @@ export class ProjectComponent extends React.Component {
                 })}
               </Grid.Column>
             </Grid>
+            <Divider horizontal> Indicator Legend </Divider>
+            <Grid columns={2} relaxed>
+              <Grid.Column>
+                {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                    <List.Item key={stat.value}>
+                      <Label className='status-label' circular empty color={stat.color}/>
+                      <span>{stat.title}</span>
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+              <Grid.Column>
+                {status.slice(Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                      <List.Item key={stat.value}>
+                        <Label className='status-label' circular empty color={stat.color}/>
+                        <span>{stat.title}</span>
+                      </List.Item>
+                  );
+                })}
+              </Grid.Column>
+            </Grid>
           </Box>
           <Divider hidden />
-          {this.renderServices(project, services, fetching, !canEditMatrix)}
+          {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
           {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>
       </Container>
@@ -367,6 +398,7 @@ ProjectComponent.propTypes = {
   isFetching: React.PropTypes.bool,
   businessUnits: React.PropTypes.array,
   serviceCenters: React.PropTypes.array,
+  indicators: React.PropTypes.object,
   isEntitiesFetching: React.PropTypes.bool,
   users: React.PropTypes.array,
   services: React.PropTypes.object,
@@ -375,12 +407,13 @@ ProjectComponent.propTypes = {
   projectId: React.PropTypes.string,
   fetchProject: React.PropTypes.func.isRequired,
   fetchEntities: React.PropTypes.func.isRequired,
+  fetchIndicators: React.PropTypes.func.isRequired,
   fetchServices: React.PropTypes.func.isRequired,
   fetchUsers: React.PropTypes.func.isRequired,
   fetchTechnologies: React.PropTypes.func.isRequired,
   onSave: React.PropTypes.func.isRequired,
   onDelete: React.PropTypes.func.isRequired,
-  canEditDetails: React.PropTypes.bool,
+  canEditDetails: React.PropTypes.bool
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -388,6 +421,7 @@ const mapStateToProps = (state, ownProps) => {
   const paramId = ownProps.params.id;
   const projects = state.projects;
   const project = projects.selected;
+  const indicators = state.indicators;
   const technologies = state.technologies.items;
   const emptyProject = { matrix: [] };
   const isFetching = paramId && (paramId !== project.id || project.isFetching);
@@ -409,14 +443,12 @@ const mapStateToProps = (state, ownProps) => {
         .concat(selectedProject.serviceCenter || [])
         .includes(entity.id));
   }
-
   const commonEntities = userEntities.find((id) => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
 
   // Details of the project can be edited if the user is an admin
   // or if the user is a RI and it's a project linked to that user
   // or if the user is a RI and it's a new project
   const canEditDetails = authUser.role === AUTH_ADMIN_ROLE || (authUser.role === AUTH_RI_ROLE && (commonEntities.length > 0 || !project.id));
-
   const services = groupByPackage(state.services.items);
   return {
     auth,
@@ -429,6 +461,7 @@ const mapStateToProps = (state, ownProps) => {
     technologies: flattenTechnologies(technologies),
     isEntitiesFetching: state.entities.isFetching,
     services,
+    indicators,
     isServicesFetching,
     canEditDetails
   };
@@ -437,6 +470,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch) => ({
   fetchProject: (id) => dispatch(ProjectsThunks.fetch(id)),
   fetchEntities: () => dispatch(EntitiesThunks.fetchIfNeeded()),
+  fetchIndicators: (id) => dispatch(fetchIndicators(id)),
   fetchServices: () => dispatch(ServicesThunks.fetchIfNeeded()),
   fetchUsers: () => dispatch(UsersThunks.fetchIfNeeded()),
   fetchTechnologies: () => dispatch(TechnologiesThunks.fetchIfNeeded()),

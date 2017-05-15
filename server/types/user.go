@@ -101,7 +101,7 @@ func (s *UserRepo) FindByID(id string) (User, error) {
 // FindByIDBson get the user by its id (as a bson object)
 func (s *UserRepo) FindByIDBson(id *bson.ObjectId) (User, error) {
 	if !s.isInitialized() {
-		return User{}, ErrDatabaseNotInitialiazed
+		return User{}, ErrDatabaseNotInitialized
 	}
 	result := User{}
 	err := s.col().FindId(id).One(&result)
@@ -111,7 +111,7 @@ func (s *UserRepo) FindByIDBson(id *bson.ObjectId) (User, error) {
 // FindByUsername finds the user with given username
 func (s *UserRepo) FindByUsername(username string) (User, error) {
 	if !s.isInitialized() {
-		return User{}, ErrDatabaseNotInitialiazed
+		return User{}, ErrDatabaseNotInitialized
 	}
 	user := User{}
 	err := s.col().Find(bson.M{
@@ -127,7 +127,7 @@ func (s *UserRepo) FindByUsername(username string) (User, error) {
 // FindAll get all users from Dad
 func (s *UserRepo) FindAll() ([]User, error) {
 	if !s.isInitialized() {
-		return []User{}, ErrDatabaseNotInitialiazed
+		return []User{}, ErrDatabaseNotInitialized
 	}
 	users := []User{}
 	err := s.col().Find(bson.M{}).All(&users)
@@ -140,7 +140,7 @@ func (s *UserRepo) FindAll() ([]User, error) {
 // Save updates or create the user in database
 func (s *UserRepo) Save(user User) (User, error) {
 	if !s.isInitialized() {
-		return User{}, ErrDatabaseNotInitialiazed
+		return User{}, ErrDatabaseNotInitialized
 	}
 
 	if user.ID.Hex() == "" {
@@ -156,7 +156,7 @@ func (s *UserRepo) Save(user User) (User, error) {
 // This is used for cascade deletions
 func (s *UserRepo) RemoveEntity(id bson.ObjectId) error {
 	if !s.isInitialized() {
-		return ErrDatabaseNotInitialiazed
+		return ErrDatabaseNotInitialized
 	}
 
 	_, err := s.col().UpdateAll(

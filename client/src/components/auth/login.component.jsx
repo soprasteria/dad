@@ -17,7 +17,8 @@ class LoginComponent extends React.Component {
   state = { errors: { details: [], fields: {} }, auth: {} }
 
   schema = Joi.object().keys({
-    username: Joi.string().trim().alphanum().required().label('Username'),
+    // Username contains only alphanumeric characters with dots and underscore inside.
+    username: Joi.string().trim().required().regex(/^[a-zA-Z0-9._]+$/).label('Username'),
     password: Joi.string().trim().min(6).required().label('Password')
   })
 

@@ -1,6 +1,8 @@
 import indicatorsActions from '../indicators.actions';
 import indicatorsReducer from '../indicators.reducer';
 
+import deepFreeze from 'deep-freeze';
+
 describe('Indicator Reducer', () => {
   const initialState = {
     isFetching: false,
@@ -9,7 +11,9 @@ describe('Indicator Reducer', () => {
     selected: {},
     lastUpdated: undefined
   };
-  describe('with the INVALID_INDICATORS action type', () => {
+  deepFreeze(initialState);
+
+  describe('With the INVALID_INDICATORS action type', () => {
     const items = [];
     const error = {};
     const newState = indicatorsReducer(initialState, indicatorsActions.invalidRequestEntity(items)(error));
@@ -17,19 +21,19 @@ describe('Indicator Reducer', () => {
       expect(newState).not.toBe(initialState);
     });
   });
-  describe('with the REQUEST_INDICATORS action type', () => {
+  describe('With the REQUEST_INDICATORS action type', () => {
     const newState = indicatorsReducer(initialState, indicatorsActions.requestSome());
     it('Result state should not be the same object as initial state', () => {
       expect(newState).not.toBe(initialState);
     });
-    it('should set isFetching to true', () => {
+    it('Should set isFetching to true', () => {
       expect(newState.isFetching).toBe(true);
     });
-    it('should set didInvalidate to false', () => {
+    it('Should set didInvalidate to false', () => {
       expect(newState.didInvalidate).toBe(false);
     });
   });
-  describe('with the RECEIVE_INDICATORS action type', () => {
+  describe('With the RECEIVE_INDICATORS action type', () => {
     const items = [{
       id: 'item1',
       docktorGroup: 'ProjectA',
@@ -50,17 +54,18 @@ describe('Indicator Reducer', () => {
       selected: {},
       lastUpdated: undefined
     };
+    deepFreeze(expectedState);
     const newState = indicatorsReducer(initialState, indicatorsActions.receiveSome(items));
     it('Result state should not be the same object as initial state', () => {
       expect(newState).not.toBe(initialState);
     });
-    it('should set isFetching to false', () => {
+    it('Should set isFetching to false', () => {
       expect(newState.isFetching).toBe(false);
     });
-    it('should set didInvalidate to false', () => {
+    it('Should set didInvalidate to false', () => {
       expect(newState.didInvalidate).toBe(false);
     });
-    it('ResultState should have items equal to ExpectedState items', () => {
+    it('Result state should have items equal to Expected state items', () => {
       expect(newState.items).toEqual(expectedState.items);
     });
   });

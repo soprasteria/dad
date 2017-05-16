@@ -192,7 +192,7 @@ func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
 		}
 
 		projects = removeDuplicates(append(projects, projectsByPM...))
-	case CPRole:
+	case PMRole:
 		projects, err = r.FindByProjectManager(user.ID)
 	default:
 		return nil, fmt.Errorf("Invalid role %s for user %s", user.Role, user.Username)
@@ -214,7 +214,7 @@ func (r *ProjectRepo) FindModifiableForUser(user User) (Projects, error) {
 		if err != nil {
 			return nil, err
 		}
-	case CPRole:
+	case PMRole:
 		projects, err = r.FindByProjectManager(user.ID)
 		if err != nil {
 			return nil, err

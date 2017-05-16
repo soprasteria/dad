@@ -17,18 +17,18 @@ const (
 	AdminRole Role = "admin"
 	// RIRole is a role who can see projects by entities
 	RIRole Role = "ri"
-	// CPRole is a role who can see projects
-	CPRole Role = "cp"
+	// PMRole is a role who can see projects
+	PMRole Role = "pm"
 )
 
 // DefaultRole return the default role of user when he registers
 func DefaultRole() Role {
-	return CPRole
+	return PMRole
 }
 
 // IsValid checks if a role is valid
 func (r Role) IsValid() bool {
-	return r == AdminRole || r == RIRole || r == CPRole
+	return r == AdminRole || r == RIRole || r == PMRole
 }
 
 // User model
@@ -60,9 +60,9 @@ func (u User) IsRI() bool {
 	return u.Role == RIRole
 }
 
-// IsCP checks that the user is a CP
-func (u User) IsCP() bool {
-	return u.Role == CPRole
+// IsPM checks that the user is a PM
+func (u User) IsPM() bool {
+	return u.Role == PMRole
 }
 
 // HasValidRole checks the user has a known role

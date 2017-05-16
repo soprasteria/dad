@@ -1,7 +1,7 @@
 export const AUTH_ADMIN_ROLE = 'admin';
 export const AUTH_RI_ROLE = 'ri';
-export const AUTH_CP_ROLE = 'cp';
-export const ALL_ROLES = [AUTH_ADMIN_ROLE, AUTH_RI_ROLE, AUTH_CP_ROLE];
+export const AUTH_PM_ROLE = 'pm';
+export const ALL_ROLES = [AUTH_ADMIN_ROLE, AUTH_RI_ROLE, AUTH_PM_ROLE];
 
 export const getRoleLabel = (role) => {
   switch (role) {
@@ -9,8 +9,8 @@ export const getRoleLabel = (role) => {
     return 'Admin';
   case AUTH_RI_ROLE:
     return 'RI';
-  case AUTH_CP_ROLE:
-    return 'CP';
+  case AUTH_PM_ROLE:
+    return 'PM';
   default:
     return 'Unknown';
   }
@@ -33,7 +33,7 @@ export const getRoleIcon = (role) => {
     return 'unlock';
   case AUTH_RI_ROLE:
     return 'unlock alternate';
-  case AUTH_CP_ROLE:
+  case AUTH_PM_ROLE:
     return 'lock';
   default:
     return 'warning sign';

@@ -270,7 +270,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 
 	var id = c.Param("id")
 	// A Project Manager can't update details, if any of the details has changed it's an issue and we shouldn't update the project
-	if authUser.Role == types.CPRole && modifiedDetails {
+	if authUser.Role == types.PMRole && modifiedDetails {
 		log.WithFields(log.Fields{
 			"username":                        authUser.Username,
 			"role":                            authUser.Role,

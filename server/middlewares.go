@@ -131,7 +131,7 @@ func hasRole(role types.Role) func(next echo.HandlerFunc) echo.HandlerFunc {
 				if user.Role == types.AdminRole || user.Role == types.RIRole {
 					return next(c)
 				}
-			case types.PMRole:
+			case types.PMRole, types.DeputyRole:
 				return next(c)
 			}
 

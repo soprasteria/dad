@@ -269,8 +269,9 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
 
 	var id = c.Param("id")
-	// A Project Manager can't update details, if any of the details has changed it's an issue and we shouldn't update the project
-	if authUser.Role == types.PMRole && modifiedDetails {
+	// A Project Manager or Deputy can't update details, if any of the details has changed it's an issue and we shouldn't update the project
+	if authUser.Role == types.PMRole || authUser.Role == types.DeputyRole && modifiedDetails {
+
 		log.WithFields(log.Fields{
 			"username":                        authUser.Username,
 			"role":                            authUser.Role,

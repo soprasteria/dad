@@ -24,11 +24,13 @@ import (
 type Projects struct {
 }
 
+// SaveProjectData is the Struct used in order to manage project to Save easily
 type SaveProjectData struct {
 	existingProject types.Project
 	projectToSave   types.Project
 }
 
+// NewSaveProjectData is SaveProjectData Constructor
 func NewSaveProjectData(existingProject types.Project, projectToSave types.Project) SaveProjectData {
 	return SaveProjectData{existingProject: existingProject, projectToSave: projectToSave}
 }
@@ -192,6 +194,9 @@ func (p *Projects) Save(c echo.Context) error {
 	}
 
 	saveProjectData, err := p.createProjectToSave(database, c, authUser, projectFromDB)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while creating the new project to save: %v", err)))
+	}
 
 	projectSaved, err := database.Projects.Save(saveProjectData.projectToSave)
 	if err != nil {

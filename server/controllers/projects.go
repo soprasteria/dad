@@ -251,11 +251,14 @@ func (p *Projects) Save(c echo.Context) error {
 		projectToSave.Created = projectToSave.Updated
 	}
 
+	if existingProject.DocktorGroupURL != projectToSave.DocktorGroupURL {
+		projectToSave.DocktorGroupName = ""
+	}
+
 	projectSaved, err := database.Projects.Save(projectToSave)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to save project to database: %v", err)))
 	}
-
 	if projectSaved.DocktorGroupURL != "" && existingProject.DocktorGroupURL != projectSaved.DocktorGroupURL {
 		// Updates Docktor group name from url in background, when url changed
 		// because we don't want to block the project update with calls to external APIs.

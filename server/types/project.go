@@ -215,7 +215,7 @@ func (r *ProjectRepo) FindModifiableForUser(user User) (Projects, error) {
 		if err != nil {
 			return nil, err
 		}
-	case PMRole:
+	case PMRole, DeputyRole:
 		projects, err = r.FindByProjectManagerOrDeputy(user.ID)
 		if err != nil {
 			return nil, err

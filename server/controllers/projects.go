@@ -24,6 +24,15 @@ import (
 type Projects struct {
 }
 
+type SaveProjectData struct {
+	existingProject types.Project
+	projectToSave   types.Project
+}
+
+func NewSaveProjectData(existingProject types.Project, projectToSave types.Project) SaveProjectData {
+	return SaveProjectData{existingProject: existingProject, projectToSave: projectToSave}
+}
+
 // GetAll functional services from database
 func (p *Projects) GetAll(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
@@ -182,84 +191,13 @@ func (p *Projects) Save(c echo.Context) error {
 		}
 	}
 
-	// Get project from body
-	var projectToSave types.Project
+	saveProjectData, err := p.createProjectToSave(database, c, authUser, projectFromDB)
 
-	err := c.Bind(&projectToSave)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
-	}
-
-	log.WithField("project", projectToSave).Info("Received project to save")
-
-	if projectToSave.Name == "" {
-		return c.JSON(http.StatusBadRequest, types.NewErr("The name field cannot be empty"))
-	}
-
-	// Not possible to create or update a project with a name already used by another one project
-	existingProject, err := database.Projects.FindByName(projectToSave.Name)
-	if err != nil {
-		if err != mgo.ErrNotFound {
-			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Can't check whether the project exist in database: %v", err)))
-		}
-	} else if existingProject.ID != projectToSave.ID {
-		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Another project already exists with the same name %q", existingProject.Name)))
-	}
-
-	modifiedDetails := projectToSave.Name != existingProject.Name ||
-		projectToSave.Domain != existingProject.Domain ||
-		projectToSave.ProjectManager != existingProject.ProjectManager ||
-		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
-		projectToSave.BusinessUnit != existingProject.BusinessUnit ||
-		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
-	// A Project Manager can't update details, if any of the details has changed it's an issue and we shouldn't update the project
-	if authUser.Role == types.CPRole && modifiedDetails {
-		log.WithFields(log.Fields{
-			"username":                        authUser.Username,
-			"role":                            authUser.Role,
-			"projectID":                       id,
-			"projectToSave.Name":              projectToSave.Name,
-			"existingProject.Name":            existingProject.Name,
-			"projectToSave.Domain":            projectToSave.Domain,
-			"existingProject.Domain":          existingProject.Domain,
-			"projectToSave.ProjectManager":    projectToSave.ProjectManager,
-			"existingProject.ProjectManager":  existingProject.ProjectManager,
-			"projectToSave.ServiceCenter":     projectToSave.ServiceCenter,
-			"existingProject.ServiceCenter":   existingProject.ServiceCenter,
-			"projectToSave.BusinessUnit":      projectToSave.BusinessUnit,
-			"existingProject.BusinessUnit":    existingProject.BusinessUnit,
-			"projectToSave.DocktorGroupURL":   projectToSave.DocktorGroupURL,
-			"existingProject.DocktorGroupURL": existingProject.DocktorGroupURL,
-		}).Warn("User isn't allowed to update the project")
-		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("A project manager isn't allowed to update project details")))
-	}
-
-	// Check rights to add entities to the project
-	httpStatusCode, errorMessage := validateEntities(database.Entities, projectToSave, projectFromDB, authUser)
-	if errorMessage != "" {
-		return c.JSON(httpStatusCode, types.NewErr(errorMessage))
-	}
-
-	// Fill ID, Created and Updated fields
-	projectToSave.Updated = time.Now()
-	if id != "" {
-		// Project will be updated
-		projectToSave.ID = bson.ObjectIdHex(id)
-	} else {
-		// Project will be created
-		projectToSave.ID = ""
-		projectToSave.Created = projectToSave.Updated
-	}
-
-	if existingProject.DocktorGroupURL != projectToSave.DocktorGroupURL {
-		projectToSave.DocktorGroupName = ""
-	}
-
-	projectSaved, err := database.Projects.Save(projectToSave)
+	projectSaved, err := database.Projects.Save(saveProjectData.projectToSave)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Failed to save project to database: %v", err)))
 	}
-	if projectSaved.DocktorGroupURL != "" && existingProject.DocktorGroupURL != projectSaved.DocktorGroupURL {
+	if projectSaved.DocktorGroupURL != "" && saveProjectData.existingProject.DocktorGroupURL != projectSaved.DocktorGroupURL {
 		// Updates Docktor group name from url in background, when url changed
 		// because we don't want to block the project update with calls to external APIs.
 		go func() {
@@ -292,6 +230,83 @@ func (p *Projects) Save(c echo.Context) error {
 	}).Debug("Project is saved")
 
 	return c.JSON(http.StatusOK, projectSaved)
+}
+
+func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context, authUser types.User, projectFromDB types.Project) (SaveProjectData, error) {
+	var projectToSave types.Project
+	// Get project from body
+	err := c.Bind(&projectToSave)
+	if err != nil {
+		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
+	}
+
+	log.WithField("project", projectToSave).Info("Received project to save")
+
+	if projectToSave.Name == "" {
+		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr("The name field cannot be empty"))
+	}
+
+	// Not possible to create or update a project with a name already used by another one project
+	existingProject, err := database.Projects.FindByName(projectToSave.Name)
+	if err != nil {
+		if err != mgo.ErrNotFound {
+			return SaveProjectData{}, c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Can't check whether the project exist in database: %v", err)))
+		}
+	} else if existingProject.ID != projectToSave.ID {
+		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Another project already exists with the same name %q", existingProject.Name)))
+	}
+
+	modifiedDetails := projectToSave.Name != existingProject.Name ||
+		projectToSave.Domain != existingProject.Domain ||
+		projectToSave.ProjectManager != existingProject.ProjectManager ||
+		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
+		projectToSave.BusinessUnit != existingProject.BusinessUnit ||
+		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
+
+	var id = c.Param("id")
+	// A Project Manager can't update details, if any of the details has changed it's an issue and we shouldn't update the project
+	if authUser.Role == types.CPRole && modifiedDetails {
+		log.WithFields(log.Fields{
+			"username":                        authUser.Username,
+			"role":                            authUser.Role,
+			"projectID":                       id,
+			"projectToSave.Name":              projectToSave.Name,
+			"existingProject.Name":            existingProject.Name,
+			"projectToSave.Domain":            projectToSave.Domain,
+			"existingProject.Domain":          existingProject.Domain,
+			"projectToSave.ProjectManager":    projectToSave.ProjectManager,
+			"existingProject.ProjectManager":  existingProject.ProjectManager,
+			"projectToSave.ServiceCenter":     projectToSave.ServiceCenter,
+			"existingProject.ServiceCenter":   existingProject.ServiceCenter,
+			"projectToSave.BusinessUnit":      projectToSave.BusinessUnit,
+			"existingProject.BusinessUnit":    existingProject.BusinessUnit,
+			"projectToSave.DocktorGroupURL":   projectToSave.DocktorGroupURL,
+			"existingProject.DocktorGroupURL": existingProject.DocktorGroupURL,
+		}).Warn("User isn't allowed to update the project")
+		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("A project manager isn't allowed to update project details")))
+	}
+
+	// Check rights to add entities to the project
+	httpStatusCode, errorMessage := validateEntities(database.Entities, projectToSave, projectFromDB, authUser)
+	if errorMessage != "" {
+		return SaveProjectData{}, c.JSON(httpStatusCode, types.NewErr(errorMessage))
+	}
+
+	// Fill ID, Created and Updated fields
+	projectToSave.Updated = time.Now()
+	if id != "" {
+		// Project will be updated
+		projectToSave.ID = bson.ObjectIdHex(id)
+	} else {
+		// Project will be created
+		projectToSave.ID = ""
+		projectToSave.Created = projectToSave.Updated
+	}
+
+	if existingProject.DocktorGroupURL != projectToSave.DocktorGroupURL {
+		projectToSave.DocktorGroupName = ""
+	}
+	return NewSaveProjectData(existingProject, projectToSave), nil
 }
 
 // updateDocktorGroupName updates the Docktor Group Name in saved project

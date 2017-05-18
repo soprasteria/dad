@@ -308,6 +308,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 		projectToSave.Created = projectToSave.Updated
 	}
 
+	// We empty the docktor group name because the URL has changed. The group name will be automatically recalculated using the new URL
 	if existingProject.DocktorGroupURL != projectToSave.DocktorGroupURL {
 		projectToSave.DocktorGroupName = ""
 	}

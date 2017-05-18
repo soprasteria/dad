@@ -56,6 +56,12 @@ firstname = ""
 lastname = ""
 realname = ""
 email = ""
+
+[docktor]
+addr = "http://<DocktorUrl>/#!/"
+user = "<DocktorUsername>"
+password = "<DocktorPassword>"
+
 ```
 
 You can see all the available settings with:

@@ -33,7 +33,7 @@ class ProjectCard extends React.Component {
             </Label.Detail>
           </Label>
           <Card.Meta className={domainClassnames} title={project.domain}>
-            {project.domain || 'No Domain'}
+            {project.domain || 'No Consolidation criteria'}
           </Card.Meta>
         </Card.Content>
         <Card.Content extra >

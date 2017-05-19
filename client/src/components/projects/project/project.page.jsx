@@ -25,7 +25,7 @@ import ToastsActions from '../../../modules/toasts/toasts.actions';
 import { getEntitiesAsOptions, getByType } from '../../../modules/entities/entities.selectors';
 import { groupByPackage } from '../../../modules/services/services.selectors';
 import { flattenTechnologies } from '../../../modules/technologies/technologies.selectors';
-import { getUsersAsOptions } from '../../../modules/users/users.selectors';
+import { findWithAttr, getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
 
@@ -287,6 +287,12 @@ export class ProjectComponent extends React.Component {
         .from(new Set(this.props.technologies.concat(project.technologies || [])))
         .map((technology) => ({ text: technology, value: technology }));
 
+    const usersWithoutNone = users;
+    const indexNone = findWithAttr(usersWithoutNone, 'value', '');
+    if (indexNone > -1) {
+      usersWithoutNone.splice(indexNone, 1);
+    }
+
     return (
       <Container className='project-page'>
 
@@ -319,6 +325,7 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Project Data</h3>
                     {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
                       />

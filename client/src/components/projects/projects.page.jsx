@@ -5,7 +5,7 @@ import DocumentTitle from 'react-document-title';
 import { Link } from 'react-router';
 import { Button, Card, Container, Icon, Input, Label, Popup, Segment } from 'semantic-ui-react';
 import DebounceInput from 'react-debounce-input';
-import { AUTH_PM_ROLE } from '../../modules/auth/auth.constants';
+import { AUTH_DEPUTY_ROLE, AUTH_PM_ROLE } from '../../modules/auth/auth.constants';
 
 // API Fetching
 import ProjectsThunks from '../../modules/projects/projects.thunks';
@@ -77,7 +77,7 @@ class Projects extends React.Component {
                 </Popup>
                 <Icon link name='remove' onClick={() => changeFilter('')} />
               </Input>
-              {auth.user.role !== AUTH_PM_ROLE && <Button as={Link} content='New Project' icon='plus' labelPosition='left' color='green' floated='right' to={'/projects/new'} />}
+              {auth.user.role !== AUTH_PM_ROLE && auth.user.role !== AUTH_DEPUTY_ROLE && <Button as={Link} content='New Project' icon='plus' labelPosition='left' color='green' floated='right' to={'/projects/new'} />}
             </Segment>
             <Segment loading={isFetching}>
               {this.renderCards(projects, entities)}

@@ -29,7 +29,7 @@ import { getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
 
-import { AUTH_PM_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
+import { AUTH_DEPUTY_ROLE, AUTH_PM_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
 
 // Style
 import './project.page.scss';
@@ -278,7 +278,9 @@ export class ProjectComponent extends React.Component {
     const { project, errors } = this.state;
     const fetching = isFetching || isServicesFetching;
     const authUser = this.props.auth.user;
-    const canEditMatrix = canEditDetails || (authUser.role === AUTH_PM_ROLE && project.projectManager === authUser.id);
+    const canEditMatrix = canEditDetails ||
+                          (authUser.role === AUTH_PM_ROLE && project.projectManager === authUser.id) ||
+                          (authUser.role === AUTH_DEPUTY_ROLE && project.deputies.includes(authUser.id));
 
     // The list of technologies options must contain the default technologies *and* the custom technologies
     // added by the user. If we don't do the concatenation, the component won't be able to display the
@@ -463,7 +465,7 @@ const mapStateToProps = (state, ownProps) => {
   let entities = Object.values(state.entities.items);
   const userEntities = authUser.entities || [];
 
-  // The only entities we show for a RI and a PM are:
+  // The only entities we show for a RI, a PM and a Deputy are:
   // * the entities assigned to the RI
   // * the businessUnit and serviceCenter assigned to the current project
   if (authUser.role !== AUTH_ADMIN_ROLE) {

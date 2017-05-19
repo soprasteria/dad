@@ -216,13 +216,13 @@ export class ProjectComponent extends React.Component {
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
           type='text' autoComplete='off' placeholder={`No ${label}`}
-        />
+          />
       );
     }
     return (
       <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
-      />
+        />
     );
   }
 
@@ -244,27 +244,24 @@ export class ProjectComponent extends React.Component {
         label='Consolidation criteria' placeholder='Rennes, Offshore, ...' fluid multiple selection allowAdditions
         onChange={this.handleChange}
         name='domain' search value={selectedCriterias} options={options} error={errors && errors.fields['domain']}
-      />
+        />
     );
   }
 
-  renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
-    selectedTechnologies = selectedTechnologies || [];
+  renderMultipleSearchSelectionDropdown = (name, label, selectedValues = [], values, placeholder, readOnly) => {
+    selectedValues = selectedValues || [];
     if (readOnly) {
       return (
-        <div className='field'>
-          <label>Technologies</label>
-          <div>
-            {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
-          </div>
+        <div>
+          {selectedValues.map((value) => <Label size='large'>{value}</Label>)}
         </div>
       );
     }
     return (
       <Form.Dropdown
-        label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
-        name='technologies' allowAdditions={true} search value={selectedTechnologies} options={technologies}
-      />
+        label={label} placeholder={placeholder} fluid multiple selection onChange={this.handleChange}
+        name={name} allowAdditions={true} search value={selectedValues} options={values}
+        />
     );
   }
 
@@ -279,8 +276,8 @@ export class ProjectComponent extends React.Component {
     const fetching = isFetching || isServicesFetching;
     const authUser = this.props.auth.user;
     const canEditMatrix = canEditDetails ||
-                          (authUser.role === AUTH_PM_ROLE && project.projectManager === authUser.id) ||
-                          (authUser.role === AUTH_DEPUTY_ROLE && project.deputies.includes(authUser.id));
+      (authUser.role === AUTH_PM_ROLE && project.projectManager === authUser.id) ||
+      (authUser.role === AUTH_DEPUTY_ROLE && project.deputies.includes(authUser.id));
 
     // The list of technologies options must contain the default technologies *and* the custom technologies
     // added by the user. If we don't do the concatenation, the component won't be able to display the
@@ -302,7 +299,7 @@ export class ProjectComponent extends React.Component {
               </Link>
               <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
                 type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
-              />
+                />
               {(!isFetching && canEditDetails && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
@@ -311,7 +308,7 @@ export class ProjectComponent extends React.Component {
               <Form.TextArea
                 readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
                 type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}
-              />
+                />
             </Form.Group>
           </Form>
 
@@ -324,7 +321,7 @@ export class ProjectComponent extends React.Component {
                     {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
-                    />
+                      />
                     {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
                     <Popup trigger={
                       this.renderConsolidationCriteriaField(project.domain, !canEditDetails, errors)
@@ -338,13 +335,13 @@ export class ProjectComponent extends React.Component {
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
                       type='text' name='docktorGroupURL' autoComplete='on' placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']}
-                    />
+                      />
                   </Grid.Column>
 
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderTechnologiesField(project.technologies || [], technologiesOptions, !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', !canEditDetails)}
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 

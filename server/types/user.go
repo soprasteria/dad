@@ -19,7 +19,7 @@ const (
 	RIRole Role = "ri"
 	// PMRole is a role who can see projects
 	PMRole Role = "pm"
-	// DeputyRole is a substitue role of the PMRole with the same rights
+	// DeputyRole is a substitute role of the PMRole with the same rights
 	DeputyRole Role = "deputy"
 )
 

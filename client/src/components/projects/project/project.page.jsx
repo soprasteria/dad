@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
-import { Button, Container, Divider, Form, Grid, Icon, Label, List, Popup, Message, Table, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Header, Popup } from 'semantic-ui-react';
 
 import Joi from 'joi-browser';
 
@@ -248,20 +248,44 @@ export class ProjectComponent extends React.Component {
     );
   }
 
-  renderMultipleSearchSelectionDropdown = (name, label, selectedValues = [], values, placeholder, readOnly) => {
-    selectedValues = selectedValues || [];
+  swapTextAndValue = (array) => {
+    let arrayWithText = new Array();
+    for (let key in array) {
+      // skip loop if the property is from prototype
+      if (!array.hasOwnProperty(key)) {
+        continue;
+      }
+      let obj = array[key];
+      for (let prop in obj) {
+        // skip loop if the property is from prototype
+        if (!obj.hasOwnProperty(prop)) {
+          continue;
+        }
+        if (prop === 'text') {
+          arrayWithText.push(obj[prop]);
+        }
+      }
+    }
+    return arrayWithText;
+  }
+
+  renderMultipleSearchSelectionDropdown = (name, label, selectedValuesLabel = [], selectedValuesDropDown = [], values, placeholder, readOnly) => {
+    selectedValuesLabel = selectedValuesLabel || [];
+    selectedValuesDropDown = selectedValuesDropDown || [];
     if (readOnly) {
       return (
         <div>
-          {selectedValues.map((value) => <Label size='large'>{value}</Label>)}
+          <Header size='tiny'>{label}</Header>
+          {selectedValuesLabel.map((value, index) => <Label id='label-list' key={index} size='large'>{value}</Label>)}
+          <br /><br />
         </div>
       );
     }
     return (
       <Form.Dropdown
         label={label} placeholder={placeholder} fluid multiple selection onChange={this.handleChange}
-        name={name} allowAdditions={true} search value={selectedValues} options={values}
-        />
+        name={name} allowAdditions={true} search value={selectedValuesDropDown} options={values}
+      />
     );
   }
 
@@ -271,7 +295,6 @@ export class ProjectComponent extends React.Component {
       isEntitiesFetching, services, isServicesFetching,
       users, projectId, canEditDetails
     } = this.props;
-
     const { project, errors } = this.state;
     const fetching = isFetching || isServicesFetching;
     const authUser = this.props.auth.user;
@@ -287,12 +310,13 @@ export class ProjectComponent extends React.Component {
         .from(new Set(this.props.technologies.concat(project.technologies || [])))
         .map((technology) => ({ text: technology, value: technology }));
 
+    // Remove of the list of users the 'None' user
     const usersWithoutNone = users;
     const indexNone = findWithAttr(usersWithoutNone, 'value', '');
     if (indexNone > -1) {
       usersWithoutNone.splice(indexNone, 1);
     }
-
+    const usersWithText = this.swapTextAndValue(usersWithoutNone);
     return (
       <Container className='project-page'>
 
@@ -325,7 +349,7 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Project Data</h3>
                     {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
-                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', usersWithText || [], project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
                       />
@@ -348,7 +372,7 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], project.technologies || [], technologiesOptions, 'Java, .NET...', !canEditDetails)}
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 

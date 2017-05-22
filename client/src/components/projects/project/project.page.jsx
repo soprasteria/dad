@@ -64,7 +64,7 @@ export class ProjectComponent extends React.Component {
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
-    domain: Joi.string().trim().empty('').label('Consolidation criteria').required(),
+    domain: Joi.string().trim().empty('').label('Consolidation criteria'),
     client: Joi.string().trim().empty('').label('Client'),
     docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),

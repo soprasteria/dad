@@ -37,12 +37,3 @@ export const getUsersAsOptions = (users) => {
     return { value: user.id, text: `${user.lastName.toUpperCase()} ${user.firstName}` } ;
   }).sort(sortby('text')));
 };
-
-export const findWithAttr = (array, attr, value) => {
-  for (let i = 0; i < array.length; i += 1) {
-    if (array[i][attr] === value) {
-      return i;
-    }
-  }
-  return -1;
-};

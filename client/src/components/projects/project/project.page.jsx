@@ -217,13 +217,13 @@ export class ProjectComponent extends React.Component {
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
           type='text' autoComplete='off' placeholder={`No ${label}`}
-          />
+        />
       );
     }
     return (
       <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
-        />
+      />
     );
   }
 
@@ -240,7 +240,7 @@ export class ProjectComponent extends React.Component {
       <Form.Dropdown
         label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
         name='technologies' allowAdditions={true} search value={selectedTechnologies} options={technologies}
-        />
+      />
     );
   }
 
@@ -276,7 +276,7 @@ export class ProjectComponent extends React.Component {
               </Link>
               <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
                 type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
-                />
+              />
               {(!isFetching && canEditDetails && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
@@ -285,7 +285,7 @@ export class ProjectComponent extends React.Component {
               <Form.TextArea
                 readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
                 type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}
-                />
+              />
             </Form.Group>
           </Form>
 
@@ -298,102 +298,102 @@ export class ProjectComponent extends React.Component {
                     {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
-                      />
+                    />
                     {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
                     <Popup trigger={<Form.Input readOnly={!canEditDetails} label='Consolidation criteria' value={project.domain || ''}
                       onChange={this.handleChange} type='text' name='domain' autoComplete='on'
                       placeholder='Rennes; Offshore; ... ' error={errors.fields['domain']}
-                      />
+                    />
                     } position='top right' wide size='mini' on='click' inverted>
                       <Popup.Content>
                         Useful to add your own filters (for the Search Options and in the Export).
-                        Several values allowed (use semi-colon ; as a separator). 
+                        Several values allowed (use semi-colon ; as a separator).
                       </Popup.Content>
                     </Popup>
-                  {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
-                  {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
-                  <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
-                    type='text' name='docktorGroupURL' autoComplete='on' placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']}
+                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
+                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
+                    <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
+                      type='text' name='docktorGroupURL' autoComplete='on' placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']}
                     />
                   </Grid.Column>
 
-                <Grid.Column>
-                  <h3>Technical Data</h3>
+                  <Grid.Column>
+                    <h3>Technical Data</h3>
 
-                  {this.renderTechnologiesField(project.technologies || [], technologiesOptions, !canEditDetails)}
+                    {this.renderTechnologiesField(project.technologies || [], technologiesOptions, !canEditDetails)}
 
-                  {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
+                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 
-                  <h4>Version Control</h4>
-                  <Form.Checkbox readOnly={!canEditDetails} label='Deliverables' name='deliverables'
-                    checked={Boolean(project.deliverables)} onChange={this.handleChange} />
+                    <h4>Version Control</h4>
+                    <Form.Checkbox readOnly={!canEditDetails} label='Deliverables' name='deliverables'
+                      checked={Boolean(project.deliverables)} onChange={this.handleChange} />
 
-                  <Form.Checkbox readOnly={!canEditDetails} label='Source Code' name='sourceCode'
-                    checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={!canEditDetails} label='Source Code' name='sourceCode'
+                      checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
 
-                  <Form.Checkbox readOnly={!canEditDetails} label='Specifications' name='specifications'
-                    checked={Boolean(project.specifications)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={!canEditDetails} label='Specifications' name='specifications'
+                      checked={Boolean(project.specifications)} onChange={this.handleChange} />
 
-                  {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, !canEditDetails)}
-                </Grid.Column>
+                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, !canEditDetails)}
+                  </Grid.Column>
                 </Grid.Row>
               </Grid>
 
-            <Message error list={errors.details} />
+              <Message error list={errors.details} />
             </Form>
           </Box>
-        <Box icon='help circle' title='Color Legend' ref='legend'>
-          <Divider horizontal> Maturity Legend </Divider>
-          <Grid columns={2} relaxed>
-            <Grid.Column>
-              {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
-              {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
-                return (
-                  <List.Item key={opt.value}>
-                    <Label color={opt.label.color} horizontal>{opt.text}</Label>
-                    {opt.title}
-                  </List.Item>
-                );
-              })}
-            </Grid.Column>
-            <Grid.Column>
-              {options.slice(Math.ceil(options.length / 2)).map((opt) => {
-                return (
-                  <List.Item key={opt.value}>
-                    <Label color={opt.label.color} horizontal>{opt.text}</Label>
-                    {opt.title}
-                  </List.Item>
-                );
-              })}
-            </Grid.Column>
-          </Grid>
-          <Divider horizontal> Indicator Legend </Divider>
-          <Grid columns={2} relaxed>
-            <Grid.Column>
-              {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
-                return (
-                  <List.Item key={stat.value}>
-                    <Label className='status-label' circular empty color={stat.color} />
-                    <span>{stat.title}</span>
-                  </List.Item>
-                );
-              })}
-            </Grid.Column>
-            <Grid.Column>
-              {status.slice(Math.ceil(status.length / 2)).map((stat) => {
-                return (
-                  <List.Item key={stat.value}>
-                    <Label className='status-label' circular empty color={stat.color} />
-                    <span>{stat.title}</span>
-                  </List.Item>
-                );
-              })}
-            </Grid.Column>
-          </Grid>
-        </Box>
-        <Divider hidden />
-        {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
-        {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
+          <Box icon='help circle' title='Color Legend' ref='legend'>
+            <Divider horizontal> Maturity Legend </Divider>
+            <Grid columns={2} relaxed>
+              <Grid.Column>
+                {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
+                {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
+                  return (
+                    <List.Item key={opt.value}>
+                      <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                      {opt.title}
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+              <Grid.Column>
+                {options.slice(Math.ceil(options.length / 2)).map((opt) => {
+                  return (
+                    <List.Item key={opt.value}>
+                      <Label color={opt.label.color} horizontal>{opt.text}</Label>
+                      {opt.title}
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+            </Grid>
+            <Divider horizontal> Indicator Legend </Divider>
+            <Grid columns={2} relaxed>
+              <Grid.Column>
+                {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                    <List.Item key={stat.value}>
+                      <Label className='status-label' circular empty color={stat.color} />
+                      <span>{stat.title}</span>
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+              <Grid.Column>
+                {status.slice(Math.ceil(status.length / 2)).map((stat) => {
+                  return (
+                    <List.Item key={stat.value}>
+                      <Label className='status-label' circular empty color={stat.color} />
+                      <span>{stat.title}</span>
+                    </List.Item>
+                  );
+                })}
+              </Grid.Column>
+            </Grid>
+          </Box>
+          <Divider hidden />
+          {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
+          {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>
       </Container >
     );

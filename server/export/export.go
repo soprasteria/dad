@@ -40,7 +40,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		"Project",
 		"Business",
 		"Service Center",
-		"Domain",
+		"Consolidation Criteria",
 		"Client",
 		"Project Manager",
 		"Technologies",

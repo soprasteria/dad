@@ -62,7 +62,7 @@ type Project struct {
 	ID             bson.ObjectId                  `bson:"_id,omitempty" json:"id,omitempty"`
 	Name           string                         `bson:"name" json:"name"`
 	Description    string                         `bson:"description" json:"description"`
-	Domain         string                         `bson:"domain" json:"domain"`
+	Domain         []string                       `bson:"domain" json:"domain"`
 	Client         string                         `bson:"client" json:"client"`
 	ProjectManager string                         `bson:"projectManager" json:"projectManager"`
 	BusinessUnit   string                         `bson:"businessUnit" json:"businessUnit"`

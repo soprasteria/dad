@@ -115,14 +115,14 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 			projectManager = types.User{DisplayName: "N/A"}
 		}
 
-		if project.Domain == "" {
-			project.Domain = "N/A"
+		if len(project.Domain) == 0 {
+			project.Domain = []string{"N/A"}
 		}
 
 		createCell(projectRow, project.Name)
 		createCell(projectRow, businessUnit.Name)
 		createCell(projectRow, serviceCenter.Name)
-		createCell(projectRow, project.Domain)
+		createCell(projectRow, strings.Join(project.Domain, "; "))
 		createCell(projectRow, project.Client)
 		createCell(projectRow, projectManager.DisplayName)
 		createCell(projectRow, strings.Join(project.Technologies, ", "))

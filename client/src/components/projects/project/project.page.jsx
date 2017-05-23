@@ -64,7 +64,6 @@ export class ProjectComponent extends React.Component {
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
-    domain: Joi.string().trim().empty('').label('Consolidation criteria'),
     client: Joi.string().trim().empty('').label('Client'),
     docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),
@@ -227,12 +226,37 @@ export class ProjectComponent extends React.Component {
     );
   }
 
+  renderConsolidationCriteriaField = (domain, readOnly, errors) => {
+    const options = (domain || []).map((d) => ({ text: d, value: d }));
+    const selectedCriterias = domain || [];
+    if (readOnly) {
+      return (
+        <div className='field'>
+          <label>Consolidation criteria</label>
+          <div>
+            {selectedCriterias.map((criteria) => <Label size='large'>{criteria}</Label>)}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <Form.Dropdown
+        label='Consolidation criteria' placeholder='Rennes, Offshore, ...' fluid multiple selection allowAdditions
+        onChange={this.handleChange}
+        name='domain' search value={selectedCriterias} options={options} error={errors.fields['domain']}
+      />
+    );
+  }
+
   renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
     selectedTechnologies = selectedTechnologies || [];
     if (readOnly) {
       return (
-        <div>
-          {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
+        <div className='field'>
+          <label>Technologies</label>
+          <div>
+            {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
+          </div>
         </div>
       );
     }
@@ -300,10 +324,8 @@ export class ProjectComponent extends React.Component {
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
                     />
                     {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
-                    <Popup trigger={<Form.Input readOnly={!canEditDetails} label='Consolidation criteria' value={project.domain || ''}
-                      onChange={this.handleChange} type='text' name='domain' autoComplete='on'
-                      placeholder='Rennes; Offshore; ... ' error={errors.fields['domain']}
-                    />
+                    <Popup trigger={
+                      this.renderConsolidationCriteriaField(project.domain, !canEditDetails, errors)
                     } position='top right' wide size='mini' on='click' inverted>
                       <Popup.Content>
                         Useful to add your own filters (for the Search Options and in the Export).

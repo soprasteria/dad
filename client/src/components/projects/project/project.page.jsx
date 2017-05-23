@@ -227,8 +227,8 @@ export class ProjectComponent extends React.Component {
   }
 
   renderConsolidationCriteriaField = (domain, readOnly, errors) => {
-    const options = (domain || []).map((d) => ({ text: d, value: d }));
     const selectedCriterias = domain || [];
+    const options = selectedCriterias.map((d) => ({ text: d, value: d }));
     if (readOnly) {
       return (
         <div className='field'>
@@ -243,7 +243,7 @@ export class ProjectComponent extends React.Component {
       <Form.Dropdown
         label='Consolidation criteria' placeholder='Rennes, Offshore, ...' fluid multiple selection allowAdditions
         onChange={this.handleChange}
-        name='domain' search value={selectedCriterias} options={options} error={errors.fields['domain']}
+        name='domain' search value={selectedCriterias} options={options} error={errors && errors.fields['domain']}
       />
     );
   }

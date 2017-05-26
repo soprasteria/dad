@@ -249,8 +249,6 @@ export class ProjectComponent extends React.Component {
 
   renderMultipleSearchSelectionDropdown = (name, label, selectedValuesDropDown = [], values, placeholder, readOnly) => {
     selectedValuesDropDown = selectedValuesDropDown || [];
-    console.log(selectedValuesDropDown);
-    console.log(values);
     if (readOnly) {
       return (
         <Form.Field>

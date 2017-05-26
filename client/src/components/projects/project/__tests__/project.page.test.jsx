@@ -74,37 +74,37 @@ describe('renderTechnologiesField', () => {
   });
   it('renders div with technologies in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, ['java', '.NET', 'Pega'], ['java', '.NET', 'Pega'], ['java', '.NET'], 'Java, .NET...', true);
+    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, ['java', '.NET', 'Pega'], ['java', '.NET'], 'Java, .NET...', true);
     expect(result).not.toBeNull();
   });
   it('renders a drop down with empty technologies', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderMultipleSearchSelectionDropdown(undefined, 'Technologies', [], [], ['java', '.NET'], 'Java, .NET...', false);
+    const result = projectComponent.renderMultipleSearchSelectionDropdown(undefined, 'Technologies', [], ['java', '.NET'], 'Java, .NET...', false);
     expect(result).not.toBeNull();
   });
   it('renders div with empty technologies in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, [], [], ['java', '.NET'], 'Java, .NET...', true);
+    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, [], ['java', '.NET'], 'Java, .NET...', true);
     expect(result).not.toBeNull();
   });
   it('renders a drop down with null technologies', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderMultipleSearchSelectionDropdown(undefined, 'Technologies', null, null, ['java', '.NET'], 'Java, .NET...', false);
+    const result = projectComponent.renderMultipleSearchSelectionDropdown(undefined, 'Technologies', null, ['java', '.NET'], 'Java, .NET...', false);
     expect(result).not.toBeNull();
   });
   it('renders div with null technologies in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, null, null, ['java', '.NET'], 'Java, .NET...', true);
+    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, null, ['java', '.NET'], 'Java, .NET...', true);
     expect(result).not.toBeNull();
   });
   it('renders a drop down with undefined technologies', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderMultipleSearchSelectionDropdown(undefined, 'Technologies', undefined, undefined, ['java', '.NET'], 'Java, .NET...', false);
+    const result = projectComponent.renderMultipleSearchSelectionDropdown(undefined, 'Technologies', undefined, ['java', '.NET'], 'Java, .NET...', false);
     expect(result).not.toBeNull();
   });
   it('renders div with undefined technologies in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, undefined, undefined, ['java', '.NET'], 'Java, .NET...', true);
+    const result = projectComponent.renderMultipleSearchSelectionDropdown('Technologies', undefined, undefined, ['java', '.NET'], 'Java, .NET...', true);
     expect(result).not.toBeNull();
   });
 });

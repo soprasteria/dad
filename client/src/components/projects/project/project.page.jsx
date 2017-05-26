@@ -247,14 +247,18 @@ export class ProjectComponent extends React.Component {
     );
   }
 
-  renderMultipleSearchSelectionDropdown = (name, label, selectedValuesLabel = [], selectedValuesDropDown = [], values, placeholder, readOnly) => {
-    selectedValuesLabel = selectedValuesLabel || [];
+  renderMultipleSearchSelectionDropdown = (name, label, selectedValuesDropDown = [], values, placeholder, readOnly) => {
     selectedValuesDropDown = selectedValuesDropDown || [];
+    console.log(selectedValuesDropDown);
+    console.log(values);
     if (readOnly) {
       return (
         <Form.Field>
           <label>{label}</label>
-          {selectedValuesLabel.map((value, index) => <Label key={index} size='large'>{value}</Label>)}
+          {values
+            .filter((element) => selectedValuesDropDown.includes(element.value))
+            .map((element) => <Label key={element.value} size='large'>{element.text}</Label>)
+          }
         </Form.Field>
       );
     }
@@ -289,7 +293,6 @@ export class ProjectComponent extends React.Component {
 
     // Remove the 'None' user from the list of users because the list of deputies doesn't have a default option with empty value
     const usersWithoutNone = users.filter((user) => user && user.text !== 'None');
-    const usernames = usersWithoutNone.map((user) => user.text);
     return (
       <Container className='project-page'>
 
@@ -322,7 +325,7 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Project Data</h3>
                     {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
-                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', usernames || [], project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
                       />
@@ -345,7 +348,7 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], project.technologies || [], technologiesOptions, 'Java, .NET...', !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', !canEditDetails)}
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 

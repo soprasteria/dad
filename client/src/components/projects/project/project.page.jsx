@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
 import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Header, Popup } from 'semantic-ui-react';
-
 import Joi from 'joi-browser';
 
 import Matrix from './matrix/matrix.component';
@@ -253,11 +252,10 @@ export class ProjectComponent extends React.Component {
     selectedValuesDropDown = selectedValuesDropDown || [];
     if (readOnly) {
       return (
-        <div>
-          <Header size='tiny'>{label}</Header>
-          {selectedValuesLabel.map((value, index) => <Label id='label-list' key={index} size='large'>{value}</Label>)}
-          <br /><br />
-        </div>
+        <Form.Field>
+          <label>{label}</label>
+          {selectedValuesLabel.map((value, index) => <Label key={index} size='large'>{value}</Label>)}
+        </Form.Field>
       );
     }
     return (

@@ -17,6 +17,18 @@ type Export struct {
 	Database *mongo.DadMongo
 }
 
+func (e *Export) findDeputies(project types.Project) []string {
+	var deputies []string
+	for _, deputyID := range project.Deputies {
+		deputy, err := e.Database.Users.FindByID(deputyID)
+		if err != nil {
+			deputy = types.User{DisplayName: "Invalid User"}
+		}
+		deputies = append(deputies, deputy.DisplayName)
+	}
+	return deputies
+}
+
 func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	services, err := e.Database.FunctionalServices.FindAll()
 	if err != nil {
@@ -116,14 +128,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 			projectManager = types.User{DisplayName: "N/A"}
 		}
 
-		var deputies []string
-		for _, deputyID := range project.Deputies {
-			deputy, err := e.Database.Users.FindByID(deputyID)
-			if err != nil {
-				deputy = types.User{DisplayName: "Invalid User"}
-			}
-			deputies = append(deputies, deputy.DisplayName)
-		}
+		deputies := e.findDeputies(project)
 
 		if len(project.Domain) == 0 {
 			project.Domain = []string{"N/A"}

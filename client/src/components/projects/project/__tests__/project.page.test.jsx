@@ -117,37 +117,37 @@ describe('renderConsolidationCriteriaField', () => {
   });
   it('renders div with consolidation criterias in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderTechnologiesField(['Rennes', 'BIOS'], true, null);
+    const result = projectComponent.renderConsolidationCriteriaField(['Rennes', 'BIOS'], true, null);
     expect(result).not.toBeNull();
   });
   it('renders a drop down with empty consolidation criterias', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderTechnologiesField([], false, null);
+    const result = projectComponent.renderConsolidationCriteriaField([], false, null);
     expect(result).not.toBeNull();
   });
   it('renders div with empty consolidation criterias in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderTechnologiesField([], true, null);
+    const result = projectComponent.renderConsolidationCriteriaField([], true, null);
     expect(result).not.toBeNull();
   });
   it('renders a drop down with null consolidation criterias', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderTechnologiesField(null, false, null);
+    const result = projectComponent.renderConsolidationCriteriaField(null, false, null);
     expect(result).not.toBeNull();
   });
   it('renders div with null consolidation criterias in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderTechnologiesField(null, true, null);
+    const result = projectComponent.renderConsolidationCriteriaField(null, true, null);
     expect(result).not.toBeNull();
   });
   it('renders a drop down with undefined consolidation criterias', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderTechnologiesField(undefined, false, null);
+    const result = projectComponent.renderConsolidationCriteriaField(undefined, false, null);
     expect(result).not.toBeNull();
   });
   it('renders div with undefined consolidation criterias in readonly mode', () => {
     const projectComponent = new ProjectComponent(defaultProps);
-    const result = projectComponent.renderTechnologiesField(undefined, true, null);
+    const result = projectComponent.renderConsolidationCriteriaField(undefined, true, null);
     expect(result).not.toBeNull();
   });
 });

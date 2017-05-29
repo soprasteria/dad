@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
-import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Header, Popup } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Popup } from 'semantic-ui-react';
 import Joi from 'joi-browser';
 
 import Matrix from './matrix/matrix.component';

@@ -91,8 +91,8 @@ func (u *Users) updateUserFields(database *mongo.DadMongo, userUpdated types.Use
 	// Updates entities, but only keep existing ones
 	// When error occurs, just keep previous ones
 	if connectedUser.IsAdmin() {
-		// CPs cannot have entities
-		if userFromDB.IsCP() {
+		// PMs or Deputies cannot have entities
+		if userFromDB.IsPMOrDeputy() {
 			userFromDB.Entities = []bson.ObjectId{}
 		} else {
 			existingEntities, err := database.Entities.FindAllByIDBson(userUpdated.Entities)

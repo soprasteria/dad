@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import { push } from 'react-router-redux';
 import { Button, Container, Divider, Dropdown, Form, Header, Icon, Label, Segment } from 'semantic-ui-react';
-import { ALL_ROLES, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
+import { ALL_VISIBLE_ROLES, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
 
 // Thunks / Actions
 import UsersThunks from '../../../modules/users/users.thunks';
@@ -64,7 +64,7 @@ class UserComponent extends React.Component {
   }
 
   renderRoleDropdown = (user, isFetching, isReadOnly) => {
-    const options = ALL_ROLES.map((role) => {
+    const options = ALL_VISIBLE_ROLES.map((role) => {
       return {
         icon: <Icon name={getRoleIcon(role)} color={getRoleColor(role)} />,
         value: role,

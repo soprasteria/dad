@@ -53,7 +53,7 @@ func New(version string) {
 			ContextKey: "user-token",
 		}
 		api.Use(middleware.JWTWithConfig(config)) // Enrich echo context with JWT
-		api.Use(getAuhenticatedUser)              // Enrich echo context with authenticated user (fetched from JWT token)
+		api.Use(getAuthenticatedUser)             // Enrich echo context with authenticated user (fetched from JWT token)
 		api.GET("/profile", usersC.Profile)
 
 		usersAPI := api.Group("/users")
@@ -96,7 +96,7 @@ func New(version string) {
 
 		projectsAPI := api.Group("/projects")
 		{
-			projectsAPI.Use(getAuhenticatedUser) // The rights are handled in the controller
+			projectsAPI.Use(getAuthenticatedUser) // The rights are handled in the controller
 			projectsAPI.GET("", projectsC.GetAll)
 			projectsAPI.POST("/new", projectsC.Save, hasRole(types.RIRole))
 			projectAPI := projectsAPI.Group("/:id")
@@ -126,7 +126,7 @@ func New(version string) {
 
 		exportAPI := api.Group("/export")
 		{
-			exportAPI.Use(getAuhenticatedUser)
+			exportAPI.Use(getAuthenticatedUser)
 			exportAPI.GET("", exportC.ExportAll)
 		}
 	}

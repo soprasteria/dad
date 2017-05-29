@@ -65,6 +65,7 @@ type Project struct {
 	Domain         []string                       `bson:"domain" json:"domain"`
 	Client         string                         `bson:"client" json:"client"`
 	ProjectManager string                         `bson:"projectManager" json:"projectManager"`
+	Deputies       []string                       `bson:"deputies" json:"deputies"`
 	BusinessUnit   string                         `bson:"businessUnit" json:"businessUnit"`
 	ServiceCenter  string                         `bson:"serviceCenter" json:"serviceCenter"`
 	DocktorURL     `bson:"docktorURL" json:""`    // json is an empty string because we want to flatten the object to avoid client-side null-checks
@@ -185,15 +186,15 @@ func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
 			return nil, err
 		}
 
-		var projectsByPM []Project
-		projectsByPM, err = r.FindByProjectManager(user.ID)
+		var projectsByPMOrDeputy []Project
+		projectsByPMOrDeputy, err = r.FindByProjectManagerOrDeputy(user.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		projects = removeDuplicates(append(projects, projectsByPM...))
-	case CPRole:
-		projects, err = r.FindByProjectManager(user.ID)
+		projects = removeDuplicates(append(projects, projectsByPMOrDeputy...))
+	case PMRole, DeputyRole:
+		projects, err = r.FindByProjectManagerOrDeputy(user.ID)
 	default:
 		return nil, fmt.Errorf("Invalid role %s for user %s", user.Role, user.Username)
 	}
@@ -214,8 +215,8 @@ func (r *ProjectRepo) FindModifiableForUser(user User) (Projects, error) {
 		if err != nil {
 			return nil, err
 		}
-	case CPRole:
-		projects, err = r.FindByProjectManager(user.ID)
+	case PMRole, DeputyRole:
+		projects, err = r.FindByProjectManagerOrDeputy(user.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -250,16 +251,19 @@ func (r *ProjectRepo) FindByEntities(ids []bson.ObjectId) ([]Project, error) {
 	return projects, nil
 }
 
-// FindByProjectManager get all projects with a specific project manager
-func (r *ProjectRepo) FindByProjectManager(id bson.ObjectId) ([]Project, error) {
+// FindByProjectManagerOrDeputy get all projects with a specific project manager or deputy
+func (r *ProjectRepo) FindByProjectManagerOrDeputy(id bson.ObjectId) ([]Project, error) {
 	if !r.isInitialized() {
 		return []Project{}, ErrDatabaseNotInitialized
 	}
-	projects := []Project{}
-	err := r.col().Find(bson.M{"projectManager": id.Hex()}).All(&projects)
-	if err != nil {
-		return []Project{}, fmt.Errorf("Can't retrieve projects for project manager %s", id)
+	projectsbyPM := []Project{}
+	err1 := r.col().Find(bson.M{"projectManager": id.Hex()}).All(&projectsbyPM)
+	projectsbyDeputy := []Project{}
+	err2 := r.col().Find(bson.M{"deputies": id.Hex()}).All(&projectsbyDeputy)
+	if err1 != nil && err2 != nil {
+		return []Project{}, fmt.Errorf("Can't retrieve projects for project manager and deputy %s", id)
 	}
+	projects := removeDuplicates(append(projectsbyPM, projectsbyDeputy...))
 	return projects, nil
 }
 

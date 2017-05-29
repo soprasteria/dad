@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
-import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Grid, Icon, Label, List, Popup, Message, Table, Segment } from 'semantic-ui-react';
 
 import Joi from 'joi-browser';
 
@@ -64,7 +64,6 @@ export class ProjectComponent extends React.Component {
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
-    domain: Joi.string().trim().empty('').label('Domain'),
     client: Joi.string().trim().empty('').label('Client'),
     docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),
@@ -227,12 +226,37 @@ export class ProjectComponent extends React.Component {
     );
   }
 
+  renderConsolidationCriteriaField = (domain, readOnly, errors) => {
+    const selectedCriterias = domain || [];
+    const options = selectedCriterias.map((d) => ({ text: d, value: d }));
+    if (readOnly) {
+      return (
+        <div className='field'>
+          <label>Consolidation criteria</label>
+          <div>
+            {selectedCriterias.map((criteria) => <Label size='large'>{criteria}</Label>)}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <Form.Dropdown
+        label='Consolidation criteria' placeholder='Rennes, Offshore, ...' fluid multiple selection allowAdditions
+        onChange={this.handleChange}
+        name='domain' search value={selectedCriterias} options={options} error={errors && errors.fields['domain']}
+      />
+    );
+  }
+
   renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
     selectedTechnologies = selectedTechnologies || [];
     if (readOnly) {
       return (
-        <div>
-          {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
+        <div className='field'>
+          <label>Technologies</label>
+          <div>
+            {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
+          </div>
         </div>
       );
     }
@@ -299,9 +323,15 @@ export class ProjectComponent extends React.Component {
                     <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
                     />
-                    <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                      type='text' name='domain' autoComplete='on' placeholder='Project Domain' error={errors.fields['domain']}
-                    />
+                    {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
+                    <Popup trigger={
+                      this.renderConsolidationCriteriaField(project.domain, !canEditDetails, errors)
+                    } position='top right' wide size='mini' on='click' inverted>
+                      <Popup.Content>
+                        Useful to add your own filters (for the Search Options and in the Export).
+                        Several values allowed (use semi-colon ; as a separator).
+                      </Popup.Content>
+                    </Popup>
                     {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
@@ -365,7 +395,7 @@ export class ProjectComponent extends React.Component {
                 {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
                   return (
                     <List.Item key={stat.value}>
-                      <Label className='status-label' circular empty color={stat.color}/>
+                      <Label className='status-label' circular empty color={stat.color} />
                       <span>{stat.title}</span>
                     </List.Item>
                   );
@@ -374,10 +404,10 @@ export class ProjectComponent extends React.Component {
               <Grid.Column>
                 {status.slice(Math.ceil(status.length / 2)).map((stat) => {
                   return (
-                      <List.Item key={stat.value}>
-                        <Label className='status-label' circular empty color={stat.color}/>
-                        <span>{stat.title}</span>
-                      </List.Item>
+                    <List.Item key={stat.value}>
+                      <Label className='status-label' circular empty color={stat.color} />
+                      <span>{stat.title}</span>
+                    </List.Item>
                   );
                 })}
               </Grid.Column>
@@ -387,7 +417,7 @@ export class ProjectComponent extends React.Component {
           {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
           {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>
-      </Container>
+      </Container >
     );
   }
 }

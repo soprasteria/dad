@@ -262,7 +262,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 	}
 
 	modifiedDetails := projectToSave.Name != existingProject.Name ||
-		projectToSave.Domain != existingProject.Domain ||
+		strings.Join(projectToSave.Domain, ";") != strings.Join(existingProject.Domain, ";") ||
 		projectToSave.ProjectManager != existingProject.ProjectManager ||
 		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
 		projectToSave.BusinessUnit != existingProject.BusinessUnit ||

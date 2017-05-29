@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Button, Card, Dropdown, Icon } from 'semantic-ui-react';
 
-import { ALL_ROLES, AUTH_ADMIN_ROLE, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
+import { ALL_VISIBLE_ROLES, AUTH_ADMIN_ROLE, getRoleColor, getRoleIcon, getRoleLabel } from '../../../modules/auth/auth.constants';
 import UsersThunks from '../../../modules/users/users.thunks';
 import ToastsActions from '../../../modules/toasts/toasts.actions';
 
@@ -35,7 +35,7 @@ class UserCardComponent extends React.Component {
     const user = this.props.user;
     const connectedUser = this.props.auth.user;
     const disabled = connectedUser.role !== AUTH_ADMIN_ROLE;
-    const options = ALL_ROLES.map((role) => {
+    const options = ALL_VISIBLE_ROLES.map((role) => {
       return { icon: <Icon name={getRoleIcon(role)} color={getRoleColor(role) || null} />, value: role, text: getRoleLabel(role) };
     });
 

@@ -262,15 +262,16 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 	}
 
 	modifiedDetails := projectToSave.Name != existingProject.Name ||
-		projectToSave.Domain != existingProject.Domain ||
+		strings.Join(projectToSave.Domain, ";") != strings.Join(existingProject.Domain, ";") ||
 		projectToSave.ProjectManager != existingProject.ProjectManager ||
 		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
 		projectToSave.BusinessUnit != existingProject.BusinessUnit ||
 		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
 
 	var id = c.Param("id")
-	// A Project Manager can't update details, if any of the details has changed it's an issue and we shouldn't update the project
-	if authUser.Role == types.CPRole && modifiedDetails {
+	// A Project Manager or Deputy can't update details, if any of the details has changed it's an issue and we shouldn't update the project
+	if authUser.Role == types.PMRole || authUser.Role == types.DeputyRole && modifiedDetails {
+
 		log.WithFields(log.Fields{
 			"username":                        authUser.Username,
 			"role":                            authUser.Role,
@@ -308,6 +309,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 		projectToSave.Created = projectToSave.Updated
 	}
 
+	// We empty the docktor group name because the URL has changed. The group name will be automatically recalculated using the new URL
 	if existingProject.DocktorGroupURL != projectToSave.DocktorGroupURL {
 		projectToSave.DocktorGroupName = ""
 	}

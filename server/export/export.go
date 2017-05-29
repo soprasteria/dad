@@ -17,6 +17,18 @@ type Export struct {
 	Database *mongo.DadMongo
 }
 
+func (e *Export) findDeputies(project types.Project) []string {
+	var deputies []string
+	for _, deputyID := range project.Deputies {
+		deputy, err := e.Database.Users.FindByID(deputyID)
+		if err != nil {
+			deputy = types.User{DisplayName: "Invalid User"}
+		}
+		deputies = append(deputies, deputy.DisplayName)
+	}
+	return deputies
+}
+
 func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	services, err := e.Database.FunctionalServices.FindAll()
 	if err != nil {
@@ -40,9 +52,10 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		"Project",
 		"Business",
 		"Service Center",
-		"Domain",
+		"Consolidation Criteria",
 		"Client",
 		"Project Manager",
+		"Deputies",
 		"Technologies",
 		"Deployment Mode",
 		"Version Control System",
@@ -99,7 +112,6 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 		projectRow := sheet.AddRow()
 
 		var businessUnit, serviceCenter types.Entity
-		var projectManager types.User
 		businessUnit, err = e.Database.Entities.FindByID(project.BusinessUnit)
 		if err != nil {
 			businessUnit = types.Entity{Name: "N/A"}
@@ -110,21 +122,25 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 			serviceCenter = types.Entity{Name: "N/A"}
 		}
 
+		var projectManager types.User
 		projectManager, err = e.Database.Users.FindByID(project.ProjectManager)
 		if err != nil {
 			projectManager = types.User{DisplayName: "N/A"}
 		}
 
-		if project.Domain == "" {
-			project.Domain = "N/A"
+		deputies := e.findDeputies(project)
+
+		if len(project.Domain) == 0 {
+			project.Domain = []string{"N/A"}
 		}
 
 		createCell(projectRow, project.Name)
 		createCell(projectRow, businessUnit.Name)
 		createCell(projectRow, serviceCenter.Name)
-		createCell(projectRow, project.Domain)
+		createCell(projectRow, strings.Join(project.Domain, "; "))
 		createCell(projectRow, project.Client)
 		createCell(projectRow, projectManager.DisplayName)
+		createCell(projectRow, strings.Join(deputies, ", "))
 		createCell(projectRow, strings.Join(project.Technologies, ", "))
 		createCell(projectRow, project.Mode)
 		createCell(projectRow, project.VersionControlSystem)

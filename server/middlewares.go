@@ -85,7 +85,7 @@ func openLDAP(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func getAuhenticatedUser(next echo.HandlerFunc) echo.HandlerFunc {
+func getAuthenticatedUser(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Get api from context
 		userToken := c.Get("user-token").(*jwt.Token)
@@ -131,7 +131,7 @@ func hasRole(role types.Role) func(next echo.HandlerFunc) echo.HandlerFunc {
 				if user.Role == types.AdminRole || user.Role == types.RIRole {
 					return next(c)
 				}
-			case types.CPRole:
+			case types.PMRole, types.DeputyRole:
 				return next(c)
 			}
 

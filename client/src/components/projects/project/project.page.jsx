@@ -4,8 +4,7 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
-import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment } from 'semantic-ui-react';
-
+import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Popup } from 'semantic-ui-react';
 import Joi from 'joi-browser';
 
 import Matrix from './matrix/matrix.component';
@@ -29,7 +28,7 @@ import { getUsersAsOptions } from '../../../modules/users/users.selectors';
 
 import { parseError } from '../../../modules/utils/forms';
 
-import { AUTH_CP_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
+import { AUTH_DEPUTY_ROLE, AUTH_PM_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '../../../modules/auth/auth.constants';
 
 // Style
 import './project.page.scss';
@@ -64,7 +63,6 @@ export class ProjectComponent extends React.Component {
 
   schema = Joi.object().keys({
     name: Joi.string().trim().required().label('Project Name'),
-    domain: Joi.string().trim().empty('').label('Domain'),
     client: Joi.string().trim().empty('').label('Client'),
     docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),
@@ -217,29 +215,55 @@ export class ProjectComponent extends React.Component {
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
           type='text' autoComplete='off' placeholder={`No ${label}`}
-        />
+          />
       );
     }
     return (
       <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
-      />
+        />
     );
   }
 
-  renderTechnologiesField = (selectedTechnologies = [], technologies, readOnly) => {
-    selectedTechnologies = selectedTechnologies || [];
+  renderConsolidationCriteriaField = (domain, readOnly, errors) => {
+    const selectedCriterias = domain || [];
+    const options = selectedCriterias.map((d) => ({ text: d, value: d }));
     if (readOnly) {
       return (
-        <div>
-          {selectedTechnologies.map((technology) => <Label size='large'>{technology}</Label>)}
+        <div className='field'>
+          <label>Consolidation criteria</label>
+          <div>
+            {selectedCriterias.map((criteria) => <Label size='large'>{criteria}</Label>)}
+          </div>
         </div>
       );
     }
     return (
       <Form.Dropdown
-        label='Technologies' placeholder='Java, .NET...' fluid multiple selection onChange={this.handleChange}
-        name='technologies' allowAdditions={true} search value={selectedTechnologies} options={technologies}
+        label='Consolidation criteria' placeholder='Rennes, Offshore, ...' fluid multiple selection allowAdditions
+        onChange={this.handleChange}
+        name='domain' search value={selectedCriterias} options={options} error={errors && errors.fields['domain']}
+        />
+    );
+  }
+
+  renderMultipleSearchSelectionDropdown = (name, label, selectedValuesDropDown = [], values, placeholder, readOnly) => {
+    selectedValuesDropDown = selectedValuesDropDown || [];
+    if (readOnly) {
+      return (
+        <Form.Field>
+          <label>{label}</label>
+          {values
+            .filter((element) => selectedValuesDropDown.includes(element.value))
+            .map((element) => <Label key={element.value} size='large'>{element.text}</Label>)
+          }
+        </Form.Field>
+      );
+    }
+    return (
+      <Form.Dropdown
+        label={label} placeholder={placeholder} fluid multiple selection onChange={this.handleChange}
+        name={name} allowAdditions={true} search value={selectedValuesDropDown} options={values}
       />
     );
   }
@@ -250,11 +274,12 @@ export class ProjectComponent extends React.Component {
       isEntitiesFetching, services, isServicesFetching,
       users, projectId, canEditDetails
     } = this.props;
-
     const { project, errors } = this.state;
     const fetching = isFetching || isServicesFetching;
     const authUser = this.props.auth.user;
-    const canEditMatrix = canEditDetails || (authUser.role === AUTH_CP_ROLE && project.projectManager === authUser.id);
+    const canEditMatrix = canEditDetails ||
+      (authUser.role === AUTH_PM_ROLE && project.projectManager === authUser.id) ||
+      (authUser.role === AUTH_DEPUTY_ROLE && project.deputies.includes(authUser.id));
 
     // The list of technologies options must contain the default technologies *and* the custom technologies
     // added by the user. If we don't do the concatenation, the component won't be able to display the
@@ -264,6 +289,8 @@ export class ProjectComponent extends React.Component {
         .from(new Set(this.props.technologies.concat(project.technologies || [])))
         .map((technology) => ({ text: technology, value: technology }));
 
+    // Remove the 'None' user from the list of users because the list of deputies doesn't have a default option with empty value
+    const usersWithoutNone = users.filter((user) => user && user.text !== 'None');
     return (
       <Container className='project-page'>
 
@@ -276,7 +303,7 @@ export class ProjectComponent extends React.Component {
               </Link>
               <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
                 type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
-              />
+                />
               {(!isFetching && canEditDetails && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
@@ -285,7 +312,7 @@ export class ProjectComponent extends React.Component {
               <Form.TextArea
                 readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
                 type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}
-              />
+                />
             </Form.Group>
           </Form>
 
@@ -296,23 +323,30 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Project Data</h3>
                     {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
                       type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
-                    />
-                    <Form.Input readOnly={!canEditDetails} label='Domain' value={project.domain || ''} onChange={this.handleChange}
-                      type='text' name='domain' autoComplete='on' placeholder='Project Domain' error={errors.fields['domain']}
-                    />
+                      />
+                    {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
+                    <Popup trigger={
+                      this.renderConsolidationCriteriaField(project.domain, !canEditDetails, errors)
+                    } position='top right' wide size='mini' on='click' inverted>
+                      <Popup.Content>
+                        Useful to add your own filters (for the Search Options and in the Export).
+                        Several values allowed (use semi-colon ; as a separator).
+                      </Popup.Content>
+                    </Popup>
                     {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
                     <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
                       type='text' name='docktorGroupURL' autoComplete='on' placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']}
-                    />
+                      />
                   </Grid.Column>
 
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderTechnologiesField(project.technologies || [], technologiesOptions, !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', !canEditDetails)}
 
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
 
@@ -365,7 +399,7 @@ export class ProjectComponent extends React.Component {
                 {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
                   return (
                     <List.Item key={stat.value}>
-                      <Label className='status-label' circular empty color={stat.color}/>
+                      <Label className='status-label' circular empty color={stat.color} />
                       <span>{stat.title}</span>
                     </List.Item>
                   );
@@ -374,10 +408,10 @@ export class ProjectComponent extends React.Component {
               <Grid.Column>
                 {status.slice(Math.ceil(status.length / 2)).map((stat) => {
                   return (
-                      <List.Item key={stat.value}>
-                        <Label className='status-label' circular empty color={stat.color}/>
-                        <span>{stat.title}</span>
-                      </List.Item>
+                    <List.Item key={stat.value}>
+                      <Label className='status-label' circular empty color={stat.color} />
+                      <span>{stat.title}</span>
+                    </List.Item>
                   );
                 })}
               </Grid.Column>
@@ -387,7 +421,7 @@ export class ProjectComponent extends React.Component {
           {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
           {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>
-      </Container>
+      </Container >
     );
   }
 }
@@ -433,7 +467,7 @@ const mapStateToProps = (state, ownProps) => {
   let entities = Object.values(state.entities.items);
   const userEntities = authUser.entities || [];
 
-  // The only entities we show for a RI and a CP are:
+  // The only entities we show for a RI, a PM and a Deputy are:
   // * the entities assigned to the RI
   // * the businessUnit and serviceCenter assigned to the current project
   if (authUser.role !== AUTH_ADMIN_ROLE) {

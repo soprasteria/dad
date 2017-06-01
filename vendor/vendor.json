@@ -195,6 +195,12 @@
 			"revisionTime": "2016-12-13T09:38:49Z"
 		},
 		{
+			"checksumSHA1": "JrOt/M8No13ZxxdPhpTC7YUBWDY=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "e964b172ca7f4c322ee4c39ea605ff53fab44f79",
+			"revisionTime": "2017-05-27T06:30:11Z"
+		},
+		{
 			"checksumSHA1": "bEnb8FN4kNKXCS1ztGVq/5cQtuc=",
 			"path": "github.com/tealeg/xlsx",
 			"revision": "47e33bbbedd12ad4f29abb9e7e894b3a1969c0fc",

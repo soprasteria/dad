@@ -1,17 +1,17 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	"time"
 
 	"github.com/labstack/echo"
 	"github.com/soprasteria/dad/server/docktor"
@@ -161,6 +161,7 @@ func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB 
 // Save creates or update given project
 func (p *Projects) Save(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
+	// Get the project ID from the URL (used to distinguish between create and update)
 	id := c.Param("id")
 
 	authUser := c.Get("authuser").(types.User)
@@ -183,7 +184,7 @@ func (p *Projects) Save(c echo.Context) error {
 				"username":  authUser.Username,
 				"role":      authUser.Role,
 				"projectID": id,
-			}).Info("User isn't allowed to update the project")
+			}).Warn("User isn't allowed to view the project")
 			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s isn't allowed to update the project", authUser.Username)))
 		}
 
@@ -193,9 +194,16 @@ func (p *Projects) Save(c echo.Context) error {
 		}
 	}
 
-	saveProjectData, err := p.createProjectToSave(database, c, authUser, projectFromDB)
+	var projectToSave types.Project
+	// Get project from the body
+	err := c.Bind(&projectToSave)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while creating the new project to save: %v", err)))
+		return c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
+	}
+
+	saveProjectData, httpStatus, err := p.createProjectToSave(database, id, projectToSave, authUser, projectFromDB)
+	if err != nil {
+		return c.JSON(httpStatus, types.NewErr(fmt.Sprintf("Error while creating the new project to save: %v", err.Error())))
 	}
 
 	projectSaved, err := database.Projects.Save(saveProjectData.projectToSave)
@@ -237,28 +245,21 @@ func (p *Projects) Save(c echo.Context) error {
 	return c.JSON(http.StatusOK, projectSaved)
 }
 
-func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context, authUser types.User, projectFromDB types.Project) (SaveProjectData, error) {
-	var projectToSave types.Project
-	// Get project from body
-	err := c.Bind(&projectToSave)
-	if err != nil {
-		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Posted project is not valid: %v", err)))
-	}
-
+func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, projectToSave types.Project, authUser types.User, projectFromDB types.Project) (SaveProjectData, int, error) {
 	log.WithField("project", projectToSave).Info("Received project to save")
 
 	if projectToSave.Name == "" {
-		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr("The name field cannot be empty"))
+		return SaveProjectData{}, http.StatusBadRequest, errors.New("The name field cannot be empty")
 	}
 
 	// Not possible to create or update a project with a name already used by another one project
 	existingProject, err := database.Projects.FindByName(projectToSave.Name)
 	if err != nil {
 		if err != mgo.ErrNotFound {
-			return SaveProjectData{}, c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Can't check whether the project exist in database: %v", err)))
+			return SaveProjectData{}, http.StatusInternalServerError, fmt.Errorf("Can't check whether the project exist in database: %v", err)
 		}
 	} else if existingProject.ID != projectToSave.ID {
-		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("Another project already exists with the same name %q", existingProject.Name)))
+		return SaveProjectData{}, http.StatusBadRequest, fmt.Errorf("Another project already exists with the same name %q", existingProject.Name)
 	}
 
 	modifiedDetails := projectToSave.Name != existingProject.Name ||
@@ -268,9 +269,8 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 		projectToSave.BusinessUnit != existingProject.BusinessUnit ||
 		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
 
-	var id = c.Param("id")
 	// A Project Manager or Deputy can't update details, if any of the details has changed it's an issue and we shouldn't update the project
-	if authUser.Role == types.PMRole || authUser.Role == types.DeputyRole && modifiedDetails {
+	if (authUser.Role == types.PMRole || authUser.Role == types.DeputyRole) && modifiedDetails {
 
 		log.WithFields(log.Fields{
 			"username":                        authUser.Username,
@@ -289,13 +289,13 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 			"projectToSave.DocktorGroupURL":   projectToSave.DocktorGroupURL,
 			"existingProject.DocktorGroupURL": existingProject.DocktorGroupURL,
 		}).Warn("User isn't allowed to update the project")
-		return SaveProjectData{}, c.JSON(http.StatusBadRequest, types.NewErr(fmt.Sprintf("A project manager isn't allowed to update project details")))
+		return SaveProjectData{}, http.StatusBadRequest, errors.New("Project managers and deputies are not allowed to update project details")
 	}
 
 	// Check rights to add entities to the project
 	httpStatusCode, errorMessage := validateEntities(database.Entities, projectToSave, projectFromDB, authUser)
 	if errorMessage != "" {
-		return SaveProjectData{}, c.JSON(httpStatusCode, types.NewErr(errorMessage))
+		return SaveProjectData{}, httpStatusCode, errors.New(errorMessage)
 	}
 
 	// Fill ID, Created and Updated fields
@@ -313,7 +313,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, c echo.Context,
 	if existingProject.DocktorGroupURL != projectToSave.DocktorGroupURL {
 		projectToSave.DocktorGroupName = ""
 	}
-	return NewSaveProjectData(existingProject, projectToSave), nil
+	return NewSaveProjectData(existingProject, projectToSave), 0, nil
 }
 
 // updateDocktorGroupName updates the Docktor Group Name in saved project

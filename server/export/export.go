@@ -103,6 +103,26 @@ func bestIndicatorStatus(services []string, servicesToMatch []types.UsageIndicat
 	return currentStatus.String()
 }
 
+func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) map[ServiceProjectEntry]string {
+
+	serviceIndicatorMap := make(map[ServiceProjectEntry]string)
+
+	for _, project := range projects {
+		for _, pkg := range servicesMapSortedKeys {
+			services := servicesMap[pkg]
+			for _, service := range services {
+				usageIndicators := projectToUsageIndicators[project.Name]
+				newServiceProjectEntry := ServiceProjectEntry{
+					ProjectName: project.Name,
+					ServiceName: service.Name}
+				status := bestIndicatorStatus(service.Services, usageIndicators)
+				serviceIndicatorMap[newServiceProjectEntry] = status
+			}
+		}
+	}
+	return serviceIndicatorMap
+}
+
 func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
 	services, err := e.Database.FunctionalServices.FindAll()
 	if err != nil {
@@ -162,21 +182,7 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 	}
 	sort.Strings(servicesMapSortedKeys)
 
-	allServiceIndicatorMap := make(map[ServiceProjectEntry]string)
-
-	for _, project := range projects {
-		for _, pkg := range servicesMapSortedKeys {
-			services := servicesMap[pkg]
-			for _, service := range services {
-				usageIndicators := projectToUsageIndicators[project.Name]
-				newServiceProjectEntry := ServiceProjectEntry{
-					ProjectName: project.Name,
-					ServiceName: service.Name}
-				status := bestIndicatorStatus(service.Services, usageIndicators)
-				allServiceIndicatorMap[newServiceProjectEntry] = status
-			}
-		}
-	}
+	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
 
 	// Number of columns by service
 	const nbColsService = 5

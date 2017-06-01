@@ -81,6 +81,12 @@
 			"revisionTime": "2014-10-17T20:07:13Z"
 		},
 		{
+			"checksumSHA1": "Js/yx9fZ3+wH1wZpHNIxSTMIaCg=",
+			"path": "github.com/jtolds/gls",
+			"revision": "77f18212c9c7edc9bd6a33d383a7b545ce62f064",
+			"revisionTime": "2017-05-03T22:40:06Z"
+		},
+		{
 			"checksumSHA1": "Gh5leCdP8OrwVIRCfRDeUElXtiM=",
 			"path": "github.com/labstack/echo",
 			"revision": "a89cf4d0c2649391a86ec30bb9394b7b5e8e72d8",

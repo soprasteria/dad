@@ -153,6 +153,12 @@
 			"revisionTime": "2017-01-16T02:49:11Z"
 		},
 		{
+			"checksumSHA1": "f4m09DHEetaanti/GqUJzyCBTaI=",
+			"path": "github.com/smartystreets/goconvey/convey",
+			"revision": "af8e7d560364b90f732a1d119d17b5506e50447d",
+			"revisionTime": "2017-05-08T12:12:05Z"
+		},
+		{
 			"checksumSHA1": "lBehULzb2/kIK3wZ0gz2yNmHq9s=",
 			"path": "github.com/spf13/afero",
 			"revision": "72b31426848c6ef12a7a8e216708cb0d1530f074",

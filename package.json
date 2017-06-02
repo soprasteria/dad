@@ -5,9 +5,9 @@
   "scripts": {
     "start": "gulp",
     "dist": "cross-env NODE_ENV=production gulp",
-    "test": "jest --verbose && govendor test ./cmd/... ./server/...",
+    "test": "jest --verbose && govendor test +local",
     "test:client": "jest --verbose",
-    "test:server": "govendor test ./cmd/... ./server/...",
+    "test:server": "govendor test +local",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --verbose --watch",
     "lint:client": "eslint --ext .js --ext .jsx '*.js' client/src && sass-lint 'client/src/**/*.scss'",

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
 	"github.com/tealeg/xlsx"
@@ -81,28 +82,43 @@ func (e *Export) findDeputies(project types.Project) []string {
 	return deputies
 }
 
+// getServiceToIndicatorUsage map which associates an indicator to a service if the indicator's service matches the service
+func getServiceToIndicatorUsage(service types.FunctionalService, usageIndicators []types.UsageIndicator) map[string]types.UsageIndicator {
+	var serviceToUsageIndicator = make(map[string]types.UsageIndicator)
+	for _, service := range service.Services {
+		for _, usageIndicator := range usageIndicators {
+			if usageIndicator.Service == service {
+				serviceToUsageIndicator[service] = usageIndicator
+			}
+		}
+	}
+	return serviceToUsageIndicator
+}
+
 // bestIndicatorStatus returns the best indicator status from an array of UsageIndicator which contains indicator status
-func bestIndicatorStatus(services []string, servicesToMatch []types.UsageIndicator) string {
+func bestIndicatorStatus(service types.FunctionalService, usageIndicators []types.UsageIndicator) *Status {
 
-	currentStatus, _ := GetStatus("Empty")
+	var currentStatus *Status
 
-	if len(services) > 0 && len(servicesToMatch) > 0 {
-		for _, service := range services {
-			for _, serviceToMatch := range servicesToMatch {
-				if service == serviceToMatch.Service {
-					newStatus, err := GetStatus(serviceToMatch.Status)
-					if err == nil {
-						if currentStatus < newStatus {
-							currentStatus = newStatus
-						}
+	if len(service.Services) > 0 && len(usageIndicators) > 0 {
+		usageIndicator := getServiceToIndicatorUsage(service, usageIndicators)
+		for _, currentService := range service.Services {
+			if currentService == usageIndicator[currentService].Service {
+				newStatus, err := GetStatus(usageIndicator[currentService].Status)
+				if err != nil {
+					log.WithError(err).Warn(fmt.Sprintf("The indicator status '%s' doesn't match the status list [Empty, Undetermined, Inactive, Active]", usageIndicator[currentService].Status))
+				} else {
+					if currentStatus == nil || *currentStatus < newStatus {
+						currentStatus = &newStatus
 					}
 				}
 			}
 		}
 	}
-	return currentStatus.String()
+	return currentStatus
 }
 
+// getServiceIndicatorMap map which contains all indicator status for each services or by default N/A
 func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) map[ServiceProjectEntry]string {
 
 	serviceIndicatorMap := make(map[ServiceProjectEntry]string)
@@ -115,8 +131,12 @@ func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []st
 				newServiceProjectEntry := ServiceProjectEntry{
 					ProjectName: project.Name,
 					ServiceName: service.Name}
-				status := bestIndicatorStatus(service.Services, usageIndicators)
-				serviceIndicatorMap[newServiceProjectEntry] = status
+				status := bestIndicatorStatus(service, usageIndicators)
+				if status != nil {
+					serviceIndicatorMap[newServiceProjectEntry] = (*status).String()
+				} else {
+					serviceIndicatorMap[newServiceProjectEntry] = "N/A"
+				}
 			}
 		}
 	}

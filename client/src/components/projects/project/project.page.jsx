@@ -33,6 +33,55 @@ import { AUTH_DEPUTY_ROLE, AUTH_PM_ROLE, AUTH_RI_ROLE, AUTH_ADMIN_ROLE } from '.
 // Style
 import './project.page.scss';
 
+const Legend = ({ options, status }) => (
+  <Box icon='help circle' title='Color Legend'>
+    <Divider horizontal>Maturity Legend</Divider>
+    <Grid columns={2} relaxed>
+      <Grid.Column>
+        {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
+        {options.slice(0, Math.ceil(options.length / 2)).map((opt) => (
+          <List.Item key={opt.value}>
+            <Label color={opt.label.color} horizontal>{opt.text}</Label>
+            {opt.title}
+          </List.Item>
+        ))}
+      </Grid.Column>
+      <Grid.Column>
+        {options.slice(Math.ceil(options.length / 2)).map((opt) => (
+          <List.Item key={opt.value}>
+            <Label color={opt.label.color} horizontal>{opt.text}</Label>
+            {opt.title}
+          </List.Item>
+        ))}
+      </Grid.Column>
+    </Grid>
+
+    <Divider horizontal>Indicator Legend</Divider>
+    <Grid columns={2} relaxed>
+      <Grid.Column>
+        {status.slice(0, Math.ceil(status.length / 2)).map((stat) => (
+          <List.Item key={stat.value}>
+            <Label className='status-label' circular empty color={stat.color} />
+            <span>{stat.title}</span>
+          </List.Item>
+        ))}
+      </Grid.Column>
+      <Grid.Column>
+        {status.slice(Math.ceil(status.length / 2)).map((stat) => (
+          <List.Item key={stat.value}>
+            <Label className='status-label' circular empty color={stat.color} />
+            <span>{stat.title}</span>
+          </List.Item>
+        ))}
+      </Grid.Column>
+    </Grid>
+  </Box>
+);
+Legend.propTypes = {
+  options: React.PropTypes.array,
+  status: React.PropTypes.array
+};
+
 // Project Component
 export class ProjectComponent extends React.Component {
 
@@ -368,55 +417,9 @@ export class ProjectComponent extends React.Component {
               <Message error list={errors.details} />
             </Form>
           </Box>
-          <Box icon='help circle' title='Color Legend' ref='legend'>
-            <Divider horizontal> Maturity Legend </Divider>
-            <Grid columns={2} relaxed>
-              <Grid.Column>
-                {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
-                {options.slice(0, Math.ceil(options.length / 2)).map((opt) => {
-                  return (
-                    <List.Item key={opt.value}>
-                      <Label color={opt.label.color} horizontal>{opt.text}</Label>
-                      {opt.title}
-                    </List.Item>
-                  );
-                })}
-              </Grid.Column>
-              <Grid.Column>
-                {options.slice(Math.ceil(options.length / 2)).map((opt) => {
-                  return (
-                    <List.Item key={opt.value}>
-                      <Label color={opt.label.color} horizontal>{opt.text}</Label>
-                      {opt.title}
-                    </List.Item>
-                  );
-                })}
-              </Grid.Column>
-            </Grid>
-            <Divider horizontal> Indicator Legend </Divider>
-            <Grid columns={2} relaxed>
-              <Grid.Column>
-                {status.slice(0, Math.ceil(status.length / 2)).map((stat) => {
-                  return (
-                    <List.Item key={stat.value}>
-                      <Label className='status-label' circular empty color={stat.color} />
-                      <span>{stat.title}</span>
-                    </List.Item>
-                  );
-                })}
-              </Grid.Column>
-              <Grid.Column>
-                {status.slice(Math.ceil(status.length / 2)).map((stat) => {
-                  return (
-                    <List.Item key={stat.value}>
-                      <Label className='status-label' circular empty color={stat.color} />
-                      <span>{stat.title}</span>
-                    </List.Item>
-                  );
-                })}
-              </Grid.Column>
-            </Grid>
-          </Box>
+
+          <Legend options={options} status={status} />
+
           <Divider hidden />
           {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
           {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}

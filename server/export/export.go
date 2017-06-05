@@ -180,9 +180,7 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 		"Source Code in VCS",
 		"Specifications in VCS",
 		"Creation Date",
-		"Last Update",
-		"Comments",
-	}
+		"Last Update"}
 
 	createMergedCell(servicePkgRow, "Matrix Maturity", len(matrixMaturityColumns))
 
@@ -208,7 +206,7 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
 
 	// Number of columns by service
-	const nbColsService = 5
+	const nbColsService = 6
 
 	// Header generation: package and associated functional services
 	for _, pkg := range servicesMapSortedKeys {
@@ -223,12 +221,12 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 			createCell(serviceMaturityRow, "Priority")
 			createCell(serviceMaturityRow, "Due Date")
 			createCell(serviceMaturityRow, "Indicator")
+			createCell(serviceMaturityRow, "Comment")
 		}
 	}
 
 	// Generate a project row
 	for _, project := range projects {
-		var comments []string
 		projectRow := sheet.AddRow()
 
 		var businessUnit, serviceCenter types.Entity
@@ -273,24 +271,6 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 		createDateCell(projectRow, project.Created)
 		createDateCell(projectRow, project.Updated)
 
-		// Aggregate comments
-		for _, pkg := range servicesMapSortedKeys {
-			services := servicesMap[pkg]
-			for _, service := range services {
-				for _, line := range project.Matrix {
-					if line.Service == service.ID {
-						if line.Comment != "" {
-							comments = append(comments, fmt.Sprintf("%s: %s: %s", pkg, service.Name, line.Comment))
-						}
-						break
-					}
-				}
-			}
-		}
-		commentsString := strings.Join(comments, "\n")
-		createCell(projectRow, commentsString)
-		projectRow.SetHeightCM(0.5*float64(strings.Count(commentsString, "\n")) + 0.5)
-
 		// Iterate on each service in the correct order
 		for _, pkg := range servicesMapSortedKeys {
 			services := servicesMap[pkg]
@@ -307,6 +287,9 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 						} else {
 							createCell(projectRow, "N/A")
 						}
+						key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
+						createCell(projectRow, allServiceIndicatorMap[key])
+						createCell(projectRow, line.Comment)
 						applicable = true
 						break
 					}
@@ -316,9 +299,10 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")
+					key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
+					createCell(projectRow, allServiceIndicatorMap[key])
+					createCell(projectRow, "")
 				}
-				key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
-				createCell(projectRow, allServiceIndicatorMap[key])
 			}
 		}
 	}

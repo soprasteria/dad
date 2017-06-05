@@ -171,6 +171,8 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 		"Client",
 		"Project Manager",
 		"Deputies",
+		"Docktor Group Name",
+		"Docktor Group URL",
 		"Technologies",
 		"Deployment Mode",
 		"Version Control System",
@@ -260,6 +262,8 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 		createCell(projectRow, project.Client)
 		createCell(projectRow, projectManager.DisplayName)
 		createCell(projectRow, strings.Join(deputies, ", "))
+		createCell(projectRow, project.DocktorGroupName)
+		createCell(projectRow, project.DocktorGroupURL)
 		createCell(projectRow, strings.Join(project.Technologies, ", "))
 		createCell(projectRow, project.Mode)
 		createCell(projectRow, project.VersionControlSystem)

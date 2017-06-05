@@ -164,6 +164,7 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 	// Name of columns contained inside the Matrix maturity column
 	matrixMaturityColumns := []string{
 		"Project",
+		"Description",
 		"Business",
 		"Service Center",
 		"Consolidation Criteria",
@@ -252,6 +253,7 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 		}
 
 		createCell(projectRow, project.Name)
+		createCell(projectRow, project.Description)
 		createCell(projectRow, businessUnit.Name)
 		createCell(projectRow, serviceCenter.Name)
 		createCell(projectRow, strings.Join(project.Domain, "; "))

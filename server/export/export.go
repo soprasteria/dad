@@ -143,11 +143,7 @@ func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []st
 	return serviceIndicatorMap
 }
 
-func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
-	services, err := e.Database.FunctionalServices.FindAll()
-	if err != nil {
-		return nil, err
-	}
+func (e *Export) generateXlsx(projects []types.Project, services []types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
 
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("Plan de déploiement")
@@ -328,5 +324,9 @@ func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators
 
 //Export exports some business data as a file
 func (e *Export) Export(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
-	return e.generateXlsx(projects, projectToUsageIndicators)
+	services, err := e.Database.FunctionalServices.FindAll()
+	if err != nil {
+		return nil, err
+	}
+	return e.generateXlsx(projects, services, projectToUsageIndicators)
 }

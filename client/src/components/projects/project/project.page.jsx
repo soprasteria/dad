@@ -407,7 +407,8 @@ export class ProjectComponent extends React.Component {
 
                     {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', (isAdmin || isRI))}
 
-                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, (isAdmin || isRI))}
+                    {/*The deployment is editable by the RIs only if the Docktor URL is not present*/}
+                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, (isAdmin || (isRI && !project.docktorGroupURL)))}
 
                     <h4>Version Control</h4>
 

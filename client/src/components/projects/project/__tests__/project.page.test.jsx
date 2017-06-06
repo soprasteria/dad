@@ -24,6 +24,7 @@ const defaultProps = {
   fetchEntities: jest.fn(),
   fetchServices: jest.fn(),
   fetchUsers: jest.fn(),
+  fetchIndicators: jest.fn(),
   fetchTechnologies: jest.fn(),
   onSave: jest.fn(),
   onDelete: jest.fn(),

@@ -228,12 +228,12 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderServices = (project, services, indicators, isFetching, readOnly) => {
+  renderPackages = (packages, indicators, isFetching) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
 
-    const packageList = Object.entries(services).map(([pckg, servicesList]) => (
+    const packageList = Object.entries(packages).map(([pckg, servicesList]) => (
       <Table key={pckg} celled striped compact>
         <Table.Header>
           <Table.Row>
@@ -247,7 +247,9 @@ export class ProjectComponent extends React.Component {
         </Table.Header>
         <Table.Body>
           {servicesList.map((service) => (
-            <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix} />
+            <Matrix
+              key={service.id} serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix}
+            />
           ))}
         </Table.Body>
       </Table>
@@ -257,26 +259,26 @@ export class ProjectComponent extends React.Component {
     return <DocumentTitle title={title}><div>{packageList}</div></DocumentTitle>;
   }
 
-  renderDropdown = (name, label, value, placeholder, options, isFetching, errors, readOnly) => {
-    if (readOnly) {
+  renderDropdown = (name, label, value, placeholder, options, isFetching, errors, canEdit) => {
+    if (!canEdit) {
       const option = options.find((elm) => elm.value === value);
       return (
         <Form.Input readOnly label={label} value={(option && option.text) || ''} onChange={this.handleChange}
           type='text' autoComplete='off' placeholder={`No ${label}`}
-          />
+        />
       );
     }
     return (
       <Form.Dropdown placeholder={placeholder} fluid search selection loading={isFetching}
         label={label} name={name} options={options} value={value || ''} onChange={this.handleChange} error={errors.fields[name]}
-        />
+      />
     );
   }
 
-  renderConsolidationCriteriaField = (domain, readOnly, errors) => {
+  renderConsolidationCriteriaField = (domain, canEdit, errors) => {
     const selectedCriterias = domain || [];
     const options = selectedCriterias.map((d) => ({ text: d, value: d }));
-    if (readOnly) {
+    if (!canEdit) {
       return (
         <div className='field'>
           <label>Consolidation criteria</label>
@@ -291,13 +293,13 @@ export class ProjectComponent extends React.Component {
         label='Consolidation criteria' placeholder='Rennes, Offshore, ...' fluid multiple selection allowAdditions
         onChange={this.handleChange}
         name='domain' search value={selectedCriterias} options={options} error={errors && errors.fields['domain']}
-        />
+      />
     );
   }
 
-  renderMultipleSearchSelectionDropdown = (name, label, selectedValuesDropDown = [], values, placeholder, readOnly) => {
+  renderMultipleSearchSelectionDropdown = (name, label, selectedValuesDropDown = [], values, placeholder, canEdit) => {
     selectedValuesDropDown = selectedValuesDropDown || [];
-    if (readOnly) {
+    if (!canEdit) {
       return (
         <Form.Field>
           <label>{label}</label>
@@ -320,14 +322,10 @@ export class ProjectComponent extends React.Component {
     const {
       isFetching, serviceCenters, businessUnits, indicators,
       isEntitiesFetching, services, isServicesFetching,
-      users, projectId, canEditDetails
+      users, projectId, isAdmin, isRI, isPM, isDeputy
     } = this.props;
     const { project, errors } = this.state;
     const fetching = isFetching || isServicesFetching;
-    const authUser = this.props.auth.user;
-    const canEditMatrix = canEditDetails ||
-      (authUser.role === AUTH_PM_ROLE && project.projectManager === authUser.id) ||
-      (authUser.role === AUTH_DEPUTY_ROLE && project.deputies.includes(authUser.id));
 
     // The list of technologies options must contain the default technologies *and* the custom technologies
     // added by the user. If we don't do the concatenation, the component won't be able to display the
@@ -341,27 +339,29 @@ export class ProjectComponent extends React.Component {
     const usersWithoutNone = users.filter((user) => user && user.text !== 'None');
     return (
       <Container className='project-page'>
-
         <Segment loading={fetching} padded>
-
           <Form>
             <h1 className='layout horizontal center justified'>
               <Link to={'/projects'}>
                 <Icon name='arrow left' fitted />
               </Link>
+
               <Form.Input
-                className='flex projectName' value={project.name || ''} onChange={this.handleChange}
-                type='text' name='name' placeholder='Project Name' error={errors.fields['name']} readOnly={!canEditDetails}
+                className='flex projectName' value={project.name || ''} onChange={this.handleChange} type='text' name='name'
+                placeholder='Project Name' error={errors.fields['name']} readOnly={isPM || isDeputy}
               />
-              {(!isFetching && canEditDetails && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
+
+              {/*Only admins and RIs can delete a project*/}
+              {((isAdmin || isRI) && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
             <Divider hidden />
+
             <Form.Group>
               <Form.TextArea
-                readOnly={!canEditMatrix} label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight
-                type='text' name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}
-                />
+                label='Description' value={project.description || ''} onChange={this.handleChange} autoHeight type='text'
+                name='description' autoComplete='off' placeholder='Project description' width='sixteen' error={errors.fields['description']}
+              />
             </Form.Group>
           </Form>
 
@@ -371,47 +371,53 @@ export class ProjectComponent extends React.Component {
                 <Grid.Row>
                   <Grid.Column>
                     <h3>Project Data</h3>
-                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
-                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
+
+                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, (isAdmin || isRI))}
+
+                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', (isAdmin || isRI))}
+
                     <Form.Input
                       label='Client' value={project.client || ''} onChange={this.handleChange} type='text' name='client'
-                      autoComplete='on' placeholder='Project Client' error={errors.fields['client']}  readOnly={!canEditDetails}
+                      autoComplete='on' placeholder='Project Client' error={errors.fields['client']} readOnly={isPM || isDeputy}
                     />
+
                     {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
                     <Popup trigger={
-                      this.renderConsolidationCriteriaField(project.domain, !canEditDetails, errors)
+                      this.renderConsolidationCriteriaField(project.domain, (isAdmin || isRI), errors)
                     } position='top right' wide size='mini' on='click' inverted>
                       <Popup.Content>
                         Useful to add your own filters (for the Search Options and in the Export).
-                        Several values allowed (use semi-colon ; as a separator).
+                        Several values allowed, press Enter to validate.
                       </Popup.Content>
                     </Popup>
-                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
-                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
+
+                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, (isAdmin || isRI))}
+
+                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, (isAdmin || isRI))}
+
+                    {/*Only admins are allowed to set the Docktor URL*/}
                     <Form.Input
                       label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange} type='text' name='docktorGroupURL' autoComplete='on' 
-                      placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']} readOnly={!canEditDetails}
+                      placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']} readOnly={isRI || isPM || isDeputy}
                     />
                   </Grid.Column>
 
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', !canEditDetails)}
+                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', (isAdmin || isRI))}
 
-                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, !canEditDetails)}
+                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, (isAdmin || isRI))}
 
                     <h4>Version Control</h4>
-                    <Form.Checkbox readOnly={!canEditDetails} label='Deliverables' name='deliverables'
-                      checked={Boolean(project.deliverables)} onChange={this.handleChange} />
 
-                    <Form.Checkbox readOnly={!canEditDetails} label='Source Code' name='sourceCode'
-                      checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM || isDeputy} label='Deliverables' name='deliverables' checked={Boolean(project.deliverables)} onChange={this.handleChange} />
 
-                    <Form.Checkbox readOnly={!canEditDetails} label='Specifications' name='specifications'
-                      checked={Boolean(project.specifications)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM || isDeputy} label='Source Code' name='sourceCode' checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
 
-                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, !canEditDetails)}
+                    <Form.Checkbox readOnly={isPM || isDeputy} label='Specifications' name='specifications' checked={Boolean(project.specifications)} onChange={this.handleChange} />
+
+                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin || isRI))}
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
@@ -424,8 +430,12 @@ export class ProjectComponent extends React.Component {
 
           <Divider hidden />
           
-          {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
-          {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
+          {this.renderPackages(services, indicators, fetching)}
+
+          <Button
+            color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'
+            onClick={this.handleSubmit} className='floating' size='big'
+          />
         </Segment>
       </Container >
     );
@@ -453,7 +463,10 @@ ProjectComponent.propTypes = {
   fetchTechnologies: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  canEditDetails: PropTypes.bool
+  isAdmin: PropTypes.bool,
+  isRI: PropTypes.bool,
+  isPM: PropTypes.bool,
+  isDeputy: PropTypes.bool
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -471,7 +484,6 @@ const mapStateToProps = (state, ownProps) => {
   const selectedProject = { ...emptyProject, ...projects.items[paramId] };
 
   let entities = Object.values(state.entities.items);
-  const userEntities = authUser.entities || [];
 
   // The only entities we show for a RI, a PM and a Deputy are:
   // * the entities assigned to the RI
@@ -483,13 +495,12 @@ const mapStateToProps = (state, ownProps) => {
         .concat(selectedProject.serviceCenter || [])
         .includes(entity.id));
   }
-  const commonEntities = userEntities.find((id) => [selectedProject.businessUnit, selectedProject.serviceCenter].includes(id)) || [];
-
-  // Details of the project can be edited if the user is an admin
-  // or if the user is a RI and it's a project linked to that user
-  // or if the user is a RI and it's a new project
-  const canEditDetails = authUser.role === AUTH_ADMIN_ROLE || (authUser.role === AUTH_RI_ROLE && (commonEntities.length > 0 || !project.id));
   const services = groupByPackage(state.services.items);
+
+  const isAdmin = authUser.role === AUTH_ADMIN_ROLE;
+  const isRI = authUser.role === AUTH_RI_ROLE;
+  const isPM = authUser.role === AUTH_PM_ROLE;
+  const isDeputy = authUser.role === AUTH_DEPUTY_ROLE;
   return {
     auth,
     project: selectedProject,
@@ -503,7 +514,10 @@ const mapStateToProps = (state, ownProps) => {
     services,
     indicators,
     isServicesFetching,
-    canEditDetails
+    isAdmin,
+    isRI,
+    isPM,
+    isDeputy
   };
 };
 

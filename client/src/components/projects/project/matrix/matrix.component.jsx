@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import DebounceInput from 'react-debounce-input';
 import { Form, Table, Button, Icon, Popup, Label } from 'semantic-ui-react';
 import ReactDatePicker from 'react-datepicker';
@@ -165,12 +166,12 @@ class Matrix extends React.Component {
 }
 
 Matrix.propTypes = {
-  serviceId: React.PropTypes.string,
-  indicators: React.PropTypes.object,
-  matrix: React.PropTypes.object,
-  service: React.PropTypes.object,
-  onChange: React.PropTypes.func,
-  readOnly: React.PropTypes.bool
+  serviceId: PropTypes.string,
+  indicators: PropTypes.object,
+  matrix: PropTypes.object,
+  service: PropTypes.object,
+  onChange: PropTypes.func,
+  readOnly: PropTypes.bool
 };
 
 export default Matrix;

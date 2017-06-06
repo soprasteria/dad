@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
@@ -35,8 +36,8 @@ class HomeComponent extends React.Component {
 }
 
 HomeComponent.propTypes = {
-  isAuthenticated: React.PropTypes.bool.isRequired,
-  redirect: React.PropTypes.func.isRequired
+  isAuthenticated: PropTypes.bool.isRequired,
+  redirect: PropTypes.func.isRequired
 };
 
 // Function to map state to container props

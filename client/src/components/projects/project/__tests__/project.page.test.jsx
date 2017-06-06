@@ -11,7 +11,6 @@ const defaultProps = {
       entities: []
     }
   },
-  canEditDetails: true,
   technologies: [],
   users: [],
   serviceCenters: [],
@@ -51,16 +50,16 @@ describe('<ProjectComponent />', () => {
   });
 
   describe('with an empty matrix', () => {
-    describe('with canEditDetails set to true', () => {
+    describe('with isAdmin set to true', () => {
       it('should display x <Form.Dropdown />', () => {
-        const { wrapper } = setup();
+        const { wrapper } = setup({ isAdmin: true });
         expect(wrapper.find('FormDropdown').length).toEqual(7);
       });
     });
 
-    describe('with canEditDetails set to false', () => {
+    describe('with no rights management', () => {
       it('should display no <Form.Dropdown />', () => {
-        const { wrapper } = setup({ canEditDetails: false });
+        const { wrapper } = setup();
         expect(wrapper.find('FormDropdown').length).toEqual(0);
       });
     });

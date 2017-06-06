@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
@@ -78,8 +79,8 @@ const Legend = ({ options, status }) => (
   </Box>
 );
 Legend.propTypes = {
-  options: React.PropTypes.array,
-  status: React.PropTypes.array
+  options: PropTypes.array,
+  status: PropTypes.array
 };
 
 // Project Component
@@ -430,27 +431,27 @@ export class ProjectComponent extends React.Component {
 }
 
 ProjectComponent.propTypes = {
-  auth: React.PropTypes.object.isRequired,
-  project: React.PropTypes.object,
-  isFetching: React.PropTypes.bool,
-  businessUnits: React.PropTypes.array,
-  serviceCenters: React.PropTypes.array,
-  indicators: React.PropTypes.object,
-  isEntitiesFetching: React.PropTypes.bool,
-  users: React.PropTypes.array,
-  services: React.PropTypes.object,
-  technologies: React.PropTypes.array,
-  isServicesFetching: React.PropTypes.bool,
-  projectId: React.PropTypes.string,
-  fetchProject: React.PropTypes.func.isRequired,
-  fetchEntities: React.PropTypes.func.isRequired,
-  fetchIndicators: React.PropTypes.func.isRequired,
-  fetchServices: React.PropTypes.func.isRequired,
-  fetchUsers: React.PropTypes.func.isRequired,
-  fetchTechnologies: React.PropTypes.func.isRequired,
-  onSave: React.PropTypes.func.isRequired,
-  onDelete: React.PropTypes.func.isRequired,
-  canEditDetails: React.PropTypes.bool
+  auth: PropTypes.object.isRequired,
+  project: PropTypes.object,
+  isFetching: PropTypes.bool,
+  businessUnits: PropTypes.array,
+  serviceCenters: PropTypes.array,
+  indicators: PropTypes.object,
+  isEntitiesFetching: PropTypes.bool,
+  users: PropTypes.array,
+  services: PropTypes.object,
+  technologies: PropTypes.array,
+  isServicesFetching: PropTypes.bool,
+  projectId: PropTypes.string,
+  fetchProject: PropTypes.func.isRequired,
+  fetchEntities: PropTypes.func.isRequired,
+  fetchIndicators: PropTypes.func.isRequired,
+  fetchServices: PropTypes.func.isRequired,
+  fetchUsers: PropTypes.func.isRequired,
+  fetchTechnologies: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  canEditDetails: PropTypes.bool
 };
 
 const mapStateToProps = (state, ownProps) => {

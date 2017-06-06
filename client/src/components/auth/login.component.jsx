@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { Button, Container, Form, Header, Message, Segment } from 'semantic-ui-react';
@@ -86,12 +87,12 @@ class LoginComponent extends React.Component {
 };
 
 LoginComponent.propTypes = {
-  isAuthenticated: React.PropTypes.bool.isRequired,
-  isFetching: React.PropTypes.bool.isRequired,
-  logUser: React.PropTypes.func.isRequired,
-  redirect: React.PropTypes.func.isRequired,
-  errorMessage: React.PropTypes.string,
-  redirectTo: React.PropTypes.string
+  isAuthenticated: PropTypes.bool.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  logUser: PropTypes.func.isRequired,
+  redirect: PropTypes.func.isRequired,
+  errorMessage: PropTypes.string,
+  redirectTo: PropTypes.string
 };
 
 // Function to map state to container props

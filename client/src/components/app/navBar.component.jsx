@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { IndexLink, Link } from 'react-router';
 import { connect } from 'react-redux';
 import { Dropdown, Header, Icon, Menu } from 'semantic-ui-react';
@@ -64,11 +65,11 @@ class NavBarComponent extends React.Component {
 }
 
 NavBarComponent.propTypes = {
-  location: React.PropTypes.object.isRequired,
-  auth: React.PropTypes.object.isRequired,
-  logout: React.PropTypes.func.isRequired,
-  exportData: React.PropTypes.func.isRequired,
-  isExportFetching: React.PropTypes.bool
+  location: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired,
+  logout: PropTypes.func.isRequired,
+  exportData: PropTypes.func.isRequired,
+  isExportFetching: PropTypes.bool
 };
 
 // Function to map state to container props

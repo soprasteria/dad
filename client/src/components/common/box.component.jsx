@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Icon, Message, Segment, Header } from 'semantic-ui-react';
 import classNames from 'classnames';
 
@@ -48,14 +49,14 @@ class Box extends React.Component {
 };
 
 Box.propTypes = {
-  icon: React.PropTypes.string,
-  stacked: React.PropTypes.bool,
-  children: React.PropTypes.oneOfType([
-    React.PropTypes.array,
-    React.PropTypes.element
+  icon: PropTypes.string,
+  stacked: PropTypes.bool,
+  children: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.element
   ]),
-  title: React.PropTypes.string,
-  className: React.PropTypes.string
+  title: PropTypes.string,
+  className: PropTypes.string
 };
 
 export default Box;

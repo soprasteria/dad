@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { Card, Icon, Label } from 'semantic-ui-react';
 import classNames from 'classnames';
@@ -52,9 +53,9 @@ class ProjectCard extends React.Component {
 }
 
 ProjectCard.propTypes = {
-  project: React.PropTypes.object,
-  businessUnit: React.PropTypes.object,
-  serviceCenter: React.PropTypes.object,
+  project: PropTypes.object,
+  businessUnit: PropTypes.object,
+  serviceCenter: PropTypes.object,
 };
 
 export default ProjectCard;

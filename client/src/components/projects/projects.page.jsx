@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import { Link } from 'react-router';
@@ -90,14 +91,14 @@ class Projects extends React.Component {
 }
 
 Projects.propTypes = {
-  auth: React.PropTypes.object.isRequired,
-  projects: React.PropTypes.array,
-  entities: React.PropTypes.object,
-  filterValue: React.PropTypes.string,
-  isFetching: React.PropTypes.bool,
-  fetchProjects: React.PropTypes.func.isRequired,
-  fetchEntities: React.PropTypes.func.isRequired,
-  changeFilter: React.PropTypes.func.isRequired
+  auth: PropTypes.object.isRequired,
+  projects: PropTypes.array,
+  entities: PropTypes.object,
+  filterValue: PropTypes.string,
+  isFetching: PropTypes.bool,
+  fetchProjects: PropTypes.func.isRequired,
+  fetchEntities: PropTypes.func.isRequired,
+  changeFilter: PropTypes.func.isRequired
 };
 
 // Function to map state to container props

@@ -1,5 +1,6 @@
 // React
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
@@ -149,15 +150,15 @@ class UserComponent extends React.Component {
 }
 
 UserComponent.propTypes = {
-  auth: React.PropTypes.object,
-  user: React.PropTypes.object,
-  isFetching: React.PropTypes.bool,
-  entities: React.PropTypes.array,
-  isEntitiesFetching: React.PropTypes.bool,
-  userId: React.PropTypes.string.isRequired,
-  fetchUser: React.PropTypes.func.isRequired,
-  fetchEntities: React.PropTypes.func.isRequired,
-  onSave: React.PropTypes.func.isRequired
+  auth: PropTypes.object,
+  user: PropTypes.object,
+  isFetching: PropTypes.bool,
+  entities: PropTypes.array,
+  isEntitiesFetching: PropTypes.bool,
+  userId: PropTypes.string.isRequired,
+  fetchUser: PropTypes.func.isRequired,
+  fetchEntities: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state, ownProps) => {

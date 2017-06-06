@@ -55,6 +55,18 @@ describe('<ProjectComponent />', () => {
         const { wrapper } = setup({ isAdmin: true });
         expect(wrapper.find('FormDropdown').length).toEqual(7);
       });
+
+      it('should display the docktorGroupURL as readOnly', () => {
+        const { wrapper } = setup({ isAdmin: true });
+        expect(wrapper.find('[name="docktorGroupURL"]').props().readOnly).toBeFalsy();
+      });
+    });
+
+    describe('with isRI set to true', () => {
+      it('should display the docktorGroupURL as readOnly', () => {
+        const { wrapper } = setup({ isRI: true });
+        expect(wrapper.find('[name="docktorGroupURL"]').props().readOnly).toBeTruthy();
+      });
     });
 
     describe('with no rights management', () => {

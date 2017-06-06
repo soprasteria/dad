@@ -233,27 +233,25 @@ export class ProjectComponent extends React.Component {
       return <p>Fetching Matrix...</p>;
     }
 
-    const packageList = Object.entries(services).map(([pckg, servicesList]) => {
-      return (
-        <Table key={pckg} celled striped compact>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell width='8'>{pckg}</Table.HeaderCell>
-              <Table.HeaderCell width='2'>Progress</Table.HeaderCell>
-              <Table.HeaderCell width='2'>Goal</Table.HeaderCell>
-              <Table.HeaderCell width='1'>Priority</Table.HeaderCell>
-              <Table.HeaderCell width='2'>Due Date</Table.HeaderCell>
-              <Table.HeaderCell width='1'>Comment</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {servicesList.map((service) => {
-              return <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix} />;
-            })}
-          </Table.Body>
-        </Table>
-      );
-    });
+    const packageList = Object.entries(services).map(([pckg, servicesList]) => (
+      <Table key={pckg} celled striped compact>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell width='8'>{pckg}</Table.HeaderCell>
+            <Table.HeaderCell width='2'>Progress</Table.HeaderCell>
+            <Table.HeaderCell width='2'>Goal</Table.HeaderCell>
+            <Table.HeaderCell width='1'>Priority</Table.HeaderCell>
+            <Table.HeaderCell width='2'>Due Date</Table.HeaderCell>
+            <Table.HeaderCell width='1'>Comment</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {servicesList.map((service) => (
+            <Matrix readOnly={readOnly} serviceId={service.id} key={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix} />
+          ))}
+        </Table.Body>
+      </Table>
+    ));
 
     const title = this.props.projectId ? 'D.A.D - Project ' + (this.props.project && this.props.project.name) : 'D.A.D - New Project';
     return <DocumentTitle title={title}><div>{packageList}</div></DocumentTitle>;
@@ -283,7 +281,7 @@ export class ProjectComponent extends React.Component {
         <div className='field'>
           <label>Consolidation criteria</label>
           <div>
-            {selectedCriterias.map((criteria) => <Label size='large'>{criteria}</Label>)}
+            {selectedCriterias.map((criteria) => <Label key={criteria} size='large'>{criteria}</Label>)}
           </div>
         </div>
       );
@@ -351,9 +349,10 @@ export class ProjectComponent extends React.Component {
               <Link to={'/projects'}>
                 <Icon name='arrow left' fitted />
               </Link>
-              <Form.Input className='flex projectName' readOnly={!canEditDetails} value={project.name || ''} onChange={this.handleChange}
-                type='text' name='name' autoComplete='off' placeholder='Project Name' error={errors.fields['name']}
-                />
+              <Form.Input
+                className='flex projectName' value={project.name || ''} onChange={this.handleChange}
+                type='text' name='name' placeholder='Project Name' error={errors.fields['name']} readOnly={!canEditDetails}
+              />
               {(!isFetching && canEditDetails && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
@@ -374,9 +373,10 @@ export class ProjectComponent extends React.Component {
                     <h3>Project Data</h3>
                     {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', !canEditDetails)}
-                    <Form.Input readOnly={!canEditDetails} label='Client' value={project.client || ''} onChange={this.handleChange}
-                      type='text' name='client' autoComplete='on' placeholder='Project Client' error={errors.fields['client']}
-                      />
+                    <Form.Input
+                      label='Client' value={project.client || ''} onChange={this.handleChange} type='text' name='client'
+                      autoComplete='on' placeholder='Project Client' error={errors.fields['client']}  readOnly={!canEditDetails}
+                    />
                     {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
                     <Popup trigger={
                       this.renderConsolidationCriteriaField(project.domain, !canEditDetails, errors)
@@ -388,9 +388,10 @@ export class ProjectComponent extends React.Component {
                     </Popup>
                     {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, !canEditDetails)}
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, !canEditDetails)}
-                    <Form.Input readOnly={!canEditDetails} label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange}
-                      type='text' name='docktorGroupURL' autoComplete='on' placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']}
-                      />
+                    <Form.Input
+                      label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange} type='text' name='docktorGroupURL' autoComplete='on' 
+                      placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']} readOnly={!canEditDetails}
+                    />
                   </Grid.Column>
 
                   <Grid.Column>
@@ -422,6 +423,7 @@ export class ProjectComponent extends React.Component {
           <Legend options={options} status={status} />
 
           <Divider hidden />
+          
           {this.renderServices(project, services, indicators, fetching, !canEditMatrix)}
           {canEditMatrix && <Button color='green' icon='save' title='Save project' labelPosition='left' content='Save Project' onClick={this.handleSubmit} className='floating' size='big' />}
         </Segment>

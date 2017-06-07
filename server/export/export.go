@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
 	"github.com/tealeg/xlsx"
@@ -15,6 +16,58 @@ import (
 // Export contains APIs entrypoints needed for accessing users
 type Export struct {
 	Database *mongo.DadMongo
+}
+
+// ServiceProjectEntry contains a specific service name for a specific project name
+type ServiceProjectEntry struct {
+	ProjectName string
+	ServiceName string
+}
+
+// Status represents the different status possible for a service (like Jenkins)
+type Status int
+
+const (
+	// Empty means that a the service does not have any project configuration. e.g. jenkins doesn't have a job
+	Empty Status = iota
+	// Undetermined means that a there is an incompatibilty in indicators results. e.g jenkins has jobs but no CPU activity is available
+	Undetermined
+	// Inactive means that a the service is configured but not used recently. e.g. jenkins has at least one job but its CPU usage is below the defined threshold
+	Inactive
+	// Active means that a the service is configured and used recently. e.g. jenkins has at least one job and its CPU usage is above the defined threshold
+	Active
+)
+
+// statusStr represents the order of the Status, meaning the first status is the worse, and the last one is the best.
+var statusStr = [...]string{
+	"Empty",
+	"Undetermined",
+	"Inactive",
+	"Active",
+}
+
+// statusMap is defining the matching between a string status and the real enum status.
+// It's initialized in init function
+var statusMap = make(map[string]Status)
+
+func init() {
+	for i, s := range statusStr {
+		statusMap[s] = Status(i)
+	}
+}
+
+// String function will return the string representation of a service Status (e.g. Jenkins)
+func (status Status) String() string {
+	return statusStr[status]
+}
+
+// GetStatus will return the enum representation of a service Status (e.g. Jenkins)
+// returns an error if string status is unrecognized
+func GetStatus(status string) (Status, error) {
+	if v, ok := statusMap[status]; ok {
+		return v, nil
+	}
+	return Undetermined, fmt.Errorf("Status %q does not exists", status)
 }
 
 func (e *Export) findDeputies(project types.Project) []string {
@@ -29,7 +82,68 @@ func (e *Export) findDeputies(project types.Project) []string {
 	return deputies
 }
 
-func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
+// getServiceToIndicatorUsage map which associates an indicator to a service if the indicator's service matches the service
+func getServiceToIndicatorUsage(service types.FunctionalService, usageIndicators []types.UsageIndicator) map[string]types.UsageIndicator {
+	var serviceToUsageIndicator = make(map[string]types.UsageIndicator)
+	for _, service := range service.Services {
+		for _, usageIndicator := range usageIndicators {
+			if usageIndicator.Service == service {
+				serviceToUsageIndicator[service] = usageIndicator
+			}
+		}
+	}
+	return serviceToUsageIndicator
+}
+
+// bestIndicatorStatus returns the best indicator status from an array of UsageIndicator which contains indicator status
+func bestIndicatorStatus(service types.FunctionalService, usageIndicators []types.UsageIndicator) *Status {
+
+	var currentStatus *Status
+
+	if len(service.Services) > 0 && len(usageIndicators) > 0 {
+		usageIndicator := getServiceToIndicatorUsage(service, usageIndicators)
+		for _, currentService := range service.Services {
+			if currentService == usageIndicator[currentService].Service {
+				newStatus, err := GetStatus(usageIndicator[currentService].Status)
+				if err != nil {
+					log.WithError(err).Warn(fmt.Sprintf("The indicator status '%s' doesn't match the status list [Empty, Undetermined, Inactive, Active]", usageIndicator[currentService].Status))
+				} else {
+					if currentStatus == nil || *currentStatus < newStatus {
+						currentStatus = &newStatus
+					}
+				}
+			}
+		}
+	}
+	return currentStatus
+}
+
+// getServiceIndicatorMap map which contains all indicator status for each services or by default N/A
+func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) map[ServiceProjectEntry]string {
+
+	serviceIndicatorMap := make(map[ServiceProjectEntry]string)
+
+	for _, project := range projects {
+		for _, pkg := range servicesMapSortedKeys {
+			services := servicesMap[pkg]
+			for _, service := range services {
+				usageIndicators := projectToUsageIndicators[project.Name]
+				newServiceProjectEntry := ServiceProjectEntry{
+					ProjectName: project.Name,
+					ServiceName: service.Name}
+				status := bestIndicatorStatus(service, usageIndicators)
+				if status != nil {
+					serviceIndicatorMap[newServiceProjectEntry] = (*status).String()
+				} else {
+					serviceIndicatorMap[newServiceProjectEntry] = "N/A"
+				}
+			}
+		}
+	}
+	return serviceIndicatorMap
+}
+
+func (e *Export) generateXlsx(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
 	services, err := e.Database.FunctionalServices.FindAll()
 	if err != nil {
 		return nil, err
@@ -88,8 +202,10 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 	}
 	sort.Strings(servicesMapSortedKeys)
 
+	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
+
 	// Number of columns by service
-	const nbColsService = 4
+	const nbColsService = 5
 
 	// Header generation: package and associated functional services
 	for _, pkg := range servicesMapSortedKeys {
@@ -103,6 +219,7 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 			createCell(serviceMaturityRow, "Goal")
 			createCell(serviceMaturityRow, "Priority")
 			createCell(serviceMaturityRow, "Due Date")
+			createCell(serviceMaturityRow, "Indicator")
 		}
 	}
 
@@ -194,6 +311,8 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")
 				}
+				key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
+				createCell(projectRow, allServiceIndicatorMap[key])
 			}
 		}
 	}
@@ -218,6 +337,6 @@ func (e *Export) generateXlsx(projects []types.Project) (*bytes.Reader, error) {
 }
 
 //Export exports some business data as a file
-func (e *Export) Export(projects []types.Project) (*bytes.Reader, error) {
-	return e.generateXlsx(projects)
+func (e *Export) Export(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
+	return e.generateXlsx(projects, projectToUsageIndicators)
 }

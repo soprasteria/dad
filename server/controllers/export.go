@@ -35,7 +35,19 @@ func (a *Export) ExportAll(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, types.NewErr("Cannot export DAD data in a file"))
 	}
 
-	data, err := exporter.Export(projects)
+	usageIndicatorRepo := database.UsageIndicators
+
+	projectToUsageIndicators := map[string][]types.UsageIndicator{}
+	for _, project := range projects {
+		usageIndicators, err2 := usageIndicatorRepo.FindAllFromGroup(project.Name)
+		if err2 != nil {
+			log.WithError(err2).Warn("Error while retrieving usageIndicators, indicators can't be reached for the project : " + project.Name)
+			continue
+		}
+		projectToUsageIndicators[project.Name] = usageIndicators
+	}
+
+	data, err := exporter.Export(projects, projectToUsageIndicators)
 	if err != nil {
 		log.WithError(err).Error("Error occurred during the data export")
 		return c.JSON(http.StatusInternalServerError, types.NewErr("Cannot export DAD data in a file"))

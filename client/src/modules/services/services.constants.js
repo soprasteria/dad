@@ -11,8 +11,8 @@ export const options = [
 ];
 
 export const status = [
-  { value: 0, text: 'Undetermined', color: 'black', title: 'We can\'t get the indicator status for this service' },
-  { value: 1, text: 'Empty', color: 'red', title: 'The service was never used by the project' },
+  { value: 0, text: 'Empty', color: 'black', title: 'The service was never used by the project' },
+  { value: 1, text: 'Undetermined', color: 'red', title: 'We cannot determine if the service is active or not' },
   { value: 2, text: 'Inactive', color: 'orange', title: 'The service has not been active recently' },
   { value: 3, text: 'Active', color: 'green', title: 'The service has been recently active' },
 ];

@@ -18,6 +18,45 @@ type Export struct {
 	Database *mongo.DadMongo
 }
 
+// ProjectDataExport contains the data to put inside the export
+type ProjectDataExport struct {
+	Name                           string
+	Description                    string
+	BusinessUnit                   string
+	ServiceCenter                  string
+	Domain                         []string
+	Client                         string
+	ProjectManager                 string
+	Deputies                       []string
+	DocktorGroupName               string
+	DocktorGroupURL                string
+	Technologies                   []string
+	Mode                           string
+	VersionControlSystem           string
+	DeliverablesInVersionControl   bool
+	SourceCodeInVersionControl     bool
+	SpecificationsInVersionControl bool
+	Created                        time.Time
+	Updated                        time.Time
+	ServicesDataExport             map[int][]ServiceDataExport
+}
+
+// ServiceDataExport contains the data of each service
+type ServiceDataExport struct {
+	Progress  string
+	Goal      string
+	Priority  string
+	DueDate   *time.Time
+	Indicator string
+	Comment   string
+}
+
+// Headers contains headers for each project
+type Headers struct {
+	MatrixHeaders        []string
+	ServicesInfosHeaders []string
+}
+
 // ServiceProjectEntry contains a specific service name for a specific project name
 type ServiceProjectEntry struct {
 	ProjectName string
@@ -143,22 +182,11 @@ func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []st
 	return serviceIndicatorMap
 }
 
-func (e *Export) generateXlsx(projects []types.Project, services []types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
+// generateExportHeaders generate headers for projects
+func generateExportHeaders() Headers {
 
-	file := xlsx.NewFile()
-	sheet, err := file.AddSheet("Plan de déploiement")
-	if err != nil {
-		return nil, err
-	}
-
-	servicePkgRow := sheet.AddRow()
-	serviceNameRow := sheet.AddRow()
-	serviceMaturityRow := sheet.AddRow()
-
-	serviceNameRow.SetHeightCM(10)
-
-	// Name of columns contained inside the Matrix maturity column
-	matrixMaturityColumns := []string{
+	// Headers contained inside the Matrix maturity column
+	matrixMaturityColumnsHeaders := []string{
 		"Project",
 		"Description",
 		"Business",
@@ -178,12 +206,238 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		"Creation Date",
 		"Last Update"}
 
-	createMergedCell(servicePkgRow, "Matrix Maturity", len(matrixMaturityColumns))
+	// Headers for each service
+	serviceInfosColumnsHeaders := []string{
+		"Progress",
+		"Goal",
+		"Priority",
+		"Due Date",
+		"Indicator",
+		"Comment"}
 
-	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), len(matrixMaturityColumns))
+	headers := Headers{}
+	headers.MatrixHeaders = matrixMaturityColumnsHeaders
+	headers.ServicesInfosHeaders = serviceInfosColumnsHeaders
 
-	for _, column := range matrixMaturityColumns {
-		createCell(serviceMaturityRow, column)
+	return headers
+}
+
+// retrieveData retrieve all data from projects, projectToUsageIndicators and servicesMap. These data are meant to be used for the generation of the export
+func (e *Export) retrieveData(servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) map[string]ProjectDataExport {
+
+	exportData := make(map[string]ProjectDataExport)
+
+	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
+
+	for _, project := range projects {
+
+		if project.Name == "" {
+			log.WithField("project.Name", project.Name).Error(fmt.Sprintf("The project %v has no name", project.Name))
+			continue
+		} else {
+
+			currentProjectDataExport := ProjectDataExport{}
+			currentProjectDataExport.Name = project.Name
+			currentProjectDataExport.Description = project.Description
+
+			businessUnit, err := e.Database.Entities.FindByID(project.BusinessUnit)
+			if err != nil {
+				currentProjectDataExport.BusinessUnit = "N/A"
+			} else {
+				currentProjectDataExport.BusinessUnit = businessUnit.Name
+			}
+
+			serviceCenter, err := e.Database.Entities.FindByID(project.ServiceCenter)
+			if err != nil {
+				currentProjectDataExport.ServiceCenter = "N/A"
+			} else {
+				currentProjectDataExport.ServiceCenter = serviceCenter.Name
+			}
+
+			if len(project.Domain) == 0 {
+				currentProjectDataExport.Domain = []string{"N/A"}
+			} else {
+				currentProjectDataExport.Domain = project.Domain
+			}
+
+			currentProjectDataExport.Client = project.Client
+
+			projectManager, err := e.Database.Users.FindByID(project.ProjectManager)
+			if err != nil {
+				currentProjectDataExport.ProjectManager = "N/A"
+			}
+			currentProjectDataExport.ProjectManager = projectManager.DisplayName
+
+			deputies := e.findDeputies(project)
+			currentProjectDataExport.Deputies = deputies
+			currentProjectDataExport.DocktorGroupName = project.DocktorGroupName
+			currentProjectDataExport.DocktorGroupURL = project.DocktorGroupURL
+			currentProjectDataExport.Technologies = project.Technologies
+			currentProjectDataExport.Mode = project.Mode
+			currentProjectDataExport.VersionControlSystem = project.VersionControlSystem
+			currentProjectDataExport.DeliverablesInVersionControl = project.DeliverablesInVersionControl
+			currentProjectDataExport.SourceCodeInVersionControl = project.SourceCodeInVersionControl
+			currentProjectDataExport.SpecificationsInVersionControl = project.SpecificationsInVersionControl
+			currentProjectDataExport.Created = project.Created
+			currentProjectDataExport.Updated = project.Updated
+
+			servicesDataExportMap := make(map[int][]ServiceDataExport)
+
+			// Iterate on each service in the correct order
+			for indexPkg, pkg := range servicesMapSortedKeys {
+				services := servicesMap[pkg]
+
+				servicesDataExport := make([]ServiceDataExport, 0)
+				for _, service := range services {
+					applicable := false
+					// Iterate on the project matrix and print the data for the current service
+
+					serviceDataExport := ServiceDataExport{}
+					for _, line := range project.Matrix {
+						if line.Service == service.ID {
+							serviceDataExport.Progress = types.Progress[line.Progress]
+							serviceDataExport.Goal = types.Progress[line.Goal]
+							serviceDataExport.Priority = line.Priority
+							// If the DueDate is nil, N/A will be written while the generateXlsx function
+							serviceDataExport.DueDate = line.DueDate
+
+							key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
+							serviceDataExport.Indicator = allServiceIndicatorMap[key]
+							serviceDataExport.Comment = line.Comment
+
+							applicable = true
+							break
+						}
+					}
+					if !applicable {
+						serviceDataExport.Progress = "N/A"
+						serviceDataExport.Goal = "N/A"
+						serviceDataExport.Priority = "N/A"
+						// If the DueDate is nil, N/A will be written while the generateXlsx function
+						serviceDataExport.DueDate = nil
+
+						key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
+						serviceDataExport.Indicator = allServiceIndicatorMap[key]
+						serviceDataExport.Comment = ""
+					}
+					servicesDataExport = append(servicesDataExport, serviceDataExport)
+				}
+				servicesDataExportMap[indexPkg] = servicesDataExport
+			}
+			currentProjectDataExport.ServicesDataExport = servicesDataExportMap
+			exportData[project.Name] = currentProjectDataExport
+		}
+	}
+	return exportData
+}
+
+// generateXlsx generate the export with informations associated
+func generateXlsx(servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projects []types.Project, headersExport Headers, dataExport map[string]ProjectDataExport) (*bytes.Reader, error) {
+
+	file := xlsx.NewFile()
+	sheet, err := file.AddSheet("Plan de déploiement")
+	if err != nil {
+		return nil, err
+	}
+
+	servicePkgRow := sheet.AddRow()
+	serviceNameRow := sheet.AddRow()
+	serviceMaturityRow := sheet.AddRow()
+
+	// Header generation: package and associated functional services
+	createMergedCell(servicePkgRow, "Matrix Maturity", len(headersExport.MatrixHeaders))
+	createMergedCell(serviceNameRow, "Export Date: "+time.Now().Format("02/01/2006"), len(headersExport.MatrixHeaders))
+	for _, matrixHeader := range headersExport.MatrixHeaders {
+		createCell(serviceMaturityRow, matrixHeader)
+	}
+
+	for _, pkg := range servicesMapSortedKeys {
+		services := servicesMap[pkg]
+
+		createMergedCell(servicePkgRow, pkg, len(services)*len(headersExport.ServicesInfosHeaders))
+		for _, service := range services {
+			nameCell := createMergedCell(serviceNameRow, service.Name, len(headersExport.ServicesInfosHeaders))
+			rotateCell(nameCell, 90)
+			for _, servicesInfo := range headersExport.ServicesInfosHeaders {
+				createCell(serviceMaturityRow, servicesInfo)
+			}
+		}
+	}
+
+	// Generate all project rows
+	for _, project := range projects {
+		projectRow := sheet.AddRow()
+
+		createCell(projectRow, dataExport[project.Name].Name)
+		createCell(projectRow, dataExport[project.Name].Description)
+		createCell(projectRow, dataExport[project.Name].BusinessUnit)
+		createCell(projectRow, dataExport[project.Name].ServiceCenter)
+		createCell(projectRow, strings.Join(dataExport[project.Name].Domain, "; "))
+		createCell(projectRow, dataExport[project.Name].Client)
+		createCell(projectRow, dataExport[project.Name].ProjectManager)
+		createCell(projectRow, strings.Join(dataExport[project.Name].Deputies, ", "))
+		createCell(projectRow, dataExport[project.Name].DocktorGroupName)
+		createCell(projectRow, dataExport[project.Name].DocktorGroupURL)
+		createCell(projectRow, strings.Join(dataExport[project.Name].Technologies, ", "))
+		createCell(projectRow, dataExport[project.Name].Mode)
+		createCell(projectRow, dataExport[project.Name].VersionControlSystem)
+		createBoolCell(projectRow, dataExport[project.Name].DeliverablesInVersionControl)
+		createBoolCell(projectRow, dataExport[project.Name].SourceCodeInVersionControl)
+		createBoolCell(projectRow, dataExport[project.Name].SpecificationsInVersionControl)
+		createDateCell(projectRow, dataExport[project.Name].Created)
+		createDateCell(projectRow, dataExport[project.Name].Updated)
+
+		servicesDataExportSortedKeys := make([]int, 0)
+		for k := range dataExport[project.Name].ServicesDataExport {
+			servicesDataExportSortedKeys = append(servicesDataExportSortedKeys, k)
+		}
+		sort.Ints(servicesDataExportSortedKeys)
+
+		for _, sortedKey := range servicesDataExportSortedKeys {
+
+			serviceDataExport := dataExport[project.Name].ServicesDataExport[sortedKey]
+			for _, service := range serviceDataExport {
+
+				createFormattedValueCell(projectRow, service.Progress)
+				createFormattedValueCell(projectRow, service.Goal)
+				createCell(projectRow, service.Priority)
+				if service.DueDate == nil {
+					createCell(projectRow, "N/A")
+				} else {
+					createDateCell(projectRow, *service.DueDate)
+				}
+				createCell(projectRow, service.Indicator)
+				createCell(projectRow, service.Comment)
+			}
+		}
+	}
+
+	// Presentation of the sheet
+	serviceNameRow.SetHeightCM(10)
+	colorRow(servicePkgRow, red, white)
+	colorRow(serviceNameRow, red, white)
+	colorRow(serviceMaturityRow, red, white)
+	modifySheetAlignment(sheet, "center", "center")
+	modifySheetBorder(sheet, black)
+
+	// Width for all cells
+	setWidthCols(sheet, 12.0)
+
+	// Write the file in-memory and returns is as a readable stream
+	var b bytes.Buffer
+	err = file.Write(&b)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(b.Bytes()), nil
+}
+
+//Export exports some business data as a file
+func (e *Export) Export(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
+
+	services, err := e.Database.FunctionalServices.FindAll()
+	if err != nil {
+		return nil, err
 	}
 
 	// Build a map of services indexed by their package name
@@ -199,134 +453,9 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 	}
 	sort.Strings(servicesMapSortedKeys)
 
-	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
+	headersExport := generateExportHeaders()
 
-	// Number of columns by service
-	const nbColsService = 6
+	dataExport := e.retrieveData(servicesMapSortedKeys, servicesMap, projects, projectToUsageIndicators)
 
-	// Header generation: package and associated functional services
-	for _, pkg := range servicesMapSortedKeys {
-		services := servicesMap[pkg]
-
-		createMergedCell(servicePkgRow, pkg, len(services)*nbColsService)
-		for _, service := range services {
-			nameCell := createMergedCell(serviceNameRow, service.Name, nbColsService)
-			rotateCell(nameCell, 90)
-			createCell(serviceMaturityRow, "Progress")
-			createCell(serviceMaturityRow, "Goal")
-			createCell(serviceMaturityRow, "Priority")
-			createCell(serviceMaturityRow, "Due Date")
-			createCell(serviceMaturityRow, "Indicator")
-			createCell(serviceMaturityRow, "Comment")
-		}
-	}
-
-	// Generate a project row
-	for _, project := range projects {
-		projectRow := sheet.AddRow()
-
-		var businessUnit, serviceCenter types.Entity
-		businessUnit, err = e.Database.Entities.FindByID(project.BusinessUnit)
-		if err != nil {
-			businessUnit = types.Entity{Name: "N/A"}
-		}
-
-		serviceCenter, err = e.Database.Entities.FindByID(project.ServiceCenter)
-		if err != nil {
-			serviceCenter = types.Entity{Name: "N/A"}
-		}
-
-		var projectManager types.User
-		projectManager, err = e.Database.Users.FindByID(project.ProjectManager)
-		if err != nil {
-			projectManager = types.User{DisplayName: "N/A"}
-		}
-
-		deputies := e.findDeputies(project)
-
-		if len(project.Domain) == 0 {
-			project.Domain = []string{"N/A"}
-		}
-
-		createCell(projectRow, project.Name)
-		createCell(projectRow, project.Description)
-		createCell(projectRow, businessUnit.Name)
-		createCell(projectRow, serviceCenter.Name)
-		createCell(projectRow, strings.Join(project.Domain, "; "))
-		createCell(projectRow, project.Client)
-		createCell(projectRow, projectManager.DisplayName)
-		createCell(projectRow, strings.Join(deputies, ", "))
-		createCell(projectRow, project.DocktorGroupName)
-		createCell(projectRow, project.DocktorGroupURL)
-		createCell(projectRow, strings.Join(project.Technologies, ", "))
-		createCell(projectRow, project.Mode)
-		createCell(projectRow, project.VersionControlSystem)
-		createBoolCell(projectRow, project.DeliverablesInVersionControl)
-		createBoolCell(projectRow, project.SourceCodeInVersionControl)
-		createBoolCell(projectRow, project.SpecificationsInVersionControl)
-		createDateCell(projectRow, project.Created)
-		createDateCell(projectRow, project.Updated)
-
-		// Iterate on each service in the correct order
-		for _, pkg := range servicesMapSortedKeys {
-			services := servicesMap[pkg]
-			for _, service := range services {
-				applicable := false
-				// Iterate on the project matrix and print the data for the current service
-				for _, line := range project.Matrix {
-					if line.Service == service.ID {
-						createFormattedValueCell(projectRow, types.Progress[line.Progress])
-						createFormattedValueCell(projectRow, types.Progress[line.Goal])
-						createCell(projectRow, line.Priority)
-						if line.DueDate != nil {
-							createDateCell(projectRow, *line.DueDate)
-						} else {
-							createCell(projectRow, "N/A")
-						}
-						key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
-						createCell(projectRow, allServiceIndicatorMap[key])
-						createCell(projectRow, line.Comment)
-						applicable = true
-						break
-					}
-				}
-				if !applicable {
-					createCell(projectRow, "N/A")
-					createCell(projectRow, "N/A")
-					createCell(projectRow, "N/A")
-					createCell(projectRow, "N/A")
-					key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
-					createCell(projectRow, allServiceIndicatorMap[key])
-					createCell(projectRow, "")
-				}
-			}
-		}
-	}
-
-	colorRow(servicePkgRow, red, white)
-	colorRow(serviceNameRow, red, white)
-	colorRow(serviceMaturityRow, red, white)
-	modifySheetAlignment(sheet, "center", "center")
-	modifySheetBorder(sheet, black)
-
-	// Width for all cells
-	const widthDate = 12.0
-	setWidthCols(sheet, widthDate)
-
-	// Write the file in-memory and returns is as a readable stream
-	var b bytes.Buffer
-	err = file.Write(&b)
-	if err != nil {
-		return nil, err
-	}
-	return bytes.NewReader(b.Bytes()), nil
-}
-
-//Export exports some business data as a file
-func (e *Export) Export(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
-	services, err := e.Database.FunctionalServices.FindAll()
-	if err != nil {
-		return nil, err
-	}
-	return e.generateXlsx(projects, services, projectToUsageIndicators)
+	return generateXlsx(servicesMapSortedKeys, servicesMap, projects, headersExport, dataExport)
 }

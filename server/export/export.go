@@ -332,7 +332,7 @@ func (e *Export) retrieveData(servicesMapSortedKeys []string, servicesMap map[st
 }
 
 // generateXlsx generate the export with informations associated
-func generateXlsx(servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projects []types.Project, headersExport Headers, dataExport map[string]ProjectDataExport) (*bytes.Reader, error) {
+func generateXlsx(servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, headersExport Headers, dataExport map[string]ProjectDataExport) (*bytes.Reader, error) {
 
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("Plan de déploiement")
@@ -364,38 +364,45 @@ func generateXlsx(servicesMapSortedKeys []string, servicesMap map[string][]types
 		}
 	}
 
+	// Keep a list of the projects names
+	dataExportKeys := []string{}
+	for key := range dataExport {
+		dataExportKeys = append(dataExportKeys, key)
+	}
+	sort.Strings(dataExportKeys)
+
 	// Generate all project rows
-	for _, project := range projects {
+	for _, projectName := range dataExportKeys {
 		projectRow := sheet.AddRow()
 
-		createCell(projectRow, dataExport[project.Name].Name)
-		createCell(projectRow, dataExport[project.Name].Description)
-		createCell(projectRow, dataExport[project.Name].BusinessUnit)
-		createCell(projectRow, dataExport[project.Name].ServiceCenter)
-		createCell(projectRow, strings.Join(dataExport[project.Name].Domain, "; "))
-		createCell(projectRow, dataExport[project.Name].Client)
-		createCell(projectRow, dataExport[project.Name].ProjectManager)
-		createCell(projectRow, strings.Join(dataExport[project.Name].Deputies, ", "))
-		createCell(projectRow, dataExport[project.Name].DocktorGroupName)
-		createCell(projectRow, dataExport[project.Name].DocktorGroupURL)
-		createCell(projectRow, strings.Join(dataExport[project.Name].Technologies, ", "))
-		createCell(projectRow, dataExport[project.Name].Mode)
-		createCell(projectRow, dataExport[project.Name].VersionControlSystem)
-		createBoolCell(projectRow, dataExport[project.Name].DeliverablesInVersionControl)
-		createBoolCell(projectRow, dataExport[project.Name].SourceCodeInVersionControl)
-		createBoolCell(projectRow, dataExport[project.Name].SpecificationsInVersionControl)
-		createDateCell(projectRow, dataExport[project.Name].Created)
-		createDateCell(projectRow, dataExport[project.Name].Updated)
+		createCell(projectRow, dataExport[projectName].Name)
+		createCell(projectRow, dataExport[projectName].Description)
+		createCell(projectRow, dataExport[projectName].BusinessUnit)
+		createCell(projectRow, dataExport[projectName].ServiceCenter)
+		createCell(projectRow, strings.Join(dataExport[projectName].Domain, "; "))
+		createCell(projectRow, dataExport[projectName].Client)
+		createCell(projectRow, dataExport[projectName].ProjectManager)
+		createCell(projectRow, strings.Join(dataExport[projectName].Deputies, ", "))
+		createCell(projectRow, dataExport[projectName].DocktorGroupName)
+		createCell(projectRow, dataExport[projectName].DocktorGroupURL)
+		createCell(projectRow, strings.Join(dataExport[projectName].Technologies, ", "))
+		createCell(projectRow, dataExport[projectName].Mode)
+		createCell(projectRow, dataExport[projectName].VersionControlSystem)
+		createBoolCell(projectRow, dataExport[projectName].DeliverablesInVersionControl)
+		createBoolCell(projectRow, dataExport[projectName].SourceCodeInVersionControl)
+		createBoolCell(projectRow, dataExport[projectName].SpecificationsInVersionControl)
+		createDateCell(projectRow, dataExport[projectName].Created)
+		createDateCell(projectRow, dataExport[projectName].Updated)
 
 		servicesDataExportSortedKeys := make([]int, 0)
-		for k := range dataExport[project.Name].ServicesDataExport {
+		for k := range dataExport[projectName].ServicesDataExport {
 			servicesDataExportSortedKeys = append(servicesDataExportSortedKeys, k)
 		}
 		sort.Ints(servicesDataExportSortedKeys)
 
 		for _, sortedKey := range servicesDataExportSortedKeys {
 
-			serviceDataExport := dataExport[project.Name].ServicesDataExport[sortedKey]
+			serviceDataExport := dataExport[projectName].ServicesDataExport[sortedKey]
 			for _, service := range serviceDataExport {
 
 				createFormattedValueCell(projectRow, service.Progress)
@@ -457,5 +464,5 @@ func (e *Export) Export(projects []types.Project, projectToUsageIndicators map[s
 
 	dataExport := e.retrieveData(servicesMapSortedKeys, servicesMap, projects, projectToUsageIndicators)
 
-	return generateXlsx(servicesMapSortedKeys, servicesMap, projects, headersExport, dataExport)
+	return generateXlsx(servicesMapSortedKeys, servicesMap, headersExport, dataExport)
 }

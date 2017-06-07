@@ -223,9 +223,16 @@ func generateExportHeaders() Headers {
 }
 
 // retrieveData retrieve all data from projects, projectToUsageIndicators and servicesMap. These data are meant to be used for the generation of the export
-func (e *Export) retrieveData(servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) map[string]ProjectDataExport {
+func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) map[string]ProjectDataExport {
 
 	exportData := make(map[string]ProjectDataExport)
+
+	// Keep a list of the sorted package names
+	servicesMapSortedKeys := []string{}
+	for key := range servicesMap {
+		servicesMapSortedKeys = append(servicesMapSortedKeys, key)
+	}
+	sort.Strings(servicesMapSortedKeys)
 
 	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
 
@@ -332,7 +339,7 @@ func (e *Export) retrieveData(servicesMapSortedKeys []string, servicesMap map[st
 }
 
 // generateXlsx generate the export with informations associated
-func generateXlsx(servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, headersExport Headers, dataExport map[string]ProjectDataExport) (*bytes.Reader, error) {
+func generateXlsx(servicesMap map[string][]types.FunctionalService, headersExport Headers, dataExport map[string]ProjectDataExport) (*bytes.Reader, error) {
 
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("Plan de déploiement")
@@ -350,6 +357,13 @@ func generateXlsx(servicesMapSortedKeys []string, servicesMap map[string][]types
 	for _, matrixHeader := range headersExport.MatrixHeaders {
 		createCell(serviceMaturityRow, matrixHeader)
 	}
+
+	// Keep a list of the sorted package names
+	servicesMapSortedKeys := []string{}
+	for key := range servicesMap {
+		servicesMapSortedKeys = append(servicesMapSortedKeys, key)
+	}
+	sort.Strings(servicesMapSortedKeys)
 
 	for _, pkg := range servicesMapSortedKeys {
 		services := servicesMap[pkg]
@@ -453,16 +467,9 @@ func (e *Export) Export(projects []types.Project, projectToUsageIndicators map[s
 		servicesMap[service.Package] = append(servicesMap[service.Package], service)
 	}
 
-	// Keep a list of the sorted package names
-	servicesMapSortedKeys := []string{}
-	for key := range servicesMap {
-		servicesMapSortedKeys = append(servicesMapSortedKeys, key)
-	}
-	sort.Strings(servicesMapSortedKeys)
-
 	headersExport := generateExportHeaders()
 
-	dataExport := e.retrieveData(servicesMapSortedKeys, servicesMap, projects, projectToUsageIndicators)
+	dataExport := e.retrieveData(servicesMap, projects, projectToUsageIndicators)
 
-	return generateXlsx(servicesMapSortedKeys, servicesMap, headersExport, dataExport)
+	return generateXlsx(servicesMap, headersExport, dataExport)
 }

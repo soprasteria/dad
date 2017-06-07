@@ -13,8 +13,7 @@ func TestGetServiceToIndicatorUsage(t *testing.T) {
 		usageIndicatorSliced := make([]string, len(usageIndicator))
 		i := 0
 		for k := range usageIndicator {
-			usageIndicatorSliced[i] = k
-			i++
+			usageIndicatorSliced[i] = append(usageIndicatorSliced, k)
 		}
 		return usageIndicatorSliced
 	}
@@ -361,6 +360,165 @@ func TestFunctionBestIndicatorStatus(t *testing.T) {
 						So(status.String(), ShouldEqual, "Inactive")
 					})
 				})
+			})
+		})
+	})
+}
+
+func TestGenerateXlsx(t *testing.T) {
+
+	/*Convey("Given functional services with technical service 'Pipeline' initialized", t, func() {
+
+	technicalServicePipeline := []string{"jenkins"}
+
+	services := []types.FunctionalService{
+		{
+			ID:       bson.ObjectId("1"),
+			Name:     "Collecte des exigences",
+			Package:  "1. Requirement Management",
+			Position: 10},
+		{
+			ID:       bson.ObjectId("2"),
+			Name:     "Gestion du patrimoine des exigences",
+			Package:  "1. Requirement Management",
+			Position: 20},
+		{
+			ID:       bson.ObjectId("3"),
+			Name:     "Visualisation de la traçabilité bout en bout des exigences",
+			Package:  "1. Requirement Management",
+			Position: 30},
+		{
+			ID:       bson.ObjectId("4"),
+			Name:     "Pipeline d'intégration continue",
+			Package:  "2. Build",
+			Position: 10,
+			Services: []string{"jenkins"}},
+		{
+			ID:       bson.ObjectId("5"),
+			Name:     "Automatisation des tests unitaires",
+			Package:  "2. Build",
+			Position: 20},
+		{
+			ID:       bson.ObjectId("6"),
+			Name:     "Gestion des dépendances et des artéfacts",
+			Package:  "2. Build",
+			Position: 30},
+		{
+			ID:       bson.ObjectId("7"),
+			Name:     "Gestion des revues de code",
+			Package:  "2. Build",
+			Position: 40},
+		{
+			ID:       bson.ObjectId("8"),
+			Name:     "Gestion de la qualimétrie",
+			Package:  "2. Build",
+			Position: 50},
+		{
+			ID:       bson.ObjectId("9"),
+			Name:     "Packaging et déploiement automatique de la livraison",
+			Package:  "2. Build",
+			Position: 60},
+		{
+			ID:       bson.ObjectId("10"),
+			Name:     "Gestion du patrimoine de tests",
+			Package:  "3. Acceptance",
+			Position: 10},
+		{
+			ID:       bson.ObjectId("11"),
+			Name:     "Modèles de stratégie de tests",
+			Package:  "3. Acceptance",
+			Position: 20},
+		{
+			ID:       bson.ObjectId("12"),
+			Name:     "Automatisation des tests de non régression",
+			Package:  "3. Acceptance",
+			Position: 30},
+		{
+			ID:       bson.ObjectId("13"),
+			Name:     "Tests de sécurité applicative",
+			Package:  "3. Acceptance",
+			Position: 40},
+		{
+			ID:       bson.ObjectId("14"),
+			Name:     "Simulation des flux pour l'automatisation des tests",
+			Package:  "3. Acceptance",
+			Position: 50},
+		{
+			ID:       bson.ObjectId("15"),
+			Name:     "Dashboard d'avancement et bilan de tests",
+			Package:  "3. Acceptance",
+			Position: 60},
+		{
+			ID:       bson.ObjectId("16"),
+			Name:     "Contrôle des licences",
+			Package:  "3. Acceptance",
+			Position: 70},
+		{
+			ID:       bson.ObjectId("17"),
+			Name:     "Anonymisation des données sensibles d'une base",
+			Package:  "3. Acceptance",
+			Position: 80},
+		{
+			ID:       bson.ObjectId("18"),
+			Name:     "Modèles de stratégie de tests",
+			Package:  "4. Performance",
+			Position: 10},
+		{
+			ID:       bson.ObjectId("19"),
+			Name:     "Bilan de tests",
+			Package:  "4. Performance",
+			Position: 20},
+		{
+			ID:       bson.ObjectId("20"),
+			Name:     "Automatisation des tests de performances",
+			Package:  "4. Performance",
+			Position: 30},
+		{
+			ID:       bson.ObjectId("21"),
+			Name:     "Dashboard des performances",
+			Package:  "4. Performance",
+			Position: 40},
+		{
+			ID:       bson.ObjectId("22"),
+			Name:     "Déploiement et installation automatique",
+			Package:  "5. OPS",
+			Position: 10},
+		{
+			ID:       bson.ObjectId("23"),
+			Name:     "Analyse automatique des logs",
+			Package:  "5. OPS",
+			Position: 20},
+		{
+			ID:       bson.ObjectId("24"),
+			Name:     "Vision de l'avancement global et suivi des environnements",
+			Package:  "6. Monitoring",
+			Position: 10},
+		{
+			ID:       bson.ObjectId("25"),
+			Name:     "Suivi des versions et des demandes (Release Monitoring)",
+			Package:  "6. Monitoring",
+			Position: 20},
+		{
+			ID:       bson.ObjectId("26"),
+			Name:     "Tweeter",
+			Package:  "6. Monitoring",
+			Position: 30}}
+
+	Convey("When calling the generateXlsx function", func() {
+
+		generateXlsx
+		status := bestIndicatorStatus(service, usageIndicators)
+		Convey("Then the result is Inactive", func() {
+			So(status.String(), ShouldEqual, "Inactive")
+		})
+	})*/
+
+	Convey("Given headers", t, func() {
+		headers := generateExportHeaders()
+
+		Convey("with 1 project with all his infos initialized", func() {
+
+			Convey("When calling the generateXlsx function", func() {
 			})
 		})
 	})

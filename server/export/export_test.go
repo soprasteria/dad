@@ -378,137 +378,139 @@ func TestGenerateXlsx(t *testing.T) {
 
 		technicalServicePipeline := []string{"jenkins"}
 
+		notApplicable := "N/A"
+
 		services := []types.FunctionalService{
 			{
 				ID:       bson.ObjectId("1"),
-				Name:     "Collecte des exigences",
-				Package:  "1. Requirement Management",
+				Name:     "service1",
+				Package:  "pkg1",
 				Position: 10},
 			{
 				ID:       bson.ObjectId("2"),
-				Name:     "Gestion du patrimoine des exigences",
-				Package:  "1. Requirement Management",
+				Name:     "service2",
+				Package:  "pkg1",
 				Position: 20},
 			{
 				ID:       bson.ObjectId("3"),
-				Name:     "Visualisation de la traçabilité bout en bout des exigences",
-				Package:  "1. Requirement Management",
+				Name:     "service3",
+				Package:  "pkg1",
 				Position: 30},
 			{
 				ID:       bson.ObjectId("4"),
-				Name:     "Pipeline d'intégration continue",
-				Package:  "2. Build",
+				Name:     "service4",
+				Package:  "pkg2",
 				Position: 10,
 				Services: technicalServicePipeline},
 			{
 				ID:       bson.ObjectId("5"),
-				Name:     "Automatisation des tests unitaires",
-				Package:  "2. Build",
+				Name:     "service5",
+				Package:  "pkg2",
 				Position: 20},
 			{
 				ID:       bson.ObjectId("6"),
-				Name:     "Gestion des dépendances et des artéfacts",
-				Package:  "2. Build",
+				Name:     "service6",
+				Package:  "pkg2",
 				Position: 30},
 			{
 				ID:       bson.ObjectId("7"),
-				Name:     "Gestion des revues de code",
-				Package:  "2. Build",
+				Name:     "service7",
+				Package:  "pkg2",
 				Position: 40},
 			{
 				ID:       bson.ObjectId("8"),
-				Name:     "Gestion de la qualimétrie",
-				Package:  "2. Build",
+				Name:     "service8",
+				Package:  "pkg2",
 				Position: 50},
 			{
 				ID:       bson.ObjectId("9"),
-				Name:     "Packaging et déploiement automatique de la livraison",
-				Package:  "2. Build",
+				Name:     "service9",
+				Package:  "pkg2",
 				Position: 60},
 			{
 				ID:       bson.ObjectId("10"),
-				Name:     "Gestion du patrimoine de tests",
-				Package:  "3. Acceptance",
+				Name:     "service10",
+				Package:  "pkg3",
 				Position: 10},
 			{
 				ID:       bson.ObjectId("11"),
-				Name:     "Modèles de stratégie de tests",
-				Package:  "3. Acceptance",
+				Name:     "service11",
+				Package:  "pkg3",
 				Position: 20},
 			{
 				ID:       bson.ObjectId("12"),
-				Name:     "Automatisation des tests de non régression",
-				Package:  "3. Acceptance",
+				Name:     "service12",
+				Package:  "pkg3",
 				Position: 30},
 			{
 				ID:       bson.ObjectId("13"),
-				Name:     "Tests de sécurité applicative",
-				Package:  "3. Acceptance",
+				Name:     "service13",
+				Package:  "pkg3",
 				Position: 40},
 			{
 				ID:       bson.ObjectId("14"),
-				Name:     "Simulation des flux pour l'automatisation des tests",
-				Package:  "3. Acceptance",
+				Name:     "service14",
+				Package:  "pkg3",
 				Position: 50},
 			{
 				ID:       bson.ObjectId("15"),
-				Name:     "Dashboard d'avancement et bilan de tests",
-				Package:  "3. Acceptance",
+				Name:     "service15",
+				Package:  "pkg3",
 				Position: 60},
 			{
 				ID:       bson.ObjectId("16"),
-				Name:     "Contrôle des licences",
-				Package:  "3. Acceptance",
+				Name:     "service16",
+				Package:  "pkg3",
 				Position: 70},
 			{
 				ID:       bson.ObjectId("17"),
-				Name:     "Anonymisation des données sensibles d'une base",
-				Package:  "3. Acceptance",
+				Name:     "service17",
+				Package:  "pkg3",
 				Position: 80},
 			{
 				ID:       bson.ObjectId("18"),
-				Name:     "Modèles de stratégie de tests",
-				Package:  "4. Performance",
+				Name:     "service18",
+				Package:  "pkg4",
 				Position: 10},
 			{
 				ID:       bson.ObjectId("19"),
-				Name:     "Bilan de tests",
-				Package:  "4. Performance",
+				Name:     "service19",
+				Package:  "pkg4",
 				Position: 20},
 			{
 				ID:       bson.ObjectId("20"),
-				Name:     "Automatisation des tests de performances",
-				Package:  "4. Performance",
+				Name:     "service20",
+				Package:  "pkg4",
 				Position: 30},
 			{
 				ID:       bson.ObjectId("21"),
-				Name:     "Dashboard des performances",
-				Package:  "4. Performance",
+				Name:     "service21",
+				Package:  "pkg4",
 				Position: 40},
 			{
 				ID:       bson.ObjectId("22"),
-				Name:     "Déploiement et installation automatique",
-				Package:  "5. OPS",
+				Name:     "service22",
+				Package:  "pkg5",
 				Position: 10},
 			{
 				ID:       bson.ObjectId("23"),
-				Name:     "Analyse automatique des logs",
-				Package:  "5. OPS",
+				Name:     "service23",
+				Package:  "pkg5",
 				Position: 20},
 			{
 				ID:       bson.ObjectId("24"),
-				Name:     "Vision de l'avancement global et suivi des environnements",
-				Package:  "6. Monitoring",
+				Name:     "service24",
+				Package:  "pkg6",
 				Position: 10},
 			{
 				ID:       bson.ObjectId("25"),
-				Name:     "Suivi des versions et des demandes (Release Monitoring)",
-				Package:  "6. Monitoring",
+				Name:     "service25",
+				Package:  "pkg6",
 				Position: 20},
 			{
 				ID:       bson.ObjectId("26"),
-				Name:     "Tweeter",
-				Package:  "6. Monitoring",
+				Name:     "service26",
+				Package:  "pkg6",
 				Position: 30}}
 
 		servicesMap := make(map[string][]types.FunctionalService)
@@ -550,22 +552,22 @@ func TestGenerateXlsx(t *testing.T) {
 				Goal:      "00%",
 				Priority:  "P0",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Collecte des exigences"},
+				Indicator: notApplicable,
+				Comment:   "service1"},
 			ServiceDataExport{
 				Progress:  "00%",
 				Goal:      "00%",
 				Priority:  "P0",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Gestion du patrimoine des exigences"},
+				Indicator: notApplicable,
+				Comment:   "service2"},
 			ServiceDataExport{
 				Progress:  "00%",
 				Goal:      "00%",
 				Priority:  "P0",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Visualisation de la traçabilité bout en bout des exigences"}}
+				Indicator: notApplicable,
+				Comment:   "service3"}}
 		initServiceDataExport[1] = []ServiceDataExport{
 
 			ServiceDataExport{
@@ -574,42 +576,42 @@ func TestGenerateXlsx(t *testing.T) {
 				Priority:  "P1",
 				DueDate:   dueDate,
 				Indicator: "Active",
-				Comment:   "Pipeline d'intégration continue"},
+				Comment:   "service4"},
 			ServiceDataExport{
 				Progress:  "20%",
 				Goal:      "20%",
 				Priority:  "P1",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Automatisation des tests unitaires"},
+				Indicator: notApplicable,
+				Comment:   "service5"},
 			ServiceDataExport{
 				Progress:  "20%",
 				Goal:      "20%",
 				Priority:  "P1",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Gestion des dépendances et des artéfacts"},
+				Indicator: notApplicable,
+				Comment:   "service6"},
 			ServiceDataExport{
 				Progress:  "20%",
 				Goal:      "20%",
 				Priority:  "P1",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Gestion des revues de code"},
+				Indicator: notApplicable,
+				Comment:   "service7"},
 			ServiceDataExport{
 				Progress:  "20%",
 				Goal:      "20%",
 				Priority:  "P1",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Gestion de la qualimétrie"},
+				Indicator: notApplicable,
+				Comment:   "service8"},
 			ServiceDataExport{
 				Progress:  "20%",
 				Goal:      "20%",
 				Priority:  "P1",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Packaging et déploiement automatique de la livraison"}}
+				Indicator: notApplicable,
+				Comment:   "service9"}}
 
 		initServiceDataExport[2] = []ServiceDataExport{
 			ServiceDataExport{
@@ -617,57 +619,57 @@ func TestGenerateXlsx(t *testing.T) {
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Gestion du patrimoine de tests"},
+				Indicator: notApplicable,
+				Comment:   "service10"},
 			ServiceDataExport{
 				Progress:  "40%",
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Modèles de stratégie de tests"},
+				Indicator: notApplicable,
+				Comment:   "service11"},
 			ServiceDataExport{
 				Progress:  "40%",
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Automatisation des tests de non régression"},
+				Indicator: notApplicable,
+				Comment:   "service12"},
 			ServiceDataExport{
 				Progress:  "40%",
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Tests de sécurité applicative"},
+				Indicator: notApplicable,
+				Comment:   "service13"},
 			ServiceDataExport{
 				Progress:  "40%",
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Simulation des flux pour l'automatisation des tests"},
+				Indicator: notApplicable,
+				Comment:   "service14"},
 			ServiceDataExport{
 				Progress:  "40%",
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Dashboard d'avancement et bilan de tests"},
+				Indicator: notApplicable,
+				Comment:   "service15"},
 			ServiceDataExport{
 				Progress:  "40%",
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Contrôle des licences"},
+				Indicator: notApplicable,
+				Comment:   "service16"},
 			ServiceDataExport{
 				Progress:  "40%",
 				Goal:      "40%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Anonymisation des données sensibles d'une base"}}
+				Indicator: notApplicable,
+				Comment:   "service17"}}
 
 		initServiceDataExport[3] = []ServiceDataExport{
 			ServiceDataExport{
@@ -675,29 +677,29 @@ func TestGenerateXlsx(t *testing.T) {
 				Goal:      "60%",
 				Priority:  "P0",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Modèles de stratégie de tests"},
+				Indicator: notApplicable,
+				Comment:   "service18"},
 			ServiceDataExport{
 				Progress:  "60%",
 				Goal:      "60%",
 				Priority:  "P0",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Bilan de tests"},
+				Indicator: notApplicable,
+				Comment:   "service19"},
 			ServiceDataExport{
 				Progress:  "60%",
 				Goal:      "60%",
 				Priority:  "P0",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Automatisation des tests de performances"},
+				Indicator: notApplicable,
+				Comment:   "service20"},
 			ServiceDataExport{
 				Progress:  "60%",
 				Goal:      "60%",
 				Priority:  "P0",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Dashboard des performances"}}
+				Indicator: notApplicable,
+				Comment:   "service21"}}
 
 		initServiceDataExport[4] = []ServiceDataExport{
 			ServiceDataExport{
@@ -705,15 +707,15 @@ func TestGenerateXlsx(t *testing.T) {
 				Goal:      "80%",
 				Priority:  "P1",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Déploiement et installation automatique"},
+				Indicator: notApplicable,
+				Comment:   "service22"},
 			ServiceDataExport{
 				Progress:  "80%",
 				Goal:      "80%",
 				Priority:  "P1",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Analyse automatique des logs"}}
+				Indicator: notApplicable,
+				Comment:   "service23"}}
 
 		initServiceDataExport[5] = []ServiceDataExport{
 			ServiceDataExport{
@@ -721,22 +723,22 @@ func TestGenerateXlsx(t *testing.T) {
 				Goal:      "100%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Vision de l'avancement global et suivi des environnements"},
+				Indicator: notApplicable,
+				Comment:   "service24"},
 			ServiceDataExport{
 				Progress:  "100%",
 				Goal:      "100%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Suivi des versions et des demandes (Release Monitoring)"},
+				Indicator: notApplicable,
+				Comment:   "service25"},
 			ServiceDataExport{
 				Progress:  "100%",
 				Goal:      "100%",
 				Priority:  "P2",
 				DueDate:   dueDate,
-				Indicator: "N/A",
-				Comment:   "Tweeter"}}
+				Indicator: notApplicable,
+				Comment:   "service26"}}
 
 		initializedProject.ServicesDataExport = initServiceDataExport
 
@@ -751,171 +753,171 @@ func TestGenerateXlsx(t *testing.T) {
 		emptyServiceDataExport := make(map[int][]ServiceDataExport)
 		emptyServiceDataExport[0] = []ServiceDataExport{
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"}}
+				Indicator: notApplicable}}
 
 		emptyServiceDataExport[1] = []ServiceDataExport{
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"}}
+				Indicator: notApplicable}}
 
 		emptyServiceDataExport[2] = []ServiceDataExport{
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"}}
+				Indicator: notApplicable}}
 
 		emptyServiceDataExport[3] = []ServiceDataExport{
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"}}
+				Indicator: notApplicable}}
 
 		emptyServiceDataExport[4] = []ServiceDataExport{
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"}}
+				Indicator: notApplicable}}
 
 		emptyServiceDataExport[5] = []ServiceDataExport{
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"},
+				Indicator: notApplicable},
 			ServiceDataExport{
-				Progress:  "N/A",
-				Goal:      "N/A",
-				Priority:  "N/A",
+				Progress:  notApplicable,
+				Goal:      notApplicable,
+				Priority:  notApplicable,
 				DueDate:   nil,
-				Indicator: "N/A"}}
+				Indicator: notApplicable}}
 
 		emptyProject.ServicesDataExport = emptyServiceDataExport
 
@@ -988,7 +990,7 @@ func TestGenerateXlsx(t *testing.T) {
 								So(cells[indexMatrix+1].Value, ShouldEqual, service.Goal)
 								So(cells[indexMatrix+2].Value, ShouldEqual, service.Priority)
 								if service.DueDate == nil {
-									So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
+									So(cells[indexMatrix+3].Value, ShouldEqual, notApplicable)
 								} else {
 									// can't verify dueDate
 								}
@@ -1062,11 +1064,11 @@ func TestGenerateXlsx(t *testing.T) {
 
 							for _, service := range serviceDataExport {
 								So(service, ShouldNotBeNil)
-								So(cells[indexMatrix].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+1].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+2].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+4].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+1].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+2].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+3].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+4].Value, ShouldEqual, notApplicable)
 								So(cells[indexMatrix+5].Value, ShouldBeBlank)
 								indexMatrix = indexMatrix + len(headers.ServicesInfosHeaders)
 							}
@@ -1137,11 +1139,11 @@ func TestGenerateXlsx(t *testing.T) {
 
 							for _, service := range serviceDataExport {
 								So(service, ShouldNotBeNil)
-								So(cells[indexMatrix].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+1].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+2].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
-								So(cells[indexMatrix+4].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+1].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+2].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+3].Value, ShouldEqual, notApplicable)
+								So(cells[indexMatrix+4].Value, ShouldEqual, notApplicable)
 								So(cells[indexMatrix+5].Value, ShouldBeBlank)
 								indexMatrix = indexMatrix + len(headers.ServicesInfosHeaders)
 							}
@@ -1196,7 +1198,7 @@ func TestGenerateXlsx(t *testing.T) {
 								So(cells[indexMatrix+1].Value, ShouldEqual, service.Goal)
 								So(cells[indexMatrix+2].Value, ShouldEqual, service.Priority)
 								if service.DueDate == nil {
-									So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
+									So(cells[indexMatrix+3].Value, ShouldEqual, notApplicable)
 								} else {
 									// can't verify dueDate
 								}

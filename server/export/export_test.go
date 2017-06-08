@@ -1,19 +1,26 @@
 package export
 
 import (
+	"sort"
+	"strconv"
 	"testing"
+
+	"gopkg.in/mgo.v2/bson"
+
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/soprasteria/dad/server/types"
+	"github.com/tealeg/xlsx"
 )
 
 func TestGetServiceToIndicatorUsage(t *testing.T) {
 
 	mapToSlice := func(usageIndicator map[string]types.UsageIndicator) []string {
 		usageIndicatorSliced := make([]string, len(usageIndicator))
-		i := 0
+
 		for k := range usageIndicator {
-			usageIndicatorSliced[i] = append(usageIndicatorSliced, k)
+			usageIndicatorSliced = append(usageIndicatorSliced, k)
 		}
 		return usageIndicatorSliced
 	}
@@ -367,158 +374,839 @@ func TestFunctionBestIndicatorStatus(t *testing.T) {
 
 func TestGenerateXlsx(t *testing.T) {
 
-	/*Convey("Given functional services with technical service 'Pipeline' initialized", t, func() {
+	Convey("Given functional services with technical service 'Pipeline' initialized, with headers and 2 projects (1 initialized and 1 not initialized)", t, func() {
 
-	technicalServicePipeline := []string{"jenkins"}
+		technicalServicePipeline := []string{"jenkins"}
 
-	services := []types.FunctionalService{
-		{
-			ID:       bson.ObjectId("1"),
-			Name:     "Collecte des exigences",
-			Package:  "1. Requirement Management",
-			Position: 10},
-		{
-			ID:       bson.ObjectId("2"),
-			Name:     "Gestion du patrimoine des exigences",
-			Package:  "1. Requirement Management",
-			Position: 20},
-		{
-			ID:       bson.ObjectId("3"),
-			Name:     "Visualisation de la traçabilité bout en bout des exigences",
-			Package:  "1. Requirement Management",
-			Position: 30},
-		{
-			ID:       bson.ObjectId("4"),
-			Name:     "Pipeline d'intégration continue",
-			Package:  "2. Build",
-			Position: 10,
-			Services: []string{"jenkins"}},
-		{
-			ID:       bson.ObjectId("5"),
-			Name:     "Automatisation des tests unitaires",
-			Package:  "2. Build",
-			Position: 20},
-		{
-			ID:       bson.ObjectId("6"),
-			Name:     "Gestion des dépendances et des artéfacts",
-			Package:  "2. Build",
-			Position: 30},
-		{
-			ID:       bson.ObjectId("7"),
-			Name:     "Gestion des revues de code",
-			Package:  "2. Build",
-			Position: 40},
-		{
-			ID:       bson.ObjectId("8"),
-			Name:     "Gestion de la qualimétrie",
-			Package:  "2. Build",
-			Position: 50},
-		{
-			ID:       bson.ObjectId("9"),
-			Name:     "Packaging et déploiement automatique de la livraison",
-			Package:  "2. Build",
-			Position: 60},
-		{
-			ID:       bson.ObjectId("10"),
-			Name:     "Gestion du patrimoine de tests",
-			Package:  "3. Acceptance",
-			Position: 10},
-		{
-			ID:       bson.ObjectId("11"),
-			Name:     "Modèles de stratégie de tests",
-			Package:  "3. Acceptance",
-			Position: 20},
-		{
-			ID:       bson.ObjectId("12"),
-			Name:     "Automatisation des tests de non régression",
-			Package:  "3. Acceptance",
-			Position: 30},
-		{
-			ID:       bson.ObjectId("13"),
-			Name:     "Tests de sécurité applicative",
-			Package:  "3. Acceptance",
-			Position: 40},
-		{
-			ID:       bson.ObjectId("14"),
-			Name:     "Simulation des flux pour l'automatisation des tests",
-			Package:  "3. Acceptance",
-			Position: 50},
-		{
-			ID:       bson.ObjectId("15"),
-			Name:     "Dashboard d'avancement et bilan de tests",
-			Package:  "3. Acceptance",
-			Position: 60},
-		{
-			ID:       bson.ObjectId("16"),
-			Name:     "Contrôle des licences",
-			Package:  "3. Acceptance",
-			Position: 70},
-		{
-			ID:       bson.ObjectId("17"),
-			Name:     "Anonymisation des données sensibles d'une base",
-			Package:  "3. Acceptance",
-			Position: 80},
-		{
-			ID:       bson.ObjectId("18"),
-			Name:     "Modèles de stratégie de tests",
-			Package:  "4. Performance",
-			Position: 10},
-		{
-			ID:       bson.ObjectId("19"),
-			Name:     "Bilan de tests",
-			Package:  "4. Performance",
-			Position: 20},
-		{
-			ID:       bson.ObjectId("20"),
-			Name:     "Automatisation des tests de performances",
-			Package:  "4. Performance",
-			Position: 30},
-		{
-			ID:       bson.ObjectId("21"),
-			Name:     "Dashboard des performances",
-			Package:  "4. Performance",
-			Position: 40},
-		{
-			ID:       bson.ObjectId("22"),
-			Name:     "Déploiement et installation automatique",
-			Package:  "5. OPS",
-			Position: 10},
-		{
-			ID:       bson.ObjectId("23"),
-			Name:     "Analyse automatique des logs",
-			Package:  "5. OPS",
-			Position: 20},
-		{
-			ID:       bson.ObjectId("24"),
-			Name:     "Vision de l'avancement global et suivi des environnements",
-			Package:  "6. Monitoring",
-			Position: 10},
-		{
-			ID:       bson.ObjectId("25"),
-			Name:     "Suivi des versions et des demandes (Release Monitoring)",
-			Package:  "6. Monitoring",
-			Position: 20},
-		{
-			ID:       bson.ObjectId("26"),
-			Name:     "Tweeter",
-			Package:  "6. Monitoring",
-			Position: 30}}
+		services := []types.FunctionalService{
+			{
+				ID:       bson.ObjectId("1"),
+				Name:     "Collecte des exigences",
+				Package:  "1. Requirement Management",
+				Position: 10},
+			{
+				ID:       bson.ObjectId("2"),
+				Name:     "Gestion du patrimoine des exigences",
+				Package:  "1. Requirement Management",
+				Position: 20},
+			{
+				ID:       bson.ObjectId("3"),
+				Name:     "Visualisation de la traçabilité bout en bout des exigences",
+				Package:  "1. Requirement Management",
+				Position: 30},
+			{
+				ID:       bson.ObjectId("4"),
+				Name:     "Pipeline d'intégration continue",
+				Package:  "2. Build",
+				Position: 10,
+				Services: technicalServicePipeline},
+			{
+				ID:       bson.ObjectId("5"),
+				Name:     "Automatisation des tests unitaires",
+				Package:  "2. Build",
+				Position: 20},
+			{
+				ID:       bson.ObjectId("6"),
+				Name:     "Gestion des dépendances et des artéfacts",
+				Package:  "2. Build",
+				Position: 30},
+			{
+				ID:       bson.ObjectId("7"),
+				Name:     "Gestion des revues de code",
+				Package:  "2. Build",
+				Position: 40},
+			{
+				ID:       bson.ObjectId("8"),
+				Name:     "Gestion de la qualimétrie",
+				Package:  "2. Build",
+				Position: 50},
+			{
+				ID:       bson.ObjectId("9"),
+				Name:     "Packaging et déploiement automatique de la livraison",
+				Package:  "2. Build",
+				Position: 60},
+			{
+				ID:       bson.ObjectId("10"),
+				Name:     "Gestion du patrimoine de tests",
+				Package:  "3. Acceptance",
+				Position: 10},
+			{
+				ID:       bson.ObjectId("11"),
+				Name:     "Modèles de stratégie de tests",
+				Package:  "3. Acceptance",
+				Position: 20},
+			{
+				ID:       bson.ObjectId("12"),
+				Name:     "Automatisation des tests de non régression",
+				Package:  "3. Acceptance",
+				Position: 30},
+			{
+				ID:       bson.ObjectId("13"),
+				Name:     "Tests de sécurité applicative",
+				Package:  "3. Acceptance",
+				Position: 40},
+			{
+				ID:       bson.ObjectId("14"),
+				Name:     "Simulation des flux pour l'automatisation des tests",
+				Package:  "3. Acceptance",
+				Position: 50},
+			{
+				ID:       bson.ObjectId("15"),
+				Name:     "Dashboard d'avancement et bilan de tests",
+				Package:  "3. Acceptance",
+				Position: 60},
+			{
+				ID:       bson.ObjectId("16"),
+				Name:     "Contrôle des licences",
+				Package:  "3. Acceptance",
+				Position: 70},
+			{
+				ID:       bson.ObjectId("17"),
+				Name:     "Anonymisation des données sensibles d'une base",
+				Package:  "3. Acceptance",
+				Position: 80},
+			{
+				ID:       bson.ObjectId("18"),
+				Name:     "Modèles de stratégie de tests",
+				Package:  "4. Performance",
+				Position: 10},
+			{
+				ID:       bson.ObjectId("19"),
+				Name:     "Bilan de tests",
+				Package:  "4. Performance",
+				Position: 20},
+			{
+				ID:       bson.ObjectId("20"),
+				Name:     "Automatisation des tests de performances",
+				Package:  "4. Performance",
+				Position: 30},
+			{
+				ID:       bson.ObjectId("21"),
+				Name:     "Dashboard des performances",
+				Package:  "4. Performance",
+				Position: 40},
+			{
+				ID:       bson.ObjectId("22"),
+				Name:     "Déploiement et installation automatique",
+				Package:  "5. OPS",
+				Position: 10},
+			{
+				ID:       bson.ObjectId("23"),
+				Name:     "Analyse automatique des logs",
+				Package:  "5. OPS",
+				Position: 20},
+			{
+				ID:       bson.ObjectId("24"),
+				Name:     "Vision de l'avancement global et suivi des environnements",
+				Package:  "6. Monitoring",
+				Position: 10},
+			{
+				ID:       bson.ObjectId("25"),
+				Name:     "Suivi des versions et des demandes (Release Monitoring)",
+				Package:  "6. Monitoring",
+				Position: 20},
+			{
+				ID:       bson.ObjectId("26"),
+				Name:     "Tweeter",
+				Package:  "6. Monitoring",
+				Position: 30}}
 
-	Convey("When calling the generateXlsx function", func() {
+		servicesMap := make(map[string][]types.FunctionalService)
+		for _, service := range services {
+			servicesMap[service.Package] = append(servicesMap[service.Package], service)
+		}
 
-		generateXlsx
-		status := bestIndicatorStatus(service, usageIndicators)
-		Convey("Then the result is Inactive", func() {
-			So(status.String(), ShouldEqual, "Inactive")
-		})
-	})*/
-
-	Convey("Given headers", t, func() {
 		headers := generateExportHeaders()
 
-		Convey("with 1 project with all his infos initialized", func() {
+		dateCreated := time.Now()
+		dateUpdated := time.Now()
+		tmp := time.Now()
+		dueDate := &tmp
+
+		initializedProject := ProjectDataExport{}
+		initializedProject.Name = "name"
+		initializedProject.Description = "decription"
+		initializedProject.BusinessUnit = "businessUnit"
+		initializedProject.ServiceCenter = "serviceCenter"
+		initializedProject.Domain = []string{"domain1", "domain2"}
+		initializedProject.Client = "client"
+		initializedProject.ProjectManager = "pm"
+		initializedProject.Deputies = []string{"deputy1", "deputy2", "deputy3"}
+		initializedProject.DocktorGroupName = "docktorGroupName"
+		initializedProject.DocktorGroupURL = "docktorGroupURL"
+		initializedProject.Technologies = []string{"Go", "JS"}
+		initializedProject.Mode = "mode"
+		initializedProject.VersionControlSystem = "versionControlSystem"
+		initializedProject.DeliverablesInVersionControl = true
+		initializedProject.SourceCodeInVersionControl = false
+		initializedProject.SpecificationsInVersionControl = false
+		initializedProject.Created = dateCreated
+		initializedProject.Updated = dateUpdated
+
+		initServiceDataExport := make(map[int][]ServiceDataExport)
+		initServiceDataExport[0] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "00%",
+				Goal:      "00%",
+				Priority:  "P0",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Collecte des exigences"},
+			ServiceDataExport{
+				Progress:  "00%",
+				Goal:      "00%",
+				Priority:  "P0",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Gestion du patrimoine des exigences"},
+			ServiceDataExport{
+				Progress:  "00%",
+				Goal:      "00%",
+				Priority:  "P0",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Visualisation de la traçabilité bout en bout des exigences"}}
+		initServiceDataExport[1] = []ServiceDataExport{
+
+			ServiceDataExport{
+				Progress:  "20%",
+				Goal:      "20%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "Active",
+				Comment:   "Pipeline d'intégration continue"},
+			ServiceDataExport{
+				Progress:  "20%",
+				Goal:      "20%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Automatisation des tests unitaires"},
+			ServiceDataExport{
+				Progress:  "20%",
+				Goal:      "20%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Gestion des dépendances et des artéfacts"},
+			ServiceDataExport{
+				Progress:  "20%",
+				Goal:      "20%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Gestion des revues de code"},
+			ServiceDataExport{
+				Progress:  "20%",
+				Goal:      "20%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Gestion de la qualimétrie"},
+			ServiceDataExport{
+				Progress:  "20%",
+				Goal:      "20%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Packaging et déploiement automatique de la livraison"}}
+
+		initServiceDataExport[2] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Gestion du patrimoine de tests"},
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Modèles de stratégie de tests"},
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Automatisation des tests de non régression"},
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Tests de sécurité applicative"},
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Simulation des flux pour l'automatisation des tests"},
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Dashboard d'avancement et bilan de tests"},
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Contrôle des licences"},
+			ServiceDataExport{
+				Progress:  "40%",
+				Goal:      "40%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Anonymisation des données sensibles d'une base"}}
+
+		initServiceDataExport[3] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "60%",
+				Goal:      "60%",
+				Priority:  "P0",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Modèles de stratégie de tests"},
+			ServiceDataExport{
+				Progress:  "60%",
+				Goal:      "60%",
+				Priority:  "P0",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Bilan de tests"},
+			ServiceDataExport{
+				Progress:  "60%",
+				Goal:      "60%",
+				Priority:  "P0",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Automatisation des tests de performances"},
+			ServiceDataExport{
+				Progress:  "60%",
+				Goal:      "60%",
+				Priority:  "P0",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Dashboard des performances"}}
+
+		initServiceDataExport[4] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "80%",
+				Goal:      "80%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Déploiement et installation automatique"},
+			ServiceDataExport{
+				Progress:  "80%",
+				Goal:      "80%",
+				Priority:  "P1",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Analyse automatique des logs"}}
+
+		initServiceDataExport[5] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "100%",
+				Goal:      "100%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Vision de l'avancement global et suivi des environnements"},
+			ServiceDataExport{
+				Progress:  "100%",
+				Goal:      "100%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Suivi des versions et des demandes (Release Monitoring)"},
+			ServiceDataExport{
+				Progress:  "100%",
+				Goal:      "100%",
+				Priority:  "P2",
+				DueDate:   dueDate,
+				Indicator: "N/A",
+				Comment:   "Tweeter"}}
+
+		initializedProject.ServicesDataExport = initServiceDataExport
+
+		emptyProject := ProjectDataExport{}
+		emptyProject.Name = "empty"
+		emptyProject.DeliverablesInVersionControl = false
+		emptyProject.SourceCodeInVersionControl = false
+		emptyProject.SpecificationsInVersionControl = false
+		emptyProject.Created = dateCreated
+		emptyProject.Updated = dateUpdated
+
+		emptyServiceDataExport := make(map[int][]ServiceDataExport)
+		emptyServiceDataExport[0] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"}}
+
+		emptyServiceDataExport[1] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"}}
+
+		emptyServiceDataExport[2] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"}}
+
+		emptyServiceDataExport[3] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"}}
+
+		emptyServiceDataExport[4] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"}}
+
+		emptyServiceDataExport[5] = []ServiceDataExport{
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"},
+			ServiceDataExport{
+				Progress:  "N/A",
+				Goal:      "N/A",
+				Priority:  "N/A",
+				DueDate:   nil,
+				Indicator: "N/A"}}
+
+		emptyProject.ServicesDataExport = emptyServiceDataExport
+
+		Convey("with 1 project with his infos initialized", func() {
+
+			dataExportWithProjectFullFilled := make(map[string]ProjectDataExport)
+			dataExportWithProjectFullFilled["name"] = initializedProject
 
 			Convey("When calling the generateXlsx function", func() {
+
+				xlsxExport, _ := generateXlsx(servicesMap, headers, dataExportWithProjectFullFilled)
+
+				Convey("Then the xlsx file should contains 4 rows (3 headers + 1 project)", func() {
+
+					file, _ := xlsx.OpenReaderAt(xlsxExport, int64(xlsxExport.Len()))
+
+					So(file, ShouldNotBeNil)
+					sheet := file.Sheet["Plan de déploiement"]
+					So(sheet, ShouldNotBeNil)
+					So(sheet.Rows, ShouldHaveLength, 4)
+
+					Convey("and all infos should correspond to those used to generate the xlsx file", func() {
+
+						// project row
+						cells := sheet.Rows[3].Cells
+						So(cells, ShouldNotBeNil)
+						So(cells, ShouldHaveLength, len(headers.MatrixHeaders)+len(services)*len(headers.ServicesInfosHeaders))
+
+						// 18 cells for Matrix
+						So(cells[0].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].Name)
+						So(cells[1].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].Description)
+						So(cells[2].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].BusinessUnit)
+						So(cells[3].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].ServiceCenter)
+						for _, domain := range dataExportWithProjectFullFilled["name"].Domain {
+							So(cells[4].Value, ShouldContainSubstring, domain)
+						}
+						So(cells[5].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].Client)
+						So(cells[6].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].ProjectManager)
+						for _, deputy := range dataExportWithProjectFullFilled["name"].Deputies {
+							So(cells[7].Value, ShouldContainSubstring, deputy)
+						}
+						So(cells[8].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].DocktorGroupName)
+						So(cells[9].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].DocktorGroupURL)
+						for _, technology := range dataExportWithProjectFullFilled["name"].Technologies {
+							So(cells[10].Value, ShouldContainSubstring, technology)
+						}
+						So(cells[11].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].Mode)
+						So(cells[12].Value, ShouldEqual, dataExportWithProjectFullFilled["name"].VersionControlSystem)
+						cellDeliverablesInVersionControl, _ := strconv.ParseBool(cells[13].Value)
+						cellSourceCodeInVersionControl, _ := strconv.ParseBool(cells[14].Value)
+						cellSpecificationsInVersionControl, _ := strconv.ParseBool(cells[15].Value)
+						So(cellDeliverablesInVersionControl, ShouldEqual, dataExportWithProjectFullFilled["name"].DeliverablesInVersionControl)
+						So(cellSourceCodeInVersionControl, ShouldEqual, dataExportWithProjectFullFilled["name"].SourceCodeInVersionControl)
+						So(cellSpecificationsInVersionControl, ShouldEqual, dataExportWithProjectFullFilled["name"].SpecificationsInVersionControl)
+						// can't verify dateCreated and dateUpdated (cell[16] and cell[17])
+
+						servicesDataExportSortedKeys := make([]int, 0)
+						for k := range dataExportWithProjectFullFilled["name"].ServicesDataExport {
+							servicesDataExportSortedKeys = append(servicesDataExportSortedKeys, k)
+						}
+						sort.Ints(servicesDataExportSortedKeys)
+
+						indexMatrix := len(headers.MatrixHeaders)
+						for _, sortedKey := range servicesDataExportSortedKeys {
+
+							serviceDataExport := dataExportWithProjectFullFilled["name"].ServicesDataExport[sortedKey]
+
+							for _, service := range serviceDataExport {
+								So(cells[indexMatrix].Value, ShouldEqual, service.Progress)
+								So(cells[indexMatrix+1].Value, ShouldEqual, service.Goal)
+								So(cells[indexMatrix+2].Value, ShouldEqual, service.Priority)
+								if service.DueDate == nil {
+									So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
+								} else {
+									// can't verify dueDate
+								}
+								So(cells[indexMatrix+4].Value, ShouldEqual, service.Indicator)
+								So(cells[indexMatrix+5].Value, ShouldEqual, service.Comment)
+								indexMatrix = indexMatrix + len(headers.ServicesInfosHeaders)
+							}
+						}
+					})
+				})
+			})
+		})
+
+		Convey("with 1 project with his infos not initialized", func() {
+
+			dataExportWithProjectEmpty := make(map[string]ProjectDataExport)
+			dataExportWithProjectEmpty["empty"] = emptyProject
+
+			Convey("When calling the generateXlsx function", func() {
+
+				xlsxExport, _ := generateXlsx(servicesMap, headers, dataExportWithProjectEmpty)
+
+				Convey("Then the xlsx file should contains 4 rows (3 headers + 1 project)", func() {
+
+					file, _ := xlsx.OpenReaderAt(xlsxExport, int64(xlsxExport.Len()))
+
+					So(file, ShouldNotBeNil)
+					sheet := file.Sheet["Plan de déploiement"]
+					So(sheet, ShouldNotBeNil)
+					So(sheet.Rows, ShouldHaveLength, 4)
+
+					Convey("and all infos should correspond to those used to generate the xlsx file", func() {
+
+						// project row
+						cells := sheet.Rows[3].Cells
+						So(cells, ShouldNotBeNil)
+						So(cells, ShouldHaveLength, len(headers.MatrixHeaders)+len(services)*len(headers.ServicesInfosHeaders))
+
+						// 18 cells for Matrix
+						So(cells[0].Value, ShouldEqual, dataExportWithProjectEmpty["empty"].Name)
+						So(cells[1].Value, ShouldBeBlank)
+						So(cells[2].Value, ShouldBeBlank)
+						So(cells[3].Value, ShouldBeBlank)
+						So(cells[4].Value, ShouldBeBlank)
+						So(cells[5].Value, ShouldBeBlank)
+						So(cells[6].Value, ShouldBeBlank)
+						So(cells[7].Value, ShouldBeBlank)
+						So(cells[8].Value, ShouldBeBlank)
+						So(cells[9].Value, ShouldBeBlank)
+						So(cells[10].Value, ShouldBeBlank)
+						So(cells[11].Value, ShouldBeBlank)
+						So(cells[12].Value, ShouldBeBlank)
+						cellDeliverablesInVersionControl, _ := strconv.ParseBool(cells[13].Value)
+						cellSourceCodeInVersionControl, _ := strconv.ParseBool(cells[14].Value)
+						cellSpecificationsInVersionControl, _ := strconv.ParseBool(cells[15].Value)
+						So(cellDeliverablesInVersionControl, ShouldEqual, dataExportWithProjectEmpty["empty"].DeliverablesInVersionControl)
+						So(cellSourceCodeInVersionControl, ShouldEqual, dataExportWithProjectEmpty["empty"].SourceCodeInVersionControl)
+						So(cellSpecificationsInVersionControl, ShouldEqual, dataExportWithProjectEmpty["empty"].SpecificationsInVersionControl)
+						// can't verify dateCreated and dateUpdated (cell[16] and cell[17])
+
+						servicesDataExportSortedKeys := make([]int, 0)
+						for k := range dataExportWithProjectEmpty["empty"].ServicesDataExport {
+							servicesDataExportSortedKeys = append(servicesDataExportSortedKeys, k)
+						}
+						sort.Ints(servicesDataExportSortedKeys)
+
+						indexMatrix := len(headers.MatrixHeaders)
+						for _, sortedKey := range servicesDataExportSortedKeys {
+
+							serviceDataExport := dataExportWithProjectEmpty["empty"].ServicesDataExport[sortedKey]
+
+							for _, service := range serviceDataExport {
+								So(service, ShouldNotBeNil)
+								So(cells[indexMatrix].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+1].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+2].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+4].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+5].Value, ShouldBeBlank)
+								indexMatrix = indexMatrix + len(headers.ServicesInfosHeaders)
+							}
+						}
+					})
+				})
+			})
+		})
+
+		Convey("with 2 project (1 initialized and 1 not initialized)", func() {
+
+			dataExport := make(map[string]ProjectDataExport)
+			dataExport["name"] = initializedProject
+			dataExport["empty"] = emptyProject
+
+			Convey("When calling the generateXlsx function", func() {
+
+				xlsxExport, _ := generateXlsx(servicesMap, headers, dataExport)
+
+				Convey("Then the xlsx file should contains 4 rows (3 headers + 2 projects)", func() {
+
+					file, _ := xlsx.OpenReaderAt(xlsxExport, int64(xlsxExport.Len()))
+
+					So(file, ShouldNotBeNil)
+					sheet := file.Sheet["Plan de déploiement"]
+					So(sheet, ShouldNotBeNil)
+					So(sheet.Rows, ShouldHaveLength, 5)
+
+					Convey("and all infos should correspond to those used to generate the xlsx file", func() {
+
+						// project empty row
+						cells := sheet.Rows[3].Cells
+						So(cells, ShouldNotBeNil)
+						So(cells, ShouldHaveLength, len(headers.MatrixHeaders)+len(services)*len(headers.ServicesInfosHeaders))
+
+						// 18 cells for Matrix
+						So(cells[0].Value, ShouldEqual, dataExport["empty"].Name)
+						So(cells[1].Value, ShouldBeBlank)
+						So(cells[2].Value, ShouldBeBlank)
+						So(cells[3].Value, ShouldBeBlank)
+						So(cells[4].Value, ShouldBeBlank)
+						So(cells[5].Value, ShouldBeBlank)
+						So(cells[6].Value, ShouldBeBlank)
+						So(cells[7].Value, ShouldBeBlank)
+						So(cells[8].Value, ShouldBeBlank)
+						So(cells[9].Value, ShouldBeBlank)
+						So(cells[10].Value, ShouldBeBlank)
+						So(cells[11].Value, ShouldBeBlank)
+						So(cells[12].Value, ShouldBeBlank)
+						cellDeliverablesInVersionControl, _ := strconv.ParseBool(cells[13].Value)
+						cellSourceCodeInVersionControl, _ := strconv.ParseBool(cells[14].Value)
+						cellSpecificationsInVersionControl, _ := strconv.ParseBool(cells[15].Value)
+						So(cellDeliverablesInVersionControl, ShouldEqual, dataExport["empty"].DeliverablesInVersionControl)
+						So(cellSourceCodeInVersionControl, ShouldEqual, dataExport["empty"].SourceCodeInVersionControl)
+						So(cellSpecificationsInVersionControl, ShouldEqual, dataExport["empty"].SpecificationsInVersionControl)
+						// can't verify dateCreated and dateUpdated (cell[16] and cell[17])
+
+						servicesDataExportSortedKeys := make([]int, 0)
+						for k := range dataExport["empty"].ServicesDataExport {
+							servicesDataExportSortedKeys = append(servicesDataExportSortedKeys, k)
+						}
+						sort.Ints(servicesDataExportSortedKeys)
+
+						indexMatrix := len(headers.MatrixHeaders)
+						for _, sortedKey := range servicesDataExportSortedKeys {
+
+							serviceDataExport := dataExport["empty"].ServicesDataExport[sortedKey]
+
+							for _, service := range serviceDataExport {
+								So(service, ShouldNotBeNil)
+								So(cells[indexMatrix].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+1].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+2].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+4].Value, ShouldEqual, "N/A")
+								So(cells[indexMatrix+5].Value, ShouldBeBlank)
+								indexMatrix = indexMatrix + len(headers.ServicesInfosHeaders)
+							}
+						}
+
+						// project name row
+						cells = sheet.Rows[4].Cells
+						So(cells, ShouldNotBeNil)
+						So(cells, ShouldHaveLength, len(headers.MatrixHeaders)+len(services)*len(headers.ServicesInfosHeaders))
+
+						// 18 cells for Matrix
+						So(cells[0].Value, ShouldEqual, dataExport["name"].Name)
+						So(cells[1].Value, ShouldEqual, dataExport["name"].Description)
+						So(cells[2].Value, ShouldEqual, dataExport["name"].BusinessUnit)
+						So(cells[3].Value, ShouldEqual, dataExport["name"].ServiceCenter)
+						for _, domain := range dataExport["name"].Domain {
+							So(cells[4].Value, ShouldContainSubstring, domain)
+						}
+						So(cells[5].Value, ShouldEqual, dataExport["name"].Client)
+						So(cells[6].Value, ShouldEqual, dataExport["name"].ProjectManager)
+						for _, deputy := range dataExport["name"].Deputies {
+							So(cells[7].Value, ShouldContainSubstring, deputy)
+						}
+						So(cells[8].Value, ShouldEqual, dataExport["name"].DocktorGroupName)
+						So(cells[9].Value, ShouldEqual, dataExport["name"].DocktorGroupURL)
+						for _, technology := range dataExport["name"].Technologies {
+							So(cells[10].Value, ShouldContainSubstring, technology)
+						}
+						So(cells[11].Value, ShouldEqual, dataExport["name"].Mode)
+						So(cells[12].Value, ShouldEqual, dataExport["name"].VersionControlSystem)
+						cellDeliverablesInVersionControl, _ = strconv.ParseBool(cells[13].Value)
+						cellSourceCodeInVersionControl, _ = strconv.ParseBool(cells[14].Value)
+						cellSpecificationsInVersionControl, _ = strconv.ParseBool(cells[15].Value)
+						So(cellDeliverablesInVersionControl, ShouldEqual, dataExport["name"].DeliverablesInVersionControl)
+						So(cellSourceCodeInVersionControl, ShouldEqual, dataExport["name"].SourceCodeInVersionControl)
+						So(cellSpecificationsInVersionControl, ShouldEqual, dataExport["name"].SpecificationsInVersionControl)
+						// can't verify dateCreated and dateUpdated (cell[16] and cell[17])
+
+						servicesDataExportSortedKeys = make([]int, 0)
+						for k := range dataExport["name"].ServicesDataExport {
+							servicesDataExportSortedKeys = append(servicesDataExportSortedKeys, k)
+						}
+						sort.Ints(servicesDataExportSortedKeys)
+
+						indexMatrix = len(headers.MatrixHeaders)
+						for _, sortedKey := range servicesDataExportSortedKeys {
+
+							serviceDataExport := dataExport["name"].ServicesDataExport[sortedKey]
+
+							for _, service := range serviceDataExport {
+								So(cells[indexMatrix].Value, ShouldEqual, service.Progress)
+								So(cells[indexMatrix+1].Value, ShouldEqual, service.Goal)
+								So(cells[indexMatrix+2].Value, ShouldEqual, service.Priority)
+								if service.DueDate == nil {
+									So(cells[indexMatrix+3].Value, ShouldEqual, "N/A")
+								} else {
+									// can't verify dueDate
+								}
+								So(cells[indexMatrix+4].Value, ShouldEqual, service.Indicator)
+								So(cells[indexMatrix+5].Value, ShouldEqual, service.Comment)
+								indexMatrix = indexMatrix + len(headers.ServicesInfosHeaders)
+							}
+						}
+					})
+				})
 			})
 		})
 	})

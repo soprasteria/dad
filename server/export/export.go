@@ -66,6 +66,8 @@ type ServiceProjectEntry struct {
 // Status represents the different status possible for a service (like Jenkins)
 type Status int
 
+const notApplicable = "N/A"
+
 const (
 	// Empty means that a the service does not have any project configuration. e.g. jenkins doesn't have a job
 	Empty Status = iota
@@ -174,7 +176,7 @@ func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []st
 				if status != nil {
 					serviceIndicatorMap[newServiceProjectEntry] = (*status).String()
 				} else {
-					serviceIndicatorMap[newServiceProjectEntry] = "N/A"
+					serviceIndicatorMap[newServiceProjectEntry] = notApplicable
 				}
 			}
 		}
@@ -249,20 +251,20 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 
 			businessUnit, err := e.Database.Entities.FindByID(project.BusinessUnit)
 			if err != nil {
-				currentProjectDataExport.BusinessUnit = "N/A"
+				currentProjectDataExport.BusinessUnit = notApplicable
 			} else {
 				currentProjectDataExport.BusinessUnit = businessUnit.Name
 			}
 
 			serviceCenter, err := e.Database.Entities.FindByID(project.ServiceCenter)
 			if err != nil {
-				currentProjectDataExport.ServiceCenter = "N/A"
+				currentProjectDataExport.ServiceCenter = notApplicable
 			} else {
 				currentProjectDataExport.ServiceCenter = serviceCenter.Name
 			}
 
 			if len(project.Domain) == 0 {
-				currentProjectDataExport.Domain = []string{"N/A"}
+				currentProjectDataExport.Domain = []string{notApplicable}
 			} else {
 				currentProjectDataExport.Domain = project.Domain
 			}
@@ -271,7 +273,7 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 
 			projectManager, err := e.Database.Users.FindByID(project.ProjectManager)
 			if err != nil {
-				currentProjectDataExport.ProjectManager = "N/A"
+				currentProjectDataExport.ProjectManager = notApplicable
 			}
 			currentProjectDataExport.ProjectManager = projectManager.DisplayName
 
@@ -317,9 +319,9 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 						}
 					}
 					if !applicable {
-						serviceDataExport.Progress = "N/A"
-						serviceDataExport.Goal = "N/A"
-						serviceDataExport.Priority = "N/A"
+						serviceDataExport.Progress = notApplicable
+						serviceDataExport.Goal = notApplicable
+						serviceDataExport.Priority = notApplicable
 						// If the DueDate is nil, N/A will be written while the generateXlsx function
 						serviceDataExport.DueDate = nil
 
@@ -423,7 +425,7 @@ func generateXlsx(servicesMap map[string][]types.FunctionalService, headersExpor
 				createFormattedValueCell(projectRow, service.Goal)
 				createCell(projectRow, service.Priority)
 				if service.DueDate == nil {
-					createCell(projectRow, "N/A")
+					createCell(projectRow, notApplicable)
 				} else {
 					createDateCell(projectRow, *service.DueDate)
 				}

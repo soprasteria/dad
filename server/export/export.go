@@ -274,8 +274,9 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 			projectManager, err := e.Database.Users.FindByID(project.ProjectManager)
 			if err != nil {
 				currentProjectDataExport.ProjectManager = notApplicable
+			} else {
+				currentProjectDataExport.ProjectManager = projectManager.DisplayName
 			}
-			currentProjectDataExport.ProjectManager = projectManager.DisplayName
 
 			deputies := e.findDeputies(project)
 			currentProjectDataExport.Deputies = deputies
@@ -307,7 +308,7 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 							serviceDataExport.Progress = types.Progress[line.Progress]
 							serviceDataExport.Goal = types.Progress[line.Goal]
 							serviceDataExport.Priority = line.Priority
-							// If the DueDate is nil, N/A will be written while the generateXlsx function
+							// If the DueDate is nil, N/A will be written by the generateXlsx function
 							serviceDataExport.DueDate = line.DueDate
 
 							key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
@@ -322,7 +323,7 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 						serviceDataExport.Progress = notApplicable
 						serviceDataExport.Goal = notApplicable
 						serviceDataExport.Priority = notApplicable
-						// If the DueDate is nil, N/A will be written while the generateXlsx function
+						// If the DueDate is nil, N/A will be written by the generateXlsx function
 						serviceDataExport.DueDate = nil
 
 						key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
@@ -344,7 +345,7 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 func generateXlsx(servicesMap map[string][]types.FunctionalService, headersExport Headers, dataExport map[string]ProjectDataExport) (*bytes.Reader, error) {
 
 	file := xlsx.NewFile()
-	sheet, err := file.AddSheet("Plan de déploiement")
+	sheet, err := file.AddSheet("Deployment plan")
 	if err != nil {
 		return nil, err
 	}

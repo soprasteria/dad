@@ -935,7 +935,7 @@ func TestGenerateXlsx(t *testing.T) {
 					file, _ := xlsx.OpenReaderAt(xlsxExport, int64(xlsxExport.Len()))
 
 					So(file, ShouldNotBeNil)
-					sheet := file.Sheet["Plan de déploiement"]
+					sheet := file.Sheet["Deployment plan"]
 					So(sheet, ShouldNotBeNil)
 					So(sheet.Rows, ShouldHaveLength, 4)
 
@@ -1018,7 +1018,7 @@ func TestGenerateXlsx(t *testing.T) {
 					file, _ := xlsx.OpenReaderAt(xlsxExport, int64(xlsxExport.Len()))
 
 					So(file, ShouldNotBeNil)
-					sheet := file.Sheet["Plan de déploiement"]
+					sheet := file.Sheet["Deployment plan"]
 					So(sheet, ShouldNotBeNil)
 					So(sheet.Rows, ShouldHaveLength, 4)
 
@@ -1093,7 +1093,7 @@ func TestGenerateXlsx(t *testing.T) {
 					file, _ := xlsx.OpenReaderAt(xlsxExport, int64(xlsxExport.Len()))
 
 					So(file, ShouldNotBeNil)
-					sheet := file.Sheet["Plan de déploiement"]
+					sheet := file.Sheet["Deployment plan"]
 					So(sheet, ShouldNotBeNil)
 					So(sheet.Rows, ShouldHaveLength, 5)
 

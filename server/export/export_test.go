@@ -377,7 +377,6 @@ func TestGenerateXlsx(t *testing.T) {
 	Convey("Given functional services with technical service 'Pipeline' initialized, with headers and 2 projects (1 initialized and 1 not initialized)", t, func() {
 
 		technicalServicePipeline := []string{"jenkins"}
-
 		services := []types.FunctionalService{
 			{
 				ID:       bson.ObjectId("1"),

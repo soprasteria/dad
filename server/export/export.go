@@ -159,27 +159,19 @@ func bestIndicatorStatus(service types.FunctionalService, usageIndicators []type
 	return currentStatus
 }
 
-// getServiceIndicatorMap map which contains all indicator status for each services or by default N/A
-func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []string, servicesMap map[string][]types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) map[ServiceProjectEntry]string {
+// getServiceIndicatorMap map which contains all indicator status for each service or by default N/A
+func getServiceIndicatorMap(project types.Project, service types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) map[ServiceProjectEntry]string {
 
 	serviceIndicatorMap := make(map[ServiceProjectEntry]string)
-
-	for _, project := range projects {
-		for _, pkg := range servicesMapSortedKeys {
-			services := servicesMap[pkg]
-			for _, service := range services {
-				usageIndicators := projectToUsageIndicators[project.Name]
-				newServiceProjectEntry := ServiceProjectEntry{
-					ProjectName: project.Name,
-					ServiceName: service.Name}
-				status := bestIndicatorStatus(service, usageIndicators)
-				if status != nil {
-					serviceIndicatorMap[newServiceProjectEntry] = (*status).String()
-				} else {
-					serviceIndicatorMap[newServiceProjectEntry] = notApplicable
-				}
-			}
-		}
+	usageIndicators := projectToUsageIndicators[project.Name]
+	newServiceProjectEntry := ServiceProjectEntry{
+		ProjectName: project.Name,
+		ServiceName: service.Name}
+	status := bestIndicatorStatus(service, usageIndicators)
+	if status != nil {
+		serviceIndicatorMap[newServiceProjectEntry] = (*status).String()
+	} else {
+		serviceIndicatorMap[newServiceProjectEntry] = notApplicable
 	}
 	return serviceIndicatorMap
 }
@@ -224,10 +216,45 @@ func generateExportHeaders() Headers {
 	return headers
 }
 
-// retrieveData retrieve all data from projects, projectToUsageIndicators and servicesMap. These data are meant to be used for the generation of the export
-func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) map[string]ProjectDataExport {
+// getServiceDataExport returns the data of a specific service
+func getServiceDataExport(service types.FunctionalService, project types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) ServiceDataExport {
 
-	exportData := make(map[string]ProjectDataExport)
+	applicable := false
+	allServiceIndicatorMap := getServiceIndicatorMap(project, service, projectToUsageIndicators)
+
+	serviceDataExport := ServiceDataExport{}
+	for _, line := range project.Matrix {
+		if line.Service == service.ID {
+			serviceDataExport.Progress = types.Progress[line.Progress]
+			serviceDataExport.Goal = types.Progress[line.Goal]
+			serviceDataExport.Priority = line.Priority
+			// If the DueDate is nil, N/A will be written by the generateXlsx function
+			serviceDataExport.DueDate = line.DueDate
+
+			key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
+			serviceDataExport.Indicator = allServiceIndicatorMap[key]
+			serviceDataExport.Comment = line.Comment
+
+			applicable = true
+			break
+		}
+	}
+	if !applicable {
+		serviceDataExport.Progress = notApplicable
+		serviceDataExport.Goal = notApplicable
+		serviceDataExport.Priority = notApplicable
+		// If the DueDate is nil, N/A will be written by the generateXlsx function
+		serviceDataExport.DueDate = nil
+
+		key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
+		serviceDataExport.Indicator = allServiceIndicatorMap[key]
+		serviceDataExport.Comment = ""
+	}
+	return serviceDataExport
+}
+
+// getProjectDataExport returns the data of a specific project
+func (e *Export) getProjectDataExport(servicesMap map[string][]types.FunctionalService, project types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) ProjectDataExport {
 
 	// Keep a list of the sorted package names
 	servicesMapSortedKeys := []string{}
@@ -236,112 +263,87 @@ func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, 
 	}
 	sort.Strings(servicesMapSortedKeys)
 
-	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
+	currentProjectDataExport := ProjectDataExport{}
+	currentProjectDataExport.Name = project.Name
+	currentProjectDataExport.Description = project.Description
+
+	businessUnit, err := e.Database.Entities.FindByID(project.BusinessUnit)
+	if err != nil {
+		currentProjectDataExport.BusinessUnit = notApplicable
+	} else {
+		currentProjectDataExport.BusinessUnit = businessUnit.Name
+	}
+
+	serviceCenter, err := e.Database.Entities.FindByID(project.ServiceCenter)
+	if err != nil {
+		currentProjectDataExport.ServiceCenter = notApplicable
+	} else {
+		currentProjectDataExport.ServiceCenter = serviceCenter.Name
+	}
+
+	if len(project.Domain) == 0 {
+		currentProjectDataExport.Domain = []string{notApplicable}
+	} else {
+		currentProjectDataExport.Domain = project.Domain
+	}
+
+	currentProjectDataExport.Client = project.Client
+
+	projectManager, err := e.Database.Users.FindByID(project.ProjectManager)
+	if err != nil {
+		currentProjectDataExport.ProjectManager = notApplicable
+	} else {
+		currentProjectDataExport.ProjectManager = projectManager.DisplayName
+	}
+
+	deputies := e.findDeputies(project)
+	currentProjectDataExport.Deputies = deputies
+	currentProjectDataExport.DocktorGroupName = project.DocktorGroupName
+	currentProjectDataExport.DocktorGroupURL = project.DocktorGroupURL
+	currentProjectDataExport.Technologies = project.Technologies
+	currentProjectDataExport.Mode = project.Mode
+	currentProjectDataExport.VersionControlSystem = project.VersionControlSystem
+	currentProjectDataExport.DeliverablesInVersionControl = project.DeliverablesInVersionControl
+	currentProjectDataExport.SourceCodeInVersionControl = project.SourceCodeInVersionControl
+	currentProjectDataExport.SpecificationsInVersionControl = project.SpecificationsInVersionControl
+	currentProjectDataExport.Created = project.Created
+	currentProjectDataExport.Updated = project.Updated
+
+	servicesDataExportMap := make(map[int][]ServiceDataExport)
+
+	// Iterate on each service in the correct order
+	for indexPkg, pkg := range servicesMapSortedKeys {
+		services := servicesMap[pkg]
+
+		servicesDataExport := make([]ServiceDataExport, 0)
+		// Iterate on the project and store the data for the current service
+		for _, service := range services {
+
+			servicesDataExport = append(servicesDataExport, getServiceDataExport(service, project, projectToUsageIndicators))
+		}
+		servicesDataExportMap[indexPkg] = servicesDataExport
+	}
+	currentProjectDataExport.ServicesDataExport = servicesDataExportMap
+	return currentProjectDataExport
+}
+
+// retrieveData retrieve all data from projects, projectToUsageIndicators and servicesMap. Data is meant to be used for the generation of the export
+func (e *Export) retrieveData(servicesMap map[string][]types.FunctionalService, projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) map[string]ProjectDataExport {
+
+	exportData := make(map[string]ProjectDataExport)
 
 	for _, project := range projects {
 
 		if project.Name == "" {
 			log.WithField("project.Name", project.Name).Error(fmt.Sprintf("The project %v has no name", project.Name))
 			continue
-		} else {
-
-			currentProjectDataExport := ProjectDataExport{}
-			currentProjectDataExport.Name = project.Name
-			currentProjectDataExport.Description = project.Description
-
-			businessUnit, err := e.Database.Entities.FindByID(project.BusinessUnit)
-			if err != nil {
-				currentProjectDataExport.BusinessUnit = notApplicable
-			} else {
-				currentProjectDataExport.BusinessUnit = businessUnit.Name
-			}
-
-			serviceCenter, err := e.Database.Entities.FindByID(project.ServiceCenter)
-			if err != nil {
-				currentProjectDataExport.ServiceCenter = notApplicable
-			} else {
-				currentProjectDataExport.ServiceCenter = serviceCenter.Name
-			}
-
-			if len(project.Domain) == 0 {
-				currentProjectDataExport.Domain = []string{notApplicable}
-			} else {
-				currentProjectDataExport.Domain = project.Domain
-			}
-
-			currentProjectDataExport.Client = project.Client
-
-			projectManager, err := e.Database.Users.FindByID(project.ProjectManager)
-			if err != nil {
-				currentProjectDataExport.ProjectManager = notApplicable
-			} else {
-				currentProjectDataExport.ProjectManager = projectManager.DisplayName
-			}
-
-			deputies := e.findDeputies(project)
-			currentProjectDataExport.Deputies = deputies
-			currentProjectDataExport.DocktorGroupName = project.DocktorGroupName
-			currentProjectDataExport.DocktorGroupURL = project.DocktorGroupURL
-			currentProjectDataExport.Technologies = project.Technologies
-			currentProjectDataExport.Mode = project.Mode
-			currentProjectDataExport.VersionControlSystem = project.VersionControlSystem
-			currentProjectDataExport.DeliverablesInVersionControl = project.DeliverablesInVersionControl
-			currentProjectDataExport.SourceCodeInVersionControl = project.SourceCodeInVersionControl
-			currentProjectDataExport.SpecificationsInVersionControl = project.SpecificationsInVersionControl
-			currentProjectDataExport.Created = project.Created
-			currentProjectDataExport.Updated = project.Updated
-
-			servicesDataExportMap := make(map[int][]ServiceDataExport)
-
-			// Iterate on each service in the correct order
-			for indexPkg, pkg := range servicesMapSortedKeys {
-				services := servicesMap[pkg]
-
-				servicesDataExport := make([]ServiceDataExport, 0)
-				for _, service := range services {
-					applicable := false
-					// Iterate on the project matrix and print the data for the current service
-
-					serviceDataExport := ServiceDataExport{}
-					for _, line := range project.Matrix {
-						if line.Service == service.ID {
-							serviceDataExport.Progress = types.Progress[line.Progress]
-							serviceDataExport.Goal = types.Progress[line.Goal]
-							serviceDataExport.Priority = line.Priority
-							// If the DueDate is nil, N/A will be written by the generateXlsx function
-							serviceDataExport.DueDate = line.DueDate
-
-							key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
-							serviceDataExport.Indicator = allServiceIndicatorMap[key]
-							serviceDataExport.Comment = line.Comment
-
-							applicable = true
-							break
-						}
-					}
-					if !applicable {
-						serviceDataExport.Progress = notApplicable
-						serviceDataExport.Goal = notApplicable
-						serviceDataExport.Priority = notApplicable
-						// If the DueDate is nil, N/A will be written by the generateXlsx function
-						serviceDataExport.DueDate = nil
-
-						key := ServiceProjectEntry{ProjectName: project.Name, ServiceName: service.Name}
-						serviceDataExport.Indicator = allServiceIndicatorMap[key]
-						serviceDataExport.Comment = ""
-					}
-					servicesDataExport = append(servicesDataExport, serviceDataExport)
-				}
-				servicesDataExportMap[indexPkg] = servicesDataExport
-			}
-			currentProjectDataExport.ServicesDataExport = servicesDataExportMap
-			exportData[project.Name] = currentProjectDataExport
 		}
+		exportData[project.Name] = e.getProjectDataExport(servicesMap, project, projectToUsageIndicators)
 	}
 	return exportData
 }
 
-// generateXlsx generate the export with informations associated
+// generateXlsx generate the export with information associated
 func generateXlsx(servicesMap map[string][]types.FunctionalService, headersExport Headers, dataExport map[string]ProjectDataExport) (*bytes.Reader, error) {
 
 	file := xlsx.NewFile()

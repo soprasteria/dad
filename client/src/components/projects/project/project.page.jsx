@@ -398,7 +398,7 @@ export class ProjectComponent extends React.Component {
                     {/*Only admins are allowed to set the Docktor URL*/}
                     <Form.Input
                       label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange} type='text' name='docktorGroupURL' autoComplete='on' 
-                      placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']} readOnly={isRI || isPM || isDeputy}
+                      placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']} readOnly={!isAdmin}
                     />
                   </Grid.Column>
 

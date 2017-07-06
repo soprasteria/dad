@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -70,6 +71,69 @@ func (u User) IsPMOrDeputy() bool {
 // HasValidRole checks the user has a known role
 func (u User) HasValidRole() bool {
 	return u.Role.IsValid()
+}
+
+// IsRIOf checks whether a user is RI of a project or not
+func (u User) IsRIOf(project Project) bool {
+	if u.IsRI() {
+		for _, e := range u.Entities {
+			if project.BusinessUnit == e.Hex() || project.ServiceCenter == e.Hex() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// IsPMOrDeputyOf checks whether a user is RI of a project or not
+func (u User) IsPMOrDeputyOf(project Project) bool {
+	if project.ProjectManager == u.GetID().Hex() {
+		return true
+	}
+
+	for _, d := range project.Deputies {
+		if d == u.GetID().Hex() {
+			return true
+		}
+	}
+
+	return false
+}
+
+// CanViewProject checks whether a user can view a project or not
+func (u User) CanViewProject(project Project) bool {
+	return u.IsAdmin() || u.IsRIOf(project) || u.IsPMOrDeputyOf(project)
+}
+
+// ValidateModificationPermissions allow to check if a user is trying to modify a field he isn't supposed to
+func (u User) ValidateModificationPermissions(modified, actual Project) error {
+	if u.IsAdmin() {
+		// Admins can modify everything
+		return nil
+	}
+
+	if u.IsRIOf(actual) {
+		// RIs cannot modify: DocktorURL
+		if modified.DocktorGroupURL != actual.DocktorGroupURL {
+			return errors.New("RIs cannot modify the Docktor group URL")
+		}
+		return nil
+	}
+
+	if u.IsPMOrDeputyOf(actual) {
+		// PMs and deputies cannot modify: Name, Domain, ProjectManager, ServiceCenter, BusinessUnit, DocktorGroupURL
+		if modified.Name != actual.Name ||
+			strings.Join(modified.Domain, ";") != strings.Join(actual.Domain, ";") ||
+			modified.ProjectManager != actual.ProjectManager ||
+			modified.ServiceCenter != actual.ServiceCenter ||
+			modified.BusinessUnit != actual.BusinessUnit ||
+			modified.DocktorGroupURL != actual.DocktorGroupURL {
+			return errors.New("PMs or deputies cannot modify the name of a project, its consolidation criteria, its project manager, its service center, its business unit or its Docktor group URL")
+		}
+		return nil
+	}
+
+	return errors.New("User doesn't have any rights on the project")
 }
 
 // UserRepo wraps all requests to database for accessing users

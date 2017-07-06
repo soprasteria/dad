@@ -172,25 +172,24 @@ func (p *Projects) Save(c echo.Context) error {
 	}).Info("User trying to save a project")
 
 	var projectFromDB types.Project
+
+	// If the project is an exiting one, check if the user has the rights to modify it
 	if id != "" {
-		// Get only projects that the user can modify
-		userProjects, err := database.Projects.FindModifiableForUser(authUser)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while retrieving the projects of the user %s", authUser.Username)))
-		}
-
-		if !userProjects.ContainsBsonID(bson.ObjectIdHex(id)) {
-			log.WithFields(log.Fields{
-				"username":  authUser.Username,
-				"role":      authUser.Role,
-				"projectID": id,
-			}).Warn("User isn't allowed to view the project")
-			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s isn't allowed to update the project", authUser.Username)))
-		}
-
-		projectFromDB, err = database.Projects.FindByID(id)
+		projectFromDB, err := database.Projects.FindByID(id)
 		if err != nil || projectFromDB.ID.Hex() == "" {
 			return c.JSON(http.StatusBadRequest, types.NewErr("Trying to modify a non existing project"))
+		}
+
+		if !authUser.CanViewProject(projectFromDB) {
+			log.WithFields(log.Fields{
+				"username":      authUser.Username,
+				"role":          authUser.Role,
+				"entities":      authUser.Entities,
+				"projectID":     id,
+				"businessUnit":  projectFromDB.BusinessUnit,
+				"serviceCenter": projectFromDB.ServiceCenter,
+			}).Warn("User isn't allowed to view the project")
+			return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s isn't allowed to view the project", authUser.Username)))
 		}
 	}
 
@@ -271,7 +270,6 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, proj
 
 	// A Project Manager or Deputy can't update details, if any of the details has changed it's an issue and we shouldn't update the project
 	if (authUser.Role == types.PMRole || authUser.Role == types.DeputyRole) && modifiedDetails {
-
 		log.WithFields(log.Fields{
 			"username":                        authUser.Username,
 			"role":                            authUser.Role,

@@ -97,9 +97,7 @@ func getServiceToIndicatorUsage(service types.FunctionalService, usageIndicators
 
 // bestIndicatorStatus returns the best indicator status from an array of UsageIndicator which contains indicator status
 func bestIndicatorStatus(service types.FunctionalService, usageIndicators []types.UsageIndicator) *Status {
-
 	var currentStatus *Status
-
 	if len(service.Services) > 0 && len(usageIndicators) > 0 {
 		usageIndicator := getServiceToIndicatorUsage(service, usageIndicators)
 		for _, currentService := range service.Services {
@@ -290,6 +288,7 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 						break
 					}
 				}
+
 				if !applicable {
 					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")

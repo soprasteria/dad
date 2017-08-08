@@ -36,10 +36,9 @@ func (a *Export) ExportAll(c echo.Context) error {
 	}
 
 	usageIndicatorRepo := database.UsageIndicators
-
 	projectToUsageIndicators := map[string][]types.UsageIndicator{}
 	for _, project := range projects {
-		usageIndicators, err2 := usageIndicatorRepo.FindAllFromGroup(project.Name)
+		usageIndicators, err2 := usageIndicatorRepo.FindAllFromGroup(project.DocktorGroupName)
 		if err2 != nil {
 			log.WithError(err2).Warn("Error while retrieving usageIndicators, indicators can't be reached for the project : " + project.Name)
 			continue

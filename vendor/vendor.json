@@ -129,6 +129,12 @@
 			"revisionTime": "2017-01-13T09:48:12Z"
 		},
 		{
+			"checksumSHA1": "nrB/GmDxc8vUJGYJl3dB4ZREtOA=",
+			"path": "github.com/matcornic/hermes",
+			"revision": "377cc7e34f13533db0c3352b4fc7513c3b64522d",
+			"revisionTime": "2017-06-18T15:14:58Z"
+		},
+		{
 			"checksumSHA1": "I4njd26dG5hxFT2nawuByM4pxzY=",
 			"path": "github.com/mattn/go-colorable",
 			"revision": "d228849504861217f796da67fae4f6e347643f15",

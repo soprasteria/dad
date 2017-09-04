@@ -41,7 +41,7 @@ var RootCmd = &cobra.Command{
 	Long:  `D.A.D is a web application which manage the  deployment of services`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	//Run: func(cmd *cobra.Command, args []string) {},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.

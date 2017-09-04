@@ -36,7 +36,6 @@ var serveCmd = &cobra.Command{
 }
 
 func init() {
-
 	// Get configuration from command line flags
 	serveCmd.Flags().StringP("mongo-addr", "m", "localhost:27017", "URL to access MongoDB")
 	serveCmd.Flags().StringP("mongo-username", "", "", "A user which has access to MongoDB")
@@ -59,7 +58,10 @@ func init() {
 	serveCmd.Flags().String("smtp-server", "", "SMTP server with its port.")
 	serveCmd.Flags().String("smtp-user", "", "SMTP user for authentication.")
 	serveCmd.Flags().String("smtp-password", "", "SMTP password for authentication.")
+	serveCmd.Flags().String("smtp-logo", "", "Logo image that will be used in header of emails sent by DAD.")
 	serveCmd.Flags().String("smtp-sender", "", "Email used as sender of emails")
+	serveCmd.Flags().String("smtp-receiver", "", "Email used as receiver of emails")
+	serveCmd.Flags().String("name-receiver", "", "Email receiver's name")
 	serveCmd.Flags().String("smtp-identity", "", "Identity of the sender")
 	serveCmd.Flags().String("docktor-addr", "http://localhost:3000", "Docktor HTTP address. Format http://host:port")
 	serveCmd.Flags().String("docktor-user", "user", "Docktor user to connect with")
@@ -87,7 +89,10 @@ func init() {
 	_ = viper.BindPFlag("smtp.server", serveCmd.Flags().Lookup("smtp-server"))
 	_ = viper.BindPFlag("smtp.user", serveCmd.Flags().Lookup("smtp-user"))
 	_ = viper.BindPFlag("smtp.password", serveCmd.Flags().Lookup("smtp-password"))
+	_ = viper.BindPFlag("smtp.logo", serveCmd.Flags().Lookup("smtp-logo"))
 	_ = viper.BindPFlag("smtp.sender", serveCmd.Flags().Lookup("smtp-sender"))
+	_ = viper.BindPFlag("smtp.receiver", serveCmd.Flags().Lookup("smtp-receiver"))
+	_ = viper.BindPFlag("name.receiver", serveCmd.Flags().Lookup("name-receiver"))
 	_ = viper.BindPFlag("smtp.identity", serveCmd.Flags().Lookup("smtp-identity"))
 	_ = viper.BindPFlag("docktor.addr", serveCmd.Flags().Lookup("docktor-addr"))
 	_ = viper.BindPFlag("docktor.user", serveCmd.Flags().Lookup("docktor-user"))

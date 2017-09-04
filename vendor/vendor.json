@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "fdKCyDbBjbSYmsVNhGT7XBD3Wkg=",
+			"path": "github.com/Masterminds/sprig",
+			"revision": "e039e20e500c2c025d9145be375e27cf42a94174",
+			"revisionTime": "2017-05-26T13:44:39Z"
+		},
+		{
 			"checksumSHA1": "dGXnnR7ZhsrZNnEqFimk6q7YCqs=",
 			"path": "github.com/Sirupsen/logrus",
 			"revision": "61e43dc76f7ee59a82bdf3d71033dc12bea4c77d",
@@ -75,10 +81,22 @@
 			"revisionTime": "2017-01-09T00:25:15Z"
 		},
 		{
+			"checksumSHA1": "66lykxpWgSmQodnhkADqn6tnroQ=",
+			"path": "github.com/imdario/mergo",
+			"revision": "e3000cb3d28c72b837601cac94debd91032d19fe",
+			"revisionTime": "2017-06-20T10:47:01Z"
+		},
+		{
 			"checksumSHA1": "40vJyUB4ezQSn/NSadsKEOrudMc=",
 			"path": "github.com/inconshreveable/mousetrap",
 			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
 			"revisionTime": "2014-10-17T20:07:13Z"
+		},
+		{
+			"checksumSHA1": "Rjp42PSAN8d1tprKSMNAR/1TAqo=",
+			"path": "github.com/jaytaylor/html2text",
+			"revision": "7c7a33a7a158a5ce395c803d2b6a209b2bbc14c8",
+			"revisionTime": "2017-05-30T23:22:55Z"
 		},
 		{
 			"checksumSHA1": "Js/yx9fZ3+wH1wZpHNIxSTMIaCg=",
@@ -163,6 +181,12 @@
 			"path": "github.com/pelletier/go-toml",
 			"revision": "a1f048ba24490f9b0674a67e1ce995d685cddf4a",
 			"revisionTime": "2017-01-16T02:49:11Z"
+		},
+		{
+			"checksumSHA1": "OZpv1QDSDG23bzSk/7auPQRB2Qg=",
+			"path": "github.com/russross/blackfriday",
+			"revision": "4048872b16cc0fc2c5fd9eacf0ed2c2fedaa0c8c",
+			"revisionTime": "2017-07-28T17:53:26Z"
 		},
 		{
 			"checksumSHA1": "AikWjAOvWHSJ8G1iU+wNReZnyCk=",
@@ -349,6 +373,12 @@
 			"path": "gopkg.in/asn1-ber.v1",
 			"revision": "4e86f4367175e39f69d9358a5f17b4dda270378d",
 			"revisionTime": "2015-09-24T05:17:56Z"
+		},
+		{
+			"checksumSHA1": "iq5WdjScmTU+LfNoerLuwcnXpdM=",
+			"path": "gopkg.in/gomail.v2",
+			"revision": "81ebce5c23dfd25c6c67194b37d3dd3f338c98b1",
+			"revisionTime": "2016-04-11T21:29:32Z"
 		},
 		{
 			"checksumSHA1": "itYnRitfdzJjy2mZlvJ+hCJZvtY=",

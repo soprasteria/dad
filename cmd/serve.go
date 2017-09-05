@@ -29,7 +29,7 @@ var serveCmd = &cobra.Command{
 	Short: "Launch D.A.D server",
 	Long:  `D.A.D server will listen on 0.0.0.0:8080`,
 	Run: func(cmd *cobra.Command, args []string) {
-		email.InitSMTPConfiguration()
+		email.InitSMTPConfiguration(viper.GetString("smtp.server"), viper.GetString("admin.name"), viper.GetString("smtp.user"), viper.GetString("smtp.identity"), viper.GetString("smtp.password"), viper.GetString("smtp.logo"))
 		mongo.Connect()
 		server.New(Version)
 	},
@@ -59,8 +59,8 @@ func init() {
 	serveCmd.Flags().String("smtp-user", "", "SMTP user for authentication.")
 	serveCmd.Flags().String("smtp-password", "", "SMTP password for authentication.")
 	serveCmd.Flags().String("smtp-logo", "", "Logo image that will be used in header of emails sent by DAD.")
-	serveCmd.Flags().String("smtp-sender", "", "Email used as sender of emails")
-	serveCmd.Flags().String("smtp-receiver", "", "Email used as receiver of emails")
+	serveCmd.Flags().String("admin-name", "", "Email used as sender of emails")
+	serveCmd.Flags().String("admin-email", "", "Email used as receiver of emails")
 	serveCmd.Flags().String("name-receiver", "", "Email receiver's name")
 	serveCmd.Flags().String("smtp-identity", "", "Identity of the sender")
 	serveCmd.Flags().String("docktor-addr", "http://localhost:3000", "Docktor HTTP address. Format http://host:port")
@@ -90,8 +90,8 @@ func init() {
 	_ = viper.BindPFlag("smtp.user", serveCmd.Flags().Lookup("smtp-user"))
 	_ = viper.BindPFlag("smtp.password", serveCmd.Flags().Lookup("smtp-password"))
 	_ = viper.BindPFlag("smtp.logo", serveCmd.Flags().Lookup("smtp-logo"))
-	_ = viper.BindPFlag("smtp.sender", serveCmd.Flags().Lookup("smtp-sender"))
-	_ = viper.BindPFlag("smtp.receiver", serveCmd.Flags().Lookup("smtp-receiver"))
+	_ = viper.BindPFlag("admin.name", serveCmd.Flags().Lookup("admin-name"))
+	_ = viper.BindPFlag("admin.email", serveCmd.Flags().Lookup("admin-email"))
 	_ = viper.BindPFlag("name.receiver", serveCmd.Flags().Lookup("name-receiver"))
 	_ = viper.BindPFlag("smtp.identity", serveCmd.Flags().Lookup("smtp-identity"))
 	_ = viper.BindPFlag("docktor.addr", serveCmd.Flags().Lookup("docktor-addr"))

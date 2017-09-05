@@ -22,7 +22,7 @@ func SendWelcomeEmail(user types.User) {
 			Body: hermes.Body{
 				Name: user.DisplayName,
 				Intros: []string{
-					"Welcome to D.A.D! We're very excited to have you on board. Your account has been created !",
+					"Welcome to D.A.D! We're very excited to have you on board. Your account has been created!",
 				},
 			},
 		}})

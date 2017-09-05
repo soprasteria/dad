@@ -74,20 +74,20 @@ func (p *Projects) GetIndicators(c echo.Context) error {
 }
 
 // sendEmail sets the email body and send it
-func sendEmail(project types.Project, user types.User, userRepo types.UserRepo) {
+func sendEmail(project types.Project, to types.User, userRepo types.UserRepo, name, address string) {
 
 	var option = email.SendOptions{
 		To: []mail.Address{
 			{
-				Name:    user.DisplayName,
-				Address: user.Email,
+				Name:    to.DisplayName,
+				Address: to.Email,
 			},
 		},
 
 		ToCc: []mail.Address{
 			{
-				Name:    viper.GetString("name.receiver"),
-				Address: viper.GetString("smtp.receiver"),
+				Name:    name,
+				Address: address,
 			},
 		},
 
@@ -101,7 +101,6 @@ func sendEmail(project types.Project, user types.User, userRepo types.UserRepo) 
 				Title: "Project " + project.Name + " deleted!",
 
 				Dictionary: []hermes.Entry{
-					{Key: "Project ID", Value: bson.ObjectId(project.ID).Hex()},
 					{Key: "URL Docktor", Value: project.DocktorURL.DocktorGroupURL},
 				},
 			},
@@ -109,11 +108,11 @@ func sendEmail(project types.Project, user types.User, userRepo types.UserRepo) 
 
 	// Add the RI as email receiver
 	entityIDs := []bson.ObjectId{bson.ObjectIdHex(project.BusinessUnit), bson.ObjectIdHex(project.ServiceCenter)}
-	users, err := userRepo.FindRIWithEntity(entityIDs)
+	riUsers, err := userRepo.FindRIWithEntity(entityIDs)
 	if err != nil {
 		log.Error("Error while retrieving the users whose matching with serviceCenter/businessUnit IDs or with RI's role: ", err)
 	} else {
-		for _, u := range users {
+		for _, u := range riUsers {
 			option.To = append(option.To, mail.Address{Name: u.DisplayName, Address: u.Email})
 		}
 	}
@@ -130,15 +129,11 @@ func sendEmail(project types.Project, user types.User, userRepo types.UserRepo) 
 
 	// Add the deputies as email receiver
 	for _, d := range project.Deputies {
-		if d != "" {
-			deputies, err := userRepo.FindByID(d)
-
-			if err != nil {
-				log.Error("Error while retrieving the deputies from the UserRepo: ", err)
-			} else {
-				option.To = append(option.To, mail.Address{Name: deputies.DisplayName, Address: deputies.Email})
-			}
-
+		deputies, err := userRepo.FindByID(d)
+		if err != nil {
+			log.Error("Error while retrieving the deputies from the UserRepo: ", err)
+		} else {
+			option.To = append(option.To, mail.Address{Name: deputies.DisplayName, Address: deputies.Email})
 		}
 	}
 
@@ -173,7 +168,7 @@ func (p *Projects) Delete(c echo.Context) error {
 	}
 
 	// Get the project's stats before deleting it
-	monProj, err := database.Projects.FindByID(id)
+	projectStats, err := database.Projects.FindByID(id)
 	if err != nil {
 		log.Error("Error while retrieving the project from database", err)
 	}
@@ -185,8 +180,8 @@ func (p *Projects) Delete(c echo.Context) error {
 	}
 
 	// checks if deleted project had a linked Docktor URL.
-	if monProj.DocktorURL.DocktorGroupURL != "" {
-		sendEmail(monProj, authUser, userRepo)
+	if projectStats.DocktorURL.DocktorGroupURL != "" {
+		sendEmail(projectStats, authUser, userRepo, viper.GetString("name.receiver"), viper.GetString("admin.email"))
 	}
 
 	return c.JSON(http.StatusOK, res)

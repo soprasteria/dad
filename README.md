@@ -87,7 +87,6 @@ You can then browse [http://localhost:8080/](http://localhost:8080/)
 ## Populate the database with data
 
 You can use the shell scripts in [bin/](./bin). The scripts use CSV files. The format of these files is described in the shell scripts.
-Don't forget to run Dad locally first before using these scripts.
 
 ## Production
 

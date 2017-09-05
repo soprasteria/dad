@@ -140,16 +140,16 @@ func (s *UserRepo) FindAll() ([]User, error) {
 }
 
 // FindRIWithEntity finds RI whose matching with serviceCenter and/or businessUnit IDs
-func (s *UserRepo) FindRIWithEntity(entityIDs []bson.ObjectId) ([]User, error) {
+func (s *UserRepo) FindRIWithEntity(entitiesIDs []bson.ObjectId) ([]User, error) {
 	users := []User{}
 	err := s.col().Find(bson.M{
 		"entities": bson.M{
-			"$in": entityIDs,
+			"$in": entitiesIDs,
 		},
 		"role": RIRole,
 	}).All(&users)
 	if err != nil {
-		return nil, errors.New("Can't retrieve users whose matching with serviceCenter/businessUnit IDs or with RI's role")
+		return nil, errors.New("Error while retrieving RIs of entities")
 	}
 	return users, nil
 }

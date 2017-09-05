@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"net/mail"
-	"net/smtp"
 	"strconv"
 	"strings"
 
@@ -12,34 +11,32 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/matcornic/hermes"
-	"github.com/spf13/viper"
 )
 
 type smtpAuthentication struct {
-	Server          string
-	Port            int
-	SMTPAuthentData smtp.Auth
-	Enabled         bool
-	SenderEmail     string
-	ServerEmail     string
-	SenderIdentity  string
-	SMTPLogo        string
-	SMTPUser        string
-	SMTPPassword    string
+	Server         string
+	Port           int
+	Enabled        bool
+	SenderEmail    string
+	ServerEmail    string
+	SenderIdentity string
+	SMTPLogo       string
+	SMTPUser       string
+	SMTPPassword   string
 }
 
 var smtpConfig smtpAuthentication
 var hermesConfig hermes.Hermes
 
 // InitSMTPConfiguration initializes the SMTP configuration from the smtp.* parameters
-func InitSMTPConfiguration() error {
-	server := viper.GetString("smtp.server")
+func InitSMTPConfiguration(server, sender, user, smtpIdentity, smtpPassword, logo string) error {
 	if server != "" {
 		// SMTP server is configured, enabling it.
 		smtpConfig.Enabled = true
 
-		smtpConfig.Server = strings.Split(server, ":")[0]
-		portString := strings.Split(viper.GetString("smtp.server"), ":")[1]
+		smtpStringTokens := strings.Split(server, ":")
+		smtpConfig.Server = smtpStringTokens[0]
+		portString := smtpStringTokens[1]
 
 		port, err := strconv.Atoi(portString)
 		if err != nil {
@@ -48,31 +45,26 @@ func InitSMTPConfiguration() error {
 
 		smtpConfig.Port = port
 
-		sender := viper.GetString("smtp.sender")
-
 		if sender == "" {
-			sender = viper.GetString("smtp.user")
+			sender = user
 		}
-		smtpConfig.SenderEmail = sender
-		smtpConfig.SenderIdentity = viper.GetString("smtp.identity")
 
-		user := viper.GetString("smtp.user")
+		smtpConfig.SenderEmail = sender
+		smtpConfig.SenderIdentity = smtpIdentity
 
 		if user != "" {
 			// SMTP configuration defines user/password for SMTP authentication
 			smtpConfig.SMTPUser = user
-			smtpConfig.SMTPPassword = viper.GetString("smtp.password")
+			smtpConfig.SMTPPassword = smtpPassword
 		}
 
-		logo := viper.GetString("smtp.logo")
 		smtpConfig.SMTPLogo = logo
 
 		hermesConfig = hermes.Hermes{
 			Theme: new(hermes.Flat),
 			Product: hermes.Product{
-				Name:      "D.A.D",
-				Logo:      logo,
-				Copyright: "Copyright © 2017 D.A.D. All rights reserved.",
+				Name: "DAD",
+				Logo: logo,
 			},
 		}
 	}

@@ -142,7 +142,7 @@ func New(version string) {
 
 	engine.GET("/*", index, noCache)
 
-	errorMail := email.InitSMTPConfiguration()
+	errorMail := email.InitSMTPConfiguration(viper.GetString("smtp.server"), viper.GetString("admin.name"), viper.GetString("smtp.user"), viper.GetString("smtp.identity"), viper.GetString("smtp.password"), viper.GetString("smtp.logo"))
 	if errorMail != nil {
 		log.Error("Error initialization of the SMTP configuration", errorMail)
 	}

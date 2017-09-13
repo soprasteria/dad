@@ -12,7 +12,7 @@
 Tools and dependencies:
 * [Golang 1.7](https://golang.org/)
   * [govendor](https://github.com/kardianos/govendor)
-* [NodeJS 7.2.0](https://nodejs.org/en/)
+* [NodeJS 8](https://nodejs.org/en/)
 * [Docker](https://www.docker.com/)
 
 ## Get the dependencies

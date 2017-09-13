@@ -4,17 +4,20 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"net/url"
 	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/matcornic/hermes"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/labstack/echo"
 	"github.com/soprasteria/dad/server/docktor"
+	"github.com/soprasteria/dad/server/email"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
 	"github.com/spf13/viper"
@@ -70,12 +73,85 @@ func (p *Projects) GetIndicators(c echo.Context) error {
 	return c.JSON(http.StatusOK, indicators)
 }
 
+// sendEmail sets the email body and send it
+func sendEmail(project types.Project, to types.User, userRepo types.UserRepo, name, address string) {
+
+	var option = email.SendOptions{
+		To: []mail.Address{
+			{
+				Name:    to.DisplayName,
+				Address: to.Email,
+			},
+		},
+
+		ToCc: []mail.Address{
+			{
+				Name:    name,
+				Address: address,
+			},
+		},
+
+		Subject: "D.A.D - Project deleted",
+
+		Body: hermes.Email{
+			Body: hermes.Body{
+				Intros: []string{
+					"WARNING: This project was linked with a Docktor."},
+
+				Title: "Project " + project.Name + " deleted!",
+
+				Dictionary: []hermes.Entry{
+					{Key: "URL Docktor", Value: project.DocktorURL.DocktorGroupURL},
+				},
+			},
+		}}
+
+	// Add the RI as email receiver
+	entityIDs := []bson.ObjectId{bson.ObjectIdHex(project.BusinessUnit), bson.ObjectIdHex(project.ServiceCenter)}
+	riUsers, err := userRepo.FindRIWithEntity(entityIDs)
+	if err != nil {
+		log.Error("Error while retrieving the users whose matching with serviceCenter/businessUnit IDs or with RI's role: ", err)
+	} else {
+		for _, u := range riUsers {
+			option.To = append(option.To, mail.Address{Name: u.DisplayName, Address: u.Email})
+		}
+	}
+
+	// Add the PM as email receiver
+	if project.ProjectManager != "" {
+		projectManager, err := userRepo.FindByID(project.ProjectManager)
+		if err != nil {
+			log.Error("Error while retrieving the project manager stats from the UserRepo: ", err)
+		} else {
+			option.To = append(option.To, mail.Address{Name: projectManager.DisplayName, Address: projectManager.Email})
+		}
+	}
+
+	// Add the deputies as email receiver
+	for _, d := range project.Deputies {
+		deputies, err := userRepo.FindByID(d)
+		if err != nil {
+			log.Error("Error while retrieving the deputies from the UserRepo: ", err)
+		} else {
+			option.To = append(option.To, mail.Address{Name: deputies.DisplayName, Address: deputies.Email})
+		}
+	}
+
+	// Send the email
+	errorSend := email.Send(option)
+
+	if errorSend != nil {
+		log.Error("Error while sending an email", errorSend)
+	}
+}
+
 // Delete project from database
 func (p *Projects) Delete(c echo.Context) error {
 	database := c.Get("database").(*mongo.DadMongo)
 	id := c.Param("id")
-
 	authUser := c.Get("authuser").(types.User)
+	userRepo := database.Users
+
 	log.WithFields(log.Fields{
 		"username":  authUser.Username,
 		"role":      authUser.Role,
@@ -91,9 +167,21 @@ func (p *Projects) Delete(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, types.NewErr(fmt.Sprintf("User %s cannot delete the project %s", authUser.Username, id)))
 	}
 
+	// Get the project's stats before deleting it
+	projectStats, err := database.Projects.FindByID(id)
+	if err != nil {
+		log.Error("Error while retrieving the project from database", err)
+	}
+
+	// Deleting the project
 	res, err := database.Projects.Delete(bson.ObjectIdHex(id))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, types.NewErr(fmt.Sprintf("Error while removing project: %v", err)))
+	}
+
+	// checks if deleted project had a linked Docktor URL.
+	if projectStats.DocktorURL.DocktorGroupURL != "" {
+		sendEmail(projectStats, authUser, userRepo, viper.GetString("name.receiver"), viper.GetString("admin.email"))
 	}
 
 	return c.JSON(http.StatusOK, res)

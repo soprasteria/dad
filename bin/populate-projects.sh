@@ -28,7 +28,7 @@ entities=$(curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" "$DAD_URL/api/entities
         serviceCenterID=$(echo "$entities" | jq -M -r ".[] | select(.name==\"$serviceCenter\") | .id")
         businessUnitID=$(echo "$entities" | jq -M -r ".[] | select(.name==\"$businessUnit\") | .id")
 
-        project=$(printf '{"name": "%s", "domain": "%s", "serviceCenter": "%s", "businessUnit": "%s", "description": "%s"}' "$name" "$domain" "$serviceCenterID" "$businessUnitID" "$description")
+        project=$(printf '{"name": "%s", "domain": ["%s"], "serviceCenter": "%s", "businessUnit": "%s", "description": "%s"}' "$name" "$domain" "$serviceCenterID" "$businessUnitID" "$description")
         echo "Sending: $project"
         curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$project" "$DAD_URL/api/projects/new"
         echo

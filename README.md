@@ -12,8 +12,10 @@
 Tools and dependencies:
 * [Golang 1.7](https://golang.org/)
   * [govendor](https://github.com/kardianos/govendor)
-* [NodeJS 7.2.0](https://nodejs.org/en/)
+* [NodeJS 8](https://nodejs.org/en/)
 * [Docker](https://www.docker.com/)
+
+**Don't forget to add $GOPATH/bin to your $PATH**
 
 ## Get the dependencies
 
@@ -27,10 +29,6 @@ govendor sync
 ```sh
 docker run --name mongo -p 27017:27017 -v /data/mongo:/data/db -d mongo
 ```
-
-## Populate the database with data
-
-You can use the shell scripts in [bin/](./bin). The scripts use CSV files. The format of these files is described in the shell scripts.
 
 ## Specify the server configuration
 
@@ -85,6 +83,10 @@ npm start
 ```
 
 You can then browse [http://localhost:8080/](http://localhost:8080/)
+
+## Populate the database with data
+
+You can use the shell scripts in [bin/](./bin). The scripts use CSV files. The format of these files is described in the shell scripts.
 
 ## Production
 

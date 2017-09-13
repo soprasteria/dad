@@ -1,53 +1,74 @@
 package email
 
 import (
-	"encoding/base64"
+	"crypto/tls"
 	"errors"
-	"fmt"
 	"net/mail"
-	"net/smtp"
+	"strconv"
 	"strings"
 
+	"gopkg.in/gomail.v2"
+
 	log "github.com/Sirupsen/logrus"
-	"github.com/spf13/viper"
+	"github.com/matcornic/hermes"
 )
 
 type smtpAuthentication struct {
-	Server          string
-	SMTPAuthentData smtp.Auth
-	Enabled         bool
-	SenderEmail     string
-	SenderIdentity  string
+	Server         string
+	Port           int
+	Enabled        bool
+	SenderEmail    string
+	ServerEmail    string
+	SenderIdentity string
+	SMTPLogo       string
+	SMTPUser       string
+	SMTPPassword   string
 }
 
 var smtpConfig smtpAuthentication
+var hermesConfig hermes.Hermes
 
 // InitSMTPConfiguration initializes the SMTP configuration from the smtp.* parameters
-func InitSMTPConfiguration() {
-	server := viper.GetString("smtp.server")
+func InitSMTPConfiguration(server, sender, user, smtpIdentity, smtpPassword, logo string) error {
 	if server != "" {
 		// SMTP server is configured, enabling it.
 		smtpConfig.Enabled = true
-		smtpConfig.Server = server
 
-		sender := viper.GetString("smtp.sender")
-		if sender == "" {
-			sender = viper.GetString("smtp.user")
+		smtpStringTokens := strings.Split(server, ":")
+		smtpConfig.Server = smtpStringTokens[0]
+		portString := smtpStringTokens[1]
+
+		port, err := strconv.Atoi(portString)
+		if err != nil {
+			log.Error("Port in smtp.server is not valid. Expected a number and obtained :", portString)
 		}
-		smtpConfig.SenderEmail = sender
-		smtpConfig.SenderIdentity = viper.GetString("smtp.identity")
 
-		user := viper.GetString("smtp.user")
+		smtpConfig.Port = port
+
+		if sender == "" {
+			sender = user
+		}
+
+		smtpConfig.SenderEmail = sender
+		smtpConfig.SenderIdentity = smtpIdentity
+
 		if user != "" {
 			// SMTP configuration defines user/password for SMTP authentication
-			smtpConfig.SMTPAuthentData = smtp.PlainAuth(
-				"",
-				user,
-				viper.GetString("smtp.password"),
-				strings.Split(viper.GetString("smtp.server"), ":")[0],
-			)
+			smtpConfig.SMTPUser = user
+			smtpConfig.SMTPPassword = smtpPassword
+		}
+
+		smtpConfig.SMTPLogo = logo
+
+		hermesConfig = hermes.Hermes{
+			Theme: new(hermes.Flat),
+			Product: hermes.Product{
+				Name: "DAD",
+				Logo: logo,
+			},
 		}
 	}
+	return nil
 }
 
 func recipientsAddress(adresses []mail.Address) []string {
@@ -69,8 +90,10 @@ func recipientsToString(adresses []mail.Address) []string {
 // SendOptions are options for sending an email
 type SendOptions struct {
 	To      []mail.Address
+	ToCc    []mail.Address
 	Subject string
-	Body    string
+	Body    hermes.Email
+	Intros  []string
 }
 
 // Send sends the email
@@ -85,32 +108,35 @@ func Send(options SendOptions) error {
 		Address: smtpConfig.SenderEmail,
 	}
 
-	header := make(map[string]string)
-	header["From"] = from.String()
-	header["To"] = strings.Join(recipientsToString(options.To), ";")
-	header["Subject"] = options.Subject
-	header["MIME-Version"] = "1.0"
-	header["Content-Type"] = "text/plain; charset=\"utf-8\""
-	header["Content-Transfer-Encoding"] = "base64"
+	m := gomail.NewMessage()
+	m.SetHeader("From", from.String())
+	m.SetHeader("To", recipientsToString(options.To)...)
+	m.SetHeader("Subject", options.Subject)
+	m.SetHeader("Cc", recipientsToString(options.ToCc)...)
 
-	message := ""
-	for k, v := range header {
-		message += fmt.Sprintf("%s: %s\r\n", k, v)
+	emailBodyHTML, err := hermesConfig.GenerateHTML(options.Body)
+	if err != nil {
+		return err
 	}
-	message += "\r\n" + base64.StdEncoding.EncodeToString([]byte(options.Body))
+
+	// Generate the plaintext version of the e-mail (for clients that do not support xHTML)
+	emailBodyPlainText, err := hermesConfig.GeneratePlainText(options.Body)
+	if err != nil {
+		return err
+	}
+
+	m.SetBody("text/plain", emailBodyPlainText)
+	m.AddAlternative("text/html", emailBodyHTML)
 
 	log.WithFields(log.Fields{
 		"server":      smtpConfig.Server,
 		"senderEmail": smtpConfig.SenderEmail,
 		"recipient":   recipientsAddress(options.To),
-	}).Debug("SMTP server configuration")
+	}).Info("SMTP server configuration")
 
-	err := smtp.SendMail(
-		smtpConfig.Server,
-		smtpConfig.SMTPAuthentData,
-		smtpConfig.SenderEmail,
-		recipientsAddress(options.To),
-		[]byte(message),
-	)
-	return err
+	d := gomail.NewDialer(smtpConfig.Server, smtpConfig.Port, smtpConfig.SMTPUser, smtpConfig.SMTPPassword)
+
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+	return d.DialAndSend(m)
 }

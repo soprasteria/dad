@@ -139,6 +139,21 @@ func (s *UserRepo) FindAll() ([]User, error) {
 	return users, nil
 }
 
+// FindRIWithEntity finds RI whose matching with serviceCenter and/or businessUnit IDs
+func (s *UserRepo) FindRIWithEntity(entitiesIDs []bson.ObjectId) ([]User, error) {
+	users := []User{}
+	err := s.col().Find(bson.M{
+		"entities": bson.M{
+			"$in": entitiesIDs,
+		},
+		"role": RIRole,
+	}).All(&users)
+	if err != nil {
+		return nil, errors.New("Error while retrieving RIs of entities")
+	}
+	return users, nil
+}
+
 // Save updates or create the user in database
 func (s *UserRepo) Save(user User) (User, error) {
 	if !s.isInitialized() {

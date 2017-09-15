@@ -30,7 +30,7 @@ script:
 before_deploy:
 - git config --global user.email "github@travis-ci.org"
 - git config --global user.name "Travis CI"
-- git diff vendor/vendor.json
+- git reset --hard
 - npm version ${TRAVIS_TAG}
 - npm run dist
 

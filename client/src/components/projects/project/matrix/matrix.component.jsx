@@ -13,6 +13,7 @@ import { options, priorities, status } from '../../../../modules/services/servic
 
 import './matrix.component.scss';
 
+
 // Matrix Component Component
 class Matrix extends React.Component {
 
@@ -29,21 +30,23 @@ class Matrix extends React.Component {
   }
 
   render = () => {
-    const { service, matrix, indicators, readOnly } = this.props;
+    const { service, matrix, indicators, readOnly, isConnectedUserAdmin } = this.props;
     return (
       <Table.Row className='matrix-component'>
-        {this.renderCells(service, matrix, indicators.items, readOnly)}
+        {this.renderCells(service, matrix, indicators.items, readOnly, isConnectedUserAdmin)}
       </Table.Row>
     );
   }
 
-  renderCells = (service, matrix, indicators, readOnly) => {
+  renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin) => {
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
     matrix.priority = typeof matrix.priority === 'string' && matrix.priority !== '' ? matrix.priority : 'N/A';
 
     const serviceStatus = this.getServiceStatus(service, indicators);
     const progressOption = options.find((elm) => elm.value === matrix.progress);
+    const optionsForProgress = this.getProgressOptions(options, matrix.progress, isConnectedUserAdmin);
+
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
@@ -83,14 +86,14 @@ class Matrix extends React.Component {
         </Table.Cell>)
       ];
     } else {
-      return [
+      return [ 
         serviceNameCell,
         (<Table.Cell key='progress'>
-          <Form>
+          <Form> 
             {readOnly
               ? (<div>{progressOption.text}</div>)
               : (<Form.Dropdown placeholder='Progress' fluid selection name='progress' title={progressOption.title}
-                options={options} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
+                options={optionsForProgress} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
                 />)
             }
           </Form>
@@ -138,6 +141,15 @@ class Matrix extends React.Component {
     }
   }
 
+  getProgressOptions = (options, progressValue, isConnectedUserAdmin) =>  {
+    const progressOptions = [...options];
+    if ((progressValue >= 1) && (!isConnectedUserAdmin))  {
+      progressOptions[0] = { ...progressOptions[0], disabled: true };
+      progressOptions[1] = { ...progressOptions[1], disabled: true };
+    }
+    return progressOptions;
+  }
+
   // Method used to get the status indicator for a functional service. It can determine which service has the best status to display only this one
   getServiceStatus = (service, indicators) => {
     let serviceStatus = undefined;
@@ -169,6 +181,7 @@ Matrix.propTypes = {
   serviceId: PropTypes.string,
   indicators: PropTypes.object,
   matrix: PropTypes.object,
+  isConnectedUserAdmin: PropTypes.bool,
   service: PropTypes.object,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool

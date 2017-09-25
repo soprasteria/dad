@@ -1,8 +1,9 @@
 import Matrix from '../matrix.component';
 
 import deepFreeze from 'deep-freeze';
+import options from '../../../../../modules/services/services.constants';
 
-const defaultServices = {
+/*const defaultServices = {
   name: 'Pipeline d\'intégration continue',
   package: '2. Build',
   services: [
@@ -11,6 +12,7 @@ const defaultServices = {
     'tfs'
   ]
 };
+
 deepFreeze(defaultServices); // To make Object recursively immuable
 
 describe('Testing getServiceStatus function for a functional service that has 3 different technical services associated', () => {
@@ -118,4 +120,94 @@ describe('Testing getServiceStatus function for a functional service that has 3 
     });
   });
 });
+*/
 
+const defaultOptions = options;
+
+deepFreeze(defaultOptions);
+
+describe('Testing getProgressOptions function for Admin and non-Admin users and for N/A, 0%, 20% and 80% values', () => {
+  const matrix = new Matrix();
+
+  const oneMatrixProgress = -1;
+  deepFreeze(oneMatrixProgress);
+
+  const twoMatrixProgress = 0;
+  deepFreeze(twoMatrixProgress);
+
+  const treeMatrixProgress = 1;
+  deepFreeze(treeMatrixProgress);
+
+  const forMatrixProgress = 4;
+  deepFreeze(forMatrixProgress);
+
+  const oneUser = true;
+  deepFreeze(oneUser);
+
+  const twoUser = false;
+  deepFreeze(twoUser);
+
+  describe('Progress sets to N/A by a non-Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, oneMatrixProgress, twoUser);
+    it('Should return the non-disabled values', () => {
+      expect(optionsForProgress[0]).toEqual(options[0]);
+      expect(optionsForProgress[1]).toEqual(options[1]);
+    });
+  });
+
+  describe('Progress sets to 0% by a non-Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, twoMatrixProgress, twoUser);
+    it('Should return the non-disabled values', () => {
+      expect(optionsForProgress[0]).toEqual(options[0]);
+      expect(optionsForProgress[1]).toEqual(options[1]);
+    });
+  });
+
+  describe('Progress sets to 20% by a non-Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, treeMatrixProgress, twoUser);
+    it('Should return the disabled values', () => {
+      expect(optionsForProgress[0]).toEqual({ ...options[0], title: 'Only Admin users can now return back to these values', disabled: true });
+      expect(optionsForProgress[1]).toEqual({ ...options[1], title: 'Only Admin users can now return back to these values', disabled: true });
+    });
+  });
+
+  describe('Progress sets to 80% by a non-Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, forMatrixProgress, twoUser);
+    it('Should return the disabled values', () => {
+      expect(optionsForProgress[0]).toEqual({ ...options[0], title: 'Only Admin users can now return back to these values', disabled: true });
+      expect(optionsForProgress[1]).toEqual({ ...options[1], title: 'Only Admin users can now return back to these values', disabled: true });
+    });
+  });
+
+  describe('Progress sets to N/A by an Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, oneMatrixProgress, oneUser);
+    it('Should return the non-disabled values', () => {
+      expect(optionsForProgress[0]).toEqual(options[0]);
+      expect(optionsForProgress[1]).toEqual(options[1]);
+    });
+  });
+
+  describe('Progress sets to 0% by an Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, twoMatrixProgress, oneUser);
+    it('Should return the non-disabled values', () => {
+      expect(optionsForProgress[0]).toEqual(options[0]);
+      expect(optionsForProgress[1]).toEqual(options[1]);
+    });
+  });
+
+  describe('Progress sets to 20% by an Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, treeMatrixProgress, oneUser);
+    it('Should return the non-disabled values', () => {
+      expect(optionsForProgress[0]).toEqual(options[0]);
+      expect(optionsForProgress[1]).toEqual(options[1]);
+    });
+  });
+
+  describe('Progress sets to 80% by an Admin user', () => {
+    const optionsForProgress = matrix.getProgressOptions(defaultOptions, forMatrixProgress, oneUser);
+    it('Should return the non-disabled values', () => {
+      expect(optionsForProgress[0]).toEqual(options[0]);
+      expect(optionsForProgress[1]).toEqual(options[1]);
+    });
+  });
+});

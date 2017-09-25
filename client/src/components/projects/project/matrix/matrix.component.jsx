@@ -143,9 +143,9 @@ class Matrix extends React.Component {
 
   getProgressOptions = (options, progressValue, isConnectedUserAdmin) =>  {
     const progressOptions = [...options];
-    if ((progressValue >= 1) && (!isConnectedUserAdmin))  {
-      progressOptions[0] = { ...progressOptions[0], disabled: true };
-      progressOptions[1] = { ...progressOptions[1], disabled: true };
+    if (progressValue >= 1 && !isConnectedUserAdmin)  {
+      progressOptions[0] = { ...progressOptions[0], title: 'Only Admin users can now return back to these values', disabled: true };
+      progressOptions[1] = { ...progressOptions[1], title: 'Only Admin users can now return back to these values', disabled: true };
     }
     return progressOptions;
   }

@@ -10,6 +10,17 @@ export const options = [
   { value: 5, text: '100%', label: { color: 'green', empty: true, circular: false }, title: 'Fully used by the team' },
 ];
 
+export function getProgressOptions (options, progressValue, isConnectedUserAdmin) {
+  const progressOptions = [...options];
+
+  if (progressValue >= 1 && !isConnectedUserAdmin) {
+    progressOptions[0] = { ...progressOptions[0], title: 'Only Admin users can now return back to these values', disabled: true };
+    progressOptions[1] = { ...progressOptions[1], title: 'Only Admin users can now return back to these values', disabled: true };
+  }
+    
+  return progressOptions;
+};
+
 export const status = [
   { value: 0, text: 'Empty', color: 'black', title: 'The service was never used by the project' },
   { value: 1, text: 'Undetermined', color: 'red', title: 'We cannot determine if the service is active or not' },

@@ -9,7 +9,7 @@ import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { options, priorities, status } from '../../../../modules/services/services.constants';
+import { options, priorities, status, getProgressOptions } from '../../../../modules/services/services.constants';
 
 import './matrix.component.scss';
 
@@ -45,8 +45,7 @@ class Matrix extends React.Component {
 
     const serviceStatus = this.getServiceStatus(service, indicators);
     const progressOption = options.find((elm) => elm.value === matrix.progress);
-    const optionsForProgress = this.getProgressOptions(options, matrix.progress, isConnectedUserAdmin);
-
+    const optionsForProgress = getProgressOptions(options, matrix.progress, isConnectedUserAdmin);
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
@@ -139,15 +138,6 @@ class Matrix extends React.Component {
         </Table.Cell>)
       ];
     }
-  }
-
-  getProgressOptions = (options, progressValue, isConnectedUserAdmin) =>  {
-    const progressOptions = [...options];
-    if (progressValue >= 1 && !isConnectedUserAdmin)  {
-      progressOptions[0] = { ...progressOptions[0], title: 'Only Admin users can now return back to these values', disabled: true };
-      progressOptions[1] = { ...progressOptions[1], title: 'Only Admin users can now return back to these values', disabled: true };
-    }
-    return progressOptions;
   }
 
   // Method used to get the status indicator for a functional service. It can determine which service has the best status to display only this one

@@ -1,7 +1,7 @@
 import Matrix from '../matrix.component';
 
 import deepFreeze from 'deep-freeze';
-import options from '../../../../../modules/services/services.constants';
+import { options, getProgressOptions } from '../../../../../modules/services/services.constants';
 
 const defaultServices = {
   name: 'Pipeline d\'intégration continue',
@@ -147,7 +147,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   deepFreeze(nonAdminUser);
 
   describe('Progress set to N/A by a non-Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, NAProgress, nonAdminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, NAProgress, nonAdminUser);
     it('Should return the non-disabled values', () => {
       expect(optionsForProgress[0]).toEqual(options[0]);
       expect(optionsForProgress[1]).toEqual(options[1]);
@@ -155,7 +155,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   });
 
   describe('Progress set to 0% by a non-Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, zeroProgress, nonAdminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, zeroProgress, nonAdminUser);
     it('Should return the non-disabled values', () => {
       expect(optionsForProgress[0]).toEqual(options[0]);
       expect(optionsForProgress[1]).toEqual(options[1]);
@@ -163,7 +163,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   });
 
   describe('Progress set to 20% by a non-Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, twentyProgress, nonAdminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, twentyProgress, nonAdminUser);
     it('Should return the disabled values', () => {
       expect(optionsForProgress[0]).toEqual({
         ...options[0],
@@ -179,7 +179,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   });
 
   describe('Progress set to 80% by a non-Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, eightyProgress, nonAdminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, eightyProgress, nonAdminUser);
     it('Should return the disabled values', () => {
       expect(optionsForProgress[0]).toEqual({
         ...options[0],
@@ -195,7 +195,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   });
 
   describe('Progress set to N/A by an Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, NAProgress, adminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, NAProgress, adminUser);
     it('Should return the non-disabled values', () => {
       expect(optionsForProgress[0]).toEqual(options[0]);
       expect(optionsForProgress[1]).toEqual(options[1]);
@@ -203,7 +203,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   });
 
   describe('Progress set to 0% by an Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, zeroProgress, adminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, zeroProgress, adminUser);
     it('Should return the non-disabled values', () => {
       expect(optionsForProgress[0]).toEqual(options[0]);
       expect(optionsForProgress[1]).toEqual(options[1]);
@@ -211,7 +211,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   });
 
   describe('Progress set to 20% by an Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, twentyProgress, adminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, twentyProgress, adminUser);
     it('Should return the non-disabled values', () => {
       expect(optionsForProgress[0]).toEqual(options[0]);
       expect(optionsForProgress[1]).toEqual(options[1]);
@@ -219,7 +219,7 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
   });
 
   describe('Progress set to 80% by an Admin user', () => {
-    const optionsForProgress = matrix.getProgressOptions(defaultOptions, eightyProgress, adminUser);
+    const optionsForProgress = getProgressOptions(defaultOptions, eightyProgress, adminUser);
     it('Should return the non-disabled values', () => {
       expect(optionsForProgress[0]).toEqual(options[0]);
       expect(optionsForProgress[1]).toEqual(options[1]);

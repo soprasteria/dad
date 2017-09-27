@@ -126,8 +126,6 @@ deepFreeze(defaultOptions);
 describe('Testing getProgressOptions function for Admin and non-Admin users and for N/A, 0' +
     '%, 20% and 80% values',
 () => {
-  const matrix = new Matrix();
-
   const NAProgress = -1;
   deepFreeze(NAProgress);
 

@@ -20,6 +20,12 @@ var Progress = map[int]string{
 	5:  "100%",
 }
 
+// Deployed maps the progress codes to their string representation
+var Deployed = map[int]string{
+	-1: "No",
+	0:  "Yes",
+}
+
 // Priority maps the progress codes to their string representation
 var Priority = map[int]string{
 	-1: "N/A",
@@ -31,6 +37,7 @@ var Priority = map[int]string{
 // MatrixLine represents information of a depending on the functional service
 type MatrixLine struct {
 	Service  bson.ObjectId `bson:"service" json:"service"`
+	Deployed string        `bson:"deployed,omitempty" json:"deployed,omitempty"`
 	Progress int           `bson:"progress" json:"progress"`
 	Goal     int           `bson:"goal" json:"goal"`
 	Priority string        `bson:"priority,omitempty" json:"priority,omitempty"`
@@ -49,6 +56,7 @@ type TechnicalData struct {
 	SpecificationsInVersionControl bool     `bson:"specifications" json:"specifications"`
 	SourceCodeInVersionControl     bool     `bson:"sourceCode" json:"sourceCode"`
 	VersionControlSystem           string   `bson:"versionControlSystem" json:"versionControlSystem"`
+	IsCDKApplicable                bool     `bson:"isCDKApplicable" json:"isCDKApplicable"`
 }
 
 // DocktorURL represents the url of the Docktor project linked to the DAD project

@@ -3,13 +3,10 @@ package server
 import (
 	"net/http"
 
-	log "github.com/Sirupsen/logrus"
-
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/soprasteria/dad/server/auth"
 	"github.com/soprasteria/dad/server/controllers"
-	"github.com/soprasteria/dad/server/email"
 	"github.com/soprasteria/dad/server/types"
 	"github.com/spf13/viper"
 )

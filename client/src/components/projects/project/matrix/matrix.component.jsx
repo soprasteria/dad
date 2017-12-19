@@ -9,12 +9,12 @@ import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { options, priorities, status, getProgressOptions } from '../../../../modules/services/services.constants';
+import { options, priorities, status, getDeployedOptions, deployed } from '../../../../modules/services/services.constants';
 
 import './matrix.component.scss';
 
 
-// Matrix Component Component
+// Matrix Component
 class Matrix extends React.Component {
 
   handleChange = (e, { name, value }) => {
@@ -39,15 +39,17 @@ class Matrix extends React.Component {
   }
 
   renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin) => {
+    matrix.deployed = typeof matrix.deployed === 'string' && matrix.deployed !== '' ? matrix.deployed : 'No';
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
     matrix.priority = typeof matrix.priority === 'string' && matrix.priority !== '' ? matrix.priority : 'N/A';
 
     const serviceStatus = this.getServiceStatus(service, indicators);
     const progressOption = options.find((elm) => elm.value === matrix.progress);
-    const optionsForProgress = getProgressOptions(options, matrix.progress, isConnectedUserAdmin);
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
+    const deployedOption = deployed.find((elm) => elm.value === matrix.deployed);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
+    const optionsForDeployed = getDeployedOptions(deployed, matrix.deployed, isConnectedUserAdmin);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
     const serviceNameCell = (
@@ -85,14 +87,24 @@ class Matrix extends React.Component {
         </Table.Cell>)
       ];
     } else {
-      return [ 
+      return [
         serviceNameCell,
+         (<Table.Cell key='deployed'>
+          <Form>
+            {readOnly
+              ? (<div>{deployedOption.text}</div>)
+              : (<Form.Dropdown placeholder='Deployed' fluid selection name='deployed' title={deployedOption.title}
+                options={optionsForDeployed} value={matrix.deployed} onChange={this.handleChange}
+                />)
+            }
+          </Form>
+        </Table.Cell>),
         (<Table.Cell key='progress'>
-          <Form> 
+          <Form>
             {readOnly
               ? (<div>{progressOption.text}</div>)
               : (<Form.Dropdown placeholder='Progress' fluid selection name='progress' title={progressOption.title}
-                options={optionsForProgress} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
+                options={options} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
                 />)
             }
           </Form>

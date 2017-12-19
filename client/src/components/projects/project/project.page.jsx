@@ -36,7 +36,7 @@ import './project.page.scss';
 
 const Legend = ({ options, status }) => (
   <Box icon='help circle' title='Color Legend'>
-    <Divider horizontal>Maturity Legend</Divider>
+    <Divider horizontal>Progress & Goal</Divider>
     <Grid columns={2} relaxed>
       <Grid.Column>
         {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
@@ -57,7 +57,7 @@ const Legend = ({ options, status }) => (
       </Grid.Column>
     </Grid>
 
-    <Divider horizontal>Indicator Legend</Divider>
+    <Divider horizontal>Indicator</Divider>
     <Grid columns={2} relaxed>
       <Grid.Column>
         {status.slice(0, Math.ceil(status.length / 2)).map((stat) => (
@@ -117,6 +117,7 @@ export class ProjectComponent extends React.Component {
     docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),
     deliverables: Joi.boolean().label('Deliverables'),
+    isCDKApplicable: Joi.boolean().label('The CDK is not applicable globally'),
     sourceCode: Joi.boolean().label('Source Code'),
     specifications: Joi.boolean().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
@@ -228,7 +229,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin) => {
+  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -238,6 +239,7 @@ export class ProjectComponent extends React.Component {
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell width='8'>{pckg}</Table.HeaderCell>
+            <Table.HeaderCell width='1'>Deployed</Table.HeaderCell>
             <Table.HeaderCell width='2'>Progress</Table.HeaderCell>
             <Table.HeaderCell width='2'>Goal</Table.HeaderCell>
             <Table.HeaderCell width='1'>Priority</Table.HeaderCell>
@@ -248,7 +250,7 @@ export class ProjectComponent extends React.Component {
         <Table.Body>
           {servicesList.map((service) => (
             <Matrix
-              key={service.id} isConnectedUserAdmin={isConnectedUserAdmin} serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix}
+              key={service.id} readOnly={readonly} isConnectedUserAdmin={isConnectedUserAdmin} serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix}
             />
           ))}
         </Table.Body>
@@ -397,7 +399,7 @@ export class ProjectComponent extends React.Component {
 
                     {/*Only admins are allowed to set the Docktor URL*/}
                     <Form.Input
-                      label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange} type='text' name='docktorGroupURL' autoComplete='on' 
+                      label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange} type='text' name='docktorGroupURL' autoComplete='on'
                       placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']} readOnly={!isAdmin}
                     />
                   </Grid.Column>
@@ -419,6 +421,8 @@ export class ProjectComponent extends React.Component {
                     <Form.Checkbox readOnly={isPM || isDeputy} label='Specifications' name='specifications' checked={Boolean(project.specifications)} onChange={this.handleChange} />
 
                     {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin || isRI))}
+                   <div className='ui divider'/>
+                   <div className='ui black segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} onChange={this.handleChange} /> </div>
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
@@ -430,8 +434,8 @@ export class ProjectComponent extends React.Component {
           <Legend options={options} status={status} />
 
           <Divider hidden />
-          
-          {this.renderPackages(services, indicators, fetching, isAdmin)}
+
+          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable)}
 
           <Button
             color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'
@@ -466,6 +470,7 @@ ProjectComponent.propTypes = {
   onDelete: PropTypes.func.isRequired,
   isAdmin: PropTypes.bool,
   isRI: PropTypes.bool,
+  IsCDKApplicable: PropTypes.bool,
   isPM: PropTypes.bool,
   isDeputy: PropTypes.bool
 };

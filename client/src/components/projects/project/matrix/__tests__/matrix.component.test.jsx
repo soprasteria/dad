@@ -1,7 +1,7 @@
 import Matrix from '../matrix.component';
 
 import deepFreeze from 'deep-freeze';
-import { options, getProgressOptions } from '../../../../../modules/services/services.constants';
+import { options, /*getProgressOptions*/ } from '../../../../../modules/services/services.constants';
 
 const defaultServices = {
   name: 'Pipeline d\'intégration continue',
@@ -123,6 +123,7 @@ const defaultOptions = options;
 
 deepFreeze(defaultOptions);
 
+/*
 describe('Testing getProgressOptions function for Admin and non-Admin users and for N/A, 0' +
     '%, 20% and 80% values',
 () => {
@@ -224,3 +225,4 @@ describe('Testing getProgressOptions function for Admin and non-Admin users and 
     });
   });
 });
+*/

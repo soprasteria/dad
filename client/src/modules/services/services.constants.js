@@ -120,7 +120,6 @@ export const deployed = [
     value: 'Yes',
     text: 'Yes',
     title: 'The service has been deployed'
-
   }
 ];
 

@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
-import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Popup } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Popup, TextArea } from 'semantic-ui-react';
 import Joi from 'joi-browser';
 
 import Matrix from './matrix/matrix.component';
@@ -422,7 +422,9 @@ export class ProjectComponent extends React.Component {
 
                     {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin || isRI))}
                    <div className='ui divider'/>
-                   <div className='ui black segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} onChange={this.handleChange} /> </div>
+                   <h4>Applicability of CDK</h4>
+                   <div className='ui segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} onChange={this.handleChange} /> </div>
+                   <Form.Field size='small' control={TextArea} label='Comment' placeholder='The CDK is not applicable because...' />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>

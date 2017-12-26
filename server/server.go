@@ -2,11 +2,15 @@ package server
 
 import (
 	"net/http"
+	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/robfig/cron"
 	"github.com/soprasteria/dad/server/auth"
 	"github.com/soprasteria/dad/server/controllers"
+	"github.com/soprasteria/dad/server/email"
 	"github.com/soprasteria/dad/server/types"
 	"github.com/spf13/viper"
 )
@@ -144,6 +148,9 @@ func New(version string) {
 		log.Error("Error initialization of the SMTP configuration", errorMail)
 	}
 
+	// Launch a back-end update task.
+	go scheduleDeploymentIndicatorUpdate( /**TODO configuration*/ )
+
 	if err := engine.Start(":8080"); err != nil {
 		engine.Logger.Fatal(err.Error())
 	}
@@ -156,4 +163,35 @@ func pong(c echo.Context) error {
 	return c.JSON(http.StatusOK, JSON{
 		"message": "pong",
 	})
+}
+
+// scheduleDeploymentIndicatorUpdate Schedule a task that check which container are deployed for each functional services.
+// Each fonctional services has some container which provide this service, if a proper container is deployed for a project, this service should be at 20% of progression at least.
+// Else, it should be at 0% or N/A if the administrator of the project has defined this fonctionnal service as N/A.
+func scheduleDeploymentIndicatorUpdate( /**TODO configuration*/ ) error {
+
+	// TODO type sortir si nécessaire, une fois toutes les infos nécessaires à la config collectées et définies.
+	type Config struct {
+		IndicatorsRecurrence string
+	}
+	config := Config{IndicatorsRecurrence: "1 * * * * *"} // Every minutes, for test purpose.
+
+	job := cron.New()
+
+	scheduler, err := cron.Parse(config.IndicatorsRecurrence)
+	if err != nil {
+		log.WithError(err).WithField("Deployment indicators recurrence", config.IndicatorsRecurrence).Error("Unable to parse indicators recurrence")
+		return err
+	}
+
+	log.Infof("Deployment indicators will be computed from following cron : %s", config.IndicatorsRecurrence)
+	log.Infof("Deployment indicators will computed next at %s", scheduler.Next(time.Now()))
+
+	job.AddFunc(config.IndicatorsRecurrence, func() {
+		// TODO
+		log.Infof("Deployment indicators will computed next at %s", scheduler.Next(time.Now()))
+	})
+	job.Start()
+
+	return nil
 }

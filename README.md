@@ -60,6 +60,9 @@ addr = "http://<DocktorUrl>/#!/"
 user = "<DocktorUsername>"
 password = "<DocktorPassword>"
 
+[tasks]
+recurrence = "@every 20m"
+
 ```
 
 You can see all the available settings with:

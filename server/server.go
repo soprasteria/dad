@@ -149,7 +149,7 @@ func New(version string) {
 	}
 
 	// Launch a back-end update task.
-	go scheduleDeploymentIndicatorUpdate( /**TODO configuration*/ )
+	go scheduleDeploymentIndicatorUpdate()
 
 	if err := engine.Start(":8080"); err != nil {
 		engine.Logger.Fatal(err.Error())
@@ -168,27 +168,22 @@ func pong(c echo.Context) error {
 // scheduleDeploymentIndicatorUpdate Schedule a task that check which container are deployed for each functional services.
 // Each fonctional services has some container which provide this service, if a proper container is deployed for a project, this service should be at 20% of progression at least.
 // Else, it should be at 0% or N/A if the administrator of the project has defined this fonctionnal service as N/A.
-func scheduleDeploymentIndicatorUpdate( /**TODO configuration*/ ) error {
+func scheduleDeploymentIndicatorUpdate() error {
 
-	// TODO type sortir si nécessaire, une fois toutes les infos nécessaires à la config collectées et définies.
-	type Config struct {
-		IndicatorsRecurrence string
-	}
-	config := Config{IndicatorsRecurrence: "1 * * * * *"} // Every minutes, for test purpose.
+	recurrenceCronString := viper.GetString("tasks.recurrence")
 
 	job := cron.New()
 
-	scheduler, err := cron.Parse(config.IndicatorsRecurrence)
+	scheduler, err := cron.Parse(recurrenceCronString)
 	if err != nil {
-		log.WithError(err).WithField("Deployment indicators recurrence", config.IndicatorsRecurrence).Error("Unable to parse indicators recurrence")
+		log.WithError(err).WithField("Deployment indicators recurrence", recurrenceCronString).Error("Unable to parse indicators recurrence")
 		return err
 	}
 
-	log.Infof("Deployment indicators will be computed from following cron : %s", config.IndicatorsRecurrence)
+	log.Infof("Deployment indicators will be computed from following cron : %s", recurrenceCronString)
 	log.Infof("Deployment indicators will computed next at %s", scheduler.Next(time.Now()))
 
-	job.AddFunc(config.IndicatorsRecurrence, func() {
-		// TODO
+	job.AddFunc(recurrenceCronString, func() {
 		log.Infof("Deployment indicators will computed next at %s", scheduler.Next(time.Now()))
 	})
 	job.Start()

@@ -66,6 +66,7 @@ func init() {
 	serveCmd.Flags().String("docktor-addr", "http://localhost:3000", "Docktor HTTP address. Format http://host:port")
 	serveCmd.Flags().String("docktor-user", "user", "Docktor user to connect with")
 	serveCmd.Flags().String("docktor-password", "password", "Docktor password to connect with")
+	serveCmd.Flags().StringP("tasks-recurrence", "", "@every 20m", "Recurrence of back-end update tasks, like updating the deployment indicator (see https://godoc.org/github.com/robfig/cron)")
 
 	// Bind env variables.
 	_ = viper.BindPFlag("server.mongo.addr", serveCmd.Flags().Lookup("mongo-addr"))
@@ -97,6 +98,7 @@ func init() {
 	_ = viper.BindPFlag("docktor.addr", serveCmd.Flags().Lookup("docktor-addr"))
 	_ = viper.BindPFlag("docktor.user", serveCmd.Flags().Lookup("docktor-user"))
 	_ = viper.BindPFlag("docktor.password", serveCmd.Flags().Lookup("docktor-password"))
+	_ = viper.BindPFlag("tasks.recurrence", serveCmd.Flags().Lookup("tasks-recurrence"))
 	RootCmd.AddCommand(serveCmd)
 
 }

@@ -409,7 +409,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, proj
 func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bson.ObjectId, docktorGroupURL string) error {
 
 	// Parse Docktor URL to get the Docktor group ID
-	idDocktorGroup, err := getGroupIDFromURL(docktorGroupURL)
+	idDocktorGroup, err := p.GetGroupIDFromURL(docktorGroupURL)
 	if err != nil {
 		return err
 	}
@@ -437,7 +437,7 @@ func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bs
 
 // getGroupIDFromURL returns the Docktor group ID from its URL
 // URL is expected to be format : http://<docktor-host>/groups/<id>
-func getGroupIDFromURL(docktorURL string) (string, error) {
+func (p *Projects) GetGroupIDFromURL(docktorURL string) (string, error) {
 	u, err := url.ParseRequestURI(docktorURL)
 	if err != nil {
 		return "", fmt.Errorf("docktorGroupURL is not a valid URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", docktorURL)

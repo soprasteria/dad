@@ -5,10 +5,12 @@ import (
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/labstack/echo"
+	"github.com/soprasteria/dad/server/docktor"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/soprasteria/dad/server/types"
 )
@@ -92,4 +94,50 @@ func (u *FunctionalServices) Save(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, functionalServiceSaved)
+}
+
+// GetAllFunctionnalServicesDeployByProject get all deploy functional services by project
+func (u *FunctionalServices) GetAllFunctionnalServicesDeployByProject(project types.Project) ([]types.FunctionalService, error) {
+
+	// Get the docktor group id
+	projectsC := Projects{}
+	idDocktorGroup, err := projectsC.GetGroupIDFromURL(project.DocktorGroupURL)
+	if err != nil {
+		log.WithError(err).Error("Error when parse group id")
+		return nil, err
+	}
+
+	// Connect to docktor api
+	docktorAPI, err := docktor.NewExternalAPI(
+		viper.GetString("docktor.addr"),
+		viper.GetString("docktor.user"),
+		viper.GetString("docktor.password"),
+	)
+	if err != nil {
+		log.WithError(err).Error("Unable to connect to docktor")
+		return nil, err
+	}
+
+	// Connect to docktor to get group info here Containers.ServiceTitle
+	docktorGroup, err := docktorAPI.GetGroup(idDocktorGroup)
+	if err != nil {
+		log.WithError(err).Error("Error when getting containers services")
+		return nil, err
+	}
+
+	log.Infof("Services availables : %s", docktorGroup.Containers)
+
+	// Connect to mongo
+	database, err := mongo.Get()
+	if err != nil {
+		log.WithError(err).Error("Unable to connect to the database")
+	}
+	// Find all deploy functionnal services
+	functionnalServices, err := database.FunctionalServices.FindFunctionnalServicesDeployByProject(docktorGroup)
+	if err != nil {
+		log.WithError(err).Error("Error when getting functionnal services")
+		return nil, err
+	}
+
+	return functionnalServices, err
 }

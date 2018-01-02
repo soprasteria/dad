@@ -1,8 +1,10 @@
 package types
 
 import (
+	"encoding/json"
 	"errors"
 
+	"github.com/soprasteria/dad/server/docktor"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -61,6 +63,51 @@ func (r *FunctionalServiceRepo) FindAll() ([]FunctionalService, error) {
 		return []FunctionalService{}, errors.New("Can't retrieve all functional services")
 	}
 	return functionalServices, nil
+}
+
+// FindAllNoEmptyServices get all functional services with a service from the database
+func (r *FunctionalServiceRepo) FindAllNoEmptyServices() ([]FunctionalService, error) {
+	if !r.isInitialized() {
+		return []FunctionalService{}, ErrDatabaseNotInitialized
+	}
+	functionalServices := []FunctionalService{}
+	err := r.col().Find(bson.M{"$where": "this.services.length > 0"}).Sort("package", "position").All(&functionalServices)
+	if err != nil {
+		return []FunctionalService{}, errors.New("Can't retrieve all functional services")
+	}
+	return functionalServices, nil
+}
+
+// FindFunctionnalServicesDeployByProject find all deploy functional services by docktor containers
+func (r *FunctionalServiceRepo) FindFunctionnalServicesDeployByProject(docktorGroup docktor.GroupDocktor) ([]FunctionalService, error) {
+
+	functionalServices := []FunctionalService{}
+	containers := []string{}
+	for _, container := range docktorGroup.Containers {
+		containers = append(containers, container.ServiceTitle)
+	}
+
+	jsonContainers, err := json.Marshal(containers)
+	if err != nil {
+		return []FunctionalService{}, errors.New("Unable to parse json docktorGroup container")
+	}
+
+	err = r.col().Find(bson.M{
+		`$where`: `function () {
+			if(this.services.length === 0){
+				return false;
+			}
+			var servicesAvailable = ` + string(jsonContainers) + `
+			for (var i = 0; i < this.services.length; i++) {
+				if(servicesAvailable.indexOf(this.services[i]) === -1){
+					return false
+				}
+			}
+			return true
+		}`,
+	}).All(&functionalServices)
+
+	return functionalServices, err
 }
 
 // Exists checks if a functional service (name and package) already exists

@@ -89,8 +89,11 @@ func (api *ExternalAPI) authenticate() ([]*http.Cookie, error) {
 
 // GroupDocktor is a group fetched from Docktor API
 type GroupDocktor struct {
-	ID    string `json:"_id,omitempty"`
-	Title string `json:"title,omitempty"`
+	ID         string `json:"_id,omitempty"`
+	Title      string `json:"title,omitempty"`
+	Containers []struct {
+		ServiceTitle string `json:"serviceTitle"`
+	} `json:"containers"`
 }
 
 // GetGroup gets a Docktor group name from its ID

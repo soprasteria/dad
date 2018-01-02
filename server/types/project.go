@@ -210,6 +210,13 @@ func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
 	return projects, err
 }
 
+// FindWithDocktorGroupURL returns the projects with a docktor group url
+func (r *ProjectRepo) FindWithDocktorGroupURL() ([]Project, error) {
+	projects := []Project{}
+	err := r.col().Find(bson.M{"$where": "this.docktorURL.docktorGroupURL.length > 0"}).All(&projects)
+	return projects, err
+}
+
 // FindModifiableForUser returns the projects associated to a user, but only projects which are modifiable by him
 func (r *ProjectRepo) FindModifiableForUser(user User) (Projects, error) {
 	var projects []Project

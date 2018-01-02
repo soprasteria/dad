@@ -91,7 +91,7 @@ class Matrix extends React.Component {
         serviceNameCell,
          (<Table.Cell key='deployed'>
            <Form>
-            {readOnly || service.declarativeDeployement
+            {readOnly || !service.declarativeDeployement
               ? (<div className='layout horizontal center-center' title={deployedOption.title}>{deployedOption.text}</div>)
               : (<Form.Dropdown placeholder='Deployed' fluid selection name='deployed' title={deployedOption.title}
                 options={optionsForDeployed} value={matrix.deployed} onChange={this.handleChange}

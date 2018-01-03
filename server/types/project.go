@@ -210,10 +210,14 @@ func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
 	return projects, err
 }
 
-// FindWithDocktorGroupURL returns the projects with a docktor group url
+// FindWithDocktorGroupURL returns the projects with a no empty docktor group url
 func (r *ProjectRepo) FindWithDocktorGroupURL() ([]Project, error) {
 	projects := []Project{}
-	err := r.col().Find(bson.M{"$where": "this.docktorURL.docktorGroupURL.length > 0"}).All(&projects)
+	err := r.col().Find(bson.M{
+		"$and": []bson.M{
+			bson.M{"docktorURL.docktorGroupURL": bson.M{"$exists": true, "$ne": ""}},
+		},
+	}).All(&projects)
 	return projects, err
 }
 

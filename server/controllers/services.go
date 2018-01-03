@@ -132,12 +132,16 @@ func (u *FunctionalServices) GetAllFunctionnalServicesDeployByProject(project ty
 	if err != nil {
 		log.WithError(err).Error("Unable to connect to the database")
 	}
-	// Find all deploy functionnal services
-	functionnalServices, err := database.FunctionalServices.FindFunctionnalServicesDeployByProject(docktorGroup)
+	// Find all deployed functionnal services
+	servicesDeployed := []string{}
+	for _, container := range docktorGroup.Containers {
+		servicesDeployed = append(servicesDeployed, container.ServiceTitle)
+	}
+	functionnalServicesDeployed, err := database.FunctionalServices.FindFunctionnalServicesDeployByServices(servicesDeployed)
 	if err != nil {
 		log.WithError(err).Error("Error when getting functionnal services")
 		return nil, err
 	}
 
-	return functionnalServices, err
+	return functionnalServicesDeployed, err
 }

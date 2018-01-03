@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/soprasteria/dad/server/docktor"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -78,16 +77,12 @@ func (r *FunctionalServiceRepo) FindAllNoEmptyServices() ([]FunctionalService, e
 	return functionalServices, nil
 }
 
-// FindFunctionnalServicesDeployByProject find all deploy functional services by docktor containers
-func (r *FunctionalServiceRepo) FindFunctionnalServicesDeployByProject(docktorGroup docktor.GroupDocktor) ([]FunctionalService, error) {
+// FindFunctionnalServicesDeployByServices find all deploy functional services by an array of deployed services
+func (r *FunctionalServiceRepo) FindFunctionnalServicesDeployByServices(services []string) ([]FunctionalService, error) {
 
 	functionalServices := []FunctionalService{}
-	containers := []string{}
-	for _, container := range docktorGroup.Containers {
-		containers = append(containers, container.ServiceTitle)
-	}
 
-	jsonContainers, err := json.Marshal(containers)
+	jsonServices, err := json.Marshal(services)
 	if err != nil {
 		return []FunctionalService{}, errors.New("Unable to parse json docktorGroup container")
 	}
@@ -97,7 +92,7 @@ func (r *FunctionalServiceRepo) FindFunctionnalServicesDeployByProject(docktorGr
 			if(this.services.length === 0){
 				return false;
 			}
-			var servicesAvailable = ` + string(jsonContainers) + `
+			var servicesAvailable = ` + string(jsonServices) + `
 			for (var i = 0; i < this.services.length; i++) {
 				if(servicesAvailable.indexOf(this.services[i]) === -1){
 					return false

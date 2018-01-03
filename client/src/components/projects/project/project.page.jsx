@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import DocumentTitle from 'react-document-title';
-import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Popup, TextArea } from 'semantic-ui-react';
+import { Button, Container, Divider, Form, Grid, Icon, Label, List, Message, Table, Segment, Popup } from 'semantic-ui-react';
 import Joi from 'joi-browser';
 
 import Matrix from './matrix/matrix.component';
@@ -424,7 +424,7 @@ export class ProjectComponent extends React.Component {
                    <div className='ui divider'/>
                    <h4>Applicability of CDK</h4>
                    <div className='ui segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} onChange={this.handleChange} /> </div>
-                   <Form.Field size='small' control={TextArea} label='Comment' placeholder='The CDK is not applicable because...' />
+                   <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' placeholder='The CDK is not applicable because...' onChange={this.handleChange} />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
@@ -437,7 +437,7 @@ export class ProjectComponent extends React.Component {
 
           <Divider hidden />
 
-          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable)}
+          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.explanation)}
 
           <Button
             color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'
@@ -455,6 +455,7 @@ ProjectComponent.propTypes = {
   isFetching: PropTypes.bool,
   businessUnits: PropTypes.array,
   serviceCenters: PropTypes.array,
+  explanation: PropTypes.array,
   indicators: PropTypes.object,
   isEntitiesFetching: PropTypes.bool,
   users: PropTypes.array,
@@ -472,7 +473,7 @@ ProjectComponent.propTypes = {
   onDelete: PropTypes.func.isRequired,
   isAdmin: PropTypes.bool,
   isRI: PropTypes.bool,
-  IsCDKApplicable: PropTypes.bool,
+  isCDKApplicable: PropTypes.bool,
   isPM: PropTypes.bool,
   isDeputy: PropTypes.bool
 };

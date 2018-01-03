@@ -9,7 +9,7 @@ import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { options, priorities, status, getDeployedOptions, deployed } from '../../../../modules/services/services.constants';
+import { options, priorities, status, deployed, getDeployedOptions } from '../../../../modules/services/services.constants';
 
 import './matrix.component.scss';
 
@@ -39,17 +39,17 @@ class Matrix extends React.Component {
   }
 
   renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin) => {
-    matrix.deployed = typeof matrix.deployed === 'string' && matrix.deployed !== '' ? matrix.deployed : 'No';
+    matrix.deployed = typeof matrix.deployed === 'string' && matrix.priority !== '' ? matrix.deployed : 'no';
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
     matrix.priority = typeof matrix.priority === 'string' && matrix.priority !== '' ? matrix.priority : 'N/A';
 
+    const optionsForDeployed = getDeployedOptions(deployed, matrix.deployed, isConnectedUserAdmin);
     const serviceStatus = this.getServiceStatus(service, indicators);
     const progressOption = options.find((elm) => elm.value === matrix.progress);
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
     const deployedOption = deployed.find((elm) => elm.value === matrix.deployed);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
-    const optionsForDeployed = getDeployedOptions(deployed, matrix.deployed, isConnectedUserAdmin);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
     const serviceNameCell = (
@@ -90,9 +90,9 @@ class Matrix extends React.Component {
       return [
         serviceNameCell,
          (<Table.Cell key='deployed'>
-          <Form>
-            {readOnly
-              ? (<div>{deployedOption.text}</div>)
+           <Form>
+            {readOnly || !service.declarativeDeployement
+              ? (<div className='layout horizontal center-center' title={deployedOption.title}>{deployedOption.text}</div>)
               : (<Form.Dropdown placeholder='Deployed' fluid selection name='deployed' title={deployedOption.title}
                 options={optionsForDeployed} value={matrix.deployed} onChange={this.handleChange}
                 />)

@@ -175,7 +175,8 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		"Specifications in VCS",
 		"Creation Date",
 		"Last Update",
-		"IsCDKApplicable"}
+		"IsCDKApplicable",
+		"Explanation"}
 
 	createMergedCell(servicePkgRow, "Matrix Maturity", len(matrixMaturityColumns))
 
@@ -267,6 +268,7 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		createDateCell(projectRow, project.Created)
 		createDateCell(projectRow, project.Updated)
 		createBoolCell(projectRow, project.IsCDKApplicable)
+		createCell(projectRow, project.Explanation)
 
 		// Iterate on each service in the correct order
 		for _, pkg := range servicesMapSortedKeys {

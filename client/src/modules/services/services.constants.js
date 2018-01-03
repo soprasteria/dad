@@ -113,11 +113,11 @@ export const priorities = [
 
 export const deployed = [
   {
-    value: 'No',
+    value: 'no',
     text: 'No',
     title: 'The service is not deployed'
   }, {
-    value: 'Yes',
+    value: 'yes',
     text: 'Yes',
     title: 'The service has been deployed'
   }

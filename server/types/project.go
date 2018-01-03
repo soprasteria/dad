@@ -57,6 +57,7 @@ type TechnicalData struct {
 	SourceCodeInVersionControl     bool     `bson:"sourceCode" json:"sourceCode"`
 	VersionControlSystem           string   `bson:"versionControlSystem" json:"versionControlSystem"`
 	IsCDKApplicable                bool     `bson:"isCDKApplicable" json:"isCDKApplicable"`
+	Explanation                    string   `bson:"explanation" json:"explanation"`
 }
 
 // DocktorURL represents the url of the Docktor project linked to the DAD project

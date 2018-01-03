@@ -31,7 +31,7 @@ func jobDeploy(scheduler cron.Schedule) {
 
 		// Default not deployed
 		for keyMatrix := range project.Matrix {
-			project.Matrix[keyMatrix].Deployed = "No"
+			project.Matrix[keyMatrix].Deployed = "no"
 		}
 
 		// Get all functionnal services deployed
@@ -50,9 +50,9 @@ func jobDeploy(scheduler cron.Schedule) {
 				if matrixLine.Service == functionalService.ID {
 					// Found
 					project.Matrix[key].Service = functionalService.ID
-					project.Matrix[key].Deployed = "Yes"
-					if matrixLine.Progress < 20 {
-						project.Matrix[key].Progress = 20
+					project.Matrix[key].Deployed = "yes"
+					if matrixLine.Progress < 1 {
+						project.Matrix[key].Progress = 1
 					}
 					continue OUTER
 				}
@@ -60,8 +60,8 @@ func jobDeploy(scheduler cron.Schedule) {
 			// Not found
 			project.Matrix = append(project.Matrix, types.MatrixLine{
 				Service:  functionalService.ID,
-				Deployed: "Yes",
-				Progress: 20,
+				Deployed: "yes",
+				Progress: 1,
 			})
 		}
 

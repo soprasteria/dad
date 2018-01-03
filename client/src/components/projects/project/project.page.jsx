@@ -122,7 +122,8 @@ export class ProjectComponent extends React.Component {
     specifications: Joi.boolean().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
     serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
-    businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit')
+    businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit'),
+    explanation: Joi.string().trim().empty('').label('Explanation'),
   }).or('serviceCenter', 'businessUnit').label('Service Center or Business Unit');
 
   componentWillMount = () => {
@@ -424,7 +425,7 @@ export class ProjectComponent extends React.Component {
                    <div className='ui divider'/>
                    <h4>Applicability of CDK</h4>
                    <div className='ui segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} onChange={this.handleChange} /> </div>
-                   <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' placeholder='The CDK is not applicable because...' onChange={this.handleChange} />
+                   <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' onChange={this.handleChange} />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>

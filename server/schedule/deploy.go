@@ -31,14 +31,14 @@ func jobDeploy(scheduler cron.Schedule) {
 
 		// Default not deployed
 		for keyMatrix := range project.Matrix {
-			project.Matrix[keyMatrix].Deployed = "no"
+			project.Matrix[keyMatrix].Deployed = types.Deployed[-1]
 		}
 
-		// Get all functionnal services deployed
+		// Get all functional services deployed
 		servicesC := controllers.FunctionalServices{}
-		functionalServices, err := servicesC.GetAllFunctionnalServicesDeployByProject(project)
+		functionalServices, err := servicesC.GetAllFunctionalServicesDeployByProject(project)
 		if err != nil {
-			log.WithError(err).Error("Error when getting all functionnal services")
+			log.WithError(err).Error("Error when getting all functional services")
 			continue
 		}
 
@@ -50,7 +50,7 @@ func jobDeploy(scheduler cron.Schedule) {
 				if matrixLine.Service == functionalService.ID {
 					// Found
 					project.Matrix[key].Service = functionalService.ID
-					project.Matrix[key].Deployed = "yes"
+					project.Matrix[key].Deployed = types.Deployed[0]
 					if matrixLine.Progress < 1 {
 						project.Matrix[key].Progress = 1
 					}
@@ -60,7 +60,7 @@ func jobDeploy(scheduler cron.Schedule) {
 			// Not found
 			project.Matrix = append(project.Matrix, types.MatrixLine{
 				Service:  functionalService.ID,
-				Deployed: "yes",
+				Deployed: types.Deployed[0],
 				Progress: 1,
 			})
 		}

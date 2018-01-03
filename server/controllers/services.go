@@ -96,8 +96,8 @@ func (u *FunctionalServices) Save(c echo.Context) error {
 	return c.JSON(http.StatusOK, functionalServiceSaved)
 }
 
-// GetAllFunctionnalServicesDeployByProject get all deploy functional services by project
-func (u *FunctionalServices) GetAllFunctionnalServicesDeployByProject(project types.Project) ([]types.FunctionalService, error) {
+// GetAllFunctionalServicesDeployByProject get all deploy functional services by project
+func (u *FunctionalServices) GetAllFunctionalServicesDeployByProject(project types.Project) ([]types.FunctionalService, error) {
 
 	// Get the docktor group id
 	projectsC := Projects{}
@@ -132,16 +132,18 @@ func (u *FunctionalServices) GetAllFunctionnalServicesDeployByProject(project ty
 	if err != nil {
 		log.WithError(err).Error("Unable to connect to the database")
 	}
-	// Find all deployed functionnal services
+
+	// Formatting to an array of services
 	servicesDeployed := []string{}
 	for _, container := range docktorGroup.Containers {
 		servicesDeployed = append(servicesDeployed, container.ServiceTitle)
 	}
-	functionnalServicesDeployed, err := database.FunctionalServices.FindFunctionnalServicesDeployByServices(servicesDeployed)
+	// Find all deployed functional services
+	functionalServicesDeployed, err := database.FunctionalServices.FindFunctionalServicesDeployByServices(servicesDeployed)
 	if err != nil {
-		log.WithError(err).Error("Error when getting functionnal services")
+		log.WithError(err).Error("Error when getting functional services")
 		return nil, err
 	}
 
-	return functionnalServicesDeployed, err
+	return functionalServicesDeployed, err
 }

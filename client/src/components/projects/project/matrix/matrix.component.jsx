@@ -155,7 +155,7 @@ class Matrix extends React.Component {
   // Method used to get the status indicator for a functional service. It can determine which service has the best status to display only this one
   getServiceStatus = (service, indicators) => {
     let serviceStatus = undefined;
-    // Condition used to test if the functionnal service has some technical services associated
+    // Condition used to test if the functional service has some technical services associated
     if (service.services) {
       const indicatorsTable = Object.values(indicators);
       let matchingIndicators = service.services.map((technicalServiceName) =>

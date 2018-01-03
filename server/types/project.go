@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -22,8 +22,8 @@ var Progress = map[int]string{
 
 // Deployed maps the progress codes to their string representation
 var Deployed = map[int]string{
-	-1: "No",
-	0:  "Yes",
+	-1: "no",
+	0:  "yes",
 }
 
 // Priority maps the progress codes to their string representation
@@ -216,7 +216,7 @@ func (r *ProjectRepo) FindWithDocktorGroupURL() ([]Project, error) {
 	projects := []Project{}
 	err := r.col().Find(bson.M{
 		"$and": []bson.M{
-			bson.M{"docktorURL.docktorGroupURL": bson.M{"$exists": true, "$ne": ""}},
+			{"docktorURL.docktorGroupURL": bson.M{"$exists": true, "$ne": ""}},
 		},
 	}).All(&projects)
 	return projects, err

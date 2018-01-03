@@ -435,7 +435,7 @@ func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bs
 	return nil
 }
 
-// getGroupIDFromURL returns the Docktor group ID from its URL
+// GetGroupIDFromURL returns the Docktor group ID from its URL
 // URL is expected to be format : http://<docktor-host>/groups/<id>
 func (p *Projects) GetGroupIDFromURL(docktorURL string) (string, error) {
 	u, err := url.ParseRequestURI(docktorURL)

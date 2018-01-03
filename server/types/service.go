@@ -65,21 +65,8 @@ func (r *FunctionalServiceRepo) FindAll() ([]FunctionalService, error) {
 	return functionalServices, nil
 }
 
-// FindAllNoEmptyServices get all functional services with a service from the database
-func (r *FunctionalServiceRepo) FindAllNoEmptyServices() ([]FunctionalService, error) {
-	if !r.isInitialized() {
-		return []FunctionalService{}, ErrDatabaseNotInitialized
-	}
-	functionalServices := []FunctionalService{}
-	err := r.col().Find(bson.M{"$where": "this.services.length > 0"}).Sort("package", "position").All(&functionalServices)
-	if err != nil {
-		return []FunctionalService{}, errors.New("Can't retrieve all functional services")
-	}
-	return functionalServices, nil
-}
-
-// FindFunctionnalServicesDeployByServices find all deploy functional services by an array of deployed services
-func (r *FunctionalServiceRepo) FindFunctionnalServicesDeployByServices(services []string) ([]FunctionalService, error) {
+// FindFunctionalServicesDeployByServices find all deploy functional services by an array of deployed services
+func (r *FunctionalServiceRepo) FindFunctionalServicesDeployByServices(services []string) ([]FunctionalService, error) {
 
 	functionalServices := []FunctionalService{}
 

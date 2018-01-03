@@ -16,8 +16,7 @@ package cmd
 
 import (
 	"github.com/soprasteria/dad/server"
-	"gitlab.cdk.corp.sopra/cdk/mom/server/email"
-
+	"github.com/soprasteria/dad/server/email"
 	"github.com/soprasteria/dad/server/mongo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

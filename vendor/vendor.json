@@ -3,7 +3,7 @@
 	"ignore": "test",
 	"package": [
 		{
-					"checksumSHA1": "vCXt502N4j3FFwOGdcPTwQkGlms=",
+			"checksumSHA1": "vCXt502N4j3FFwOGdcPTwQkGlms=",
 			"path": "github.com/Masterminds/semver",
 			"revision": "517734cc7d6470c0d07130e40fd40bdeb9bcd3fd",
 			"revisionTime": "2017-07-10T14:37:19Z"

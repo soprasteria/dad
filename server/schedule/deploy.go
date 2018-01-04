@@ -49,7 +49,6 @@ func jobDeploy(scheduler cron.Schedule) {
 			for key, matrixLine := range project.Matrix {
 				if matrixLine.Service == functionalService.ID {
 					// Found
-					project.Matrix[key].Service = functionalService.ID
 					project.Matrix[key].Deployed = types.Deployed[0]
 					if matrixLine.Progress < 1 {
 						project.Matrix[key].Progress = 1

@@ -424,8 +424,8 @@ export class ProjectComponent extends React.Component {
                     {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin || isRI))}
                    <div className='ui divider'/>
                    <h4>Applicability of CDK</h4>
-                   <div className='ui segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} onChange={this.handleChange} /> </div>
-                   <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' onChange={this.handleChange} />
+                   <div className='ui segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} disabled={projectId} onChange={this.handleChange} /> </div>
+                   <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' disabled={projectId} onChange={this.handleChange} />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>

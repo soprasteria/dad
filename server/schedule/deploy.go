@@ -64,6 +64,13 @@ func jobDeploy(scheduler cron.Schedule) {
 			})
 		}
 
+		// Put all the no deployed services to a progress of 0
+		for key, matrixLine := range project.Matrix {
+			if matrixLine.Deployed == types.Deployed[-1] {
+				project.Matrix[key].Progress = 0
+			}
+		}
+
 		// Save
 		_, err = database.Projects.Save(project)
 		if err != nil {

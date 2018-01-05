@@ -82,7 +82,7 @@ func (r *FunctionalServiceRepo) FindFunctionalServicesDeployByServices(services 
 			}
 			var servicesAvailable = ` + string(jsonServices) + `
 			for (var i = 0; i < this.services.length; i++) {
-				if(servicesAvailable.indexOf(this.services[i]) === -1){
+				if(servicesAvailable.indexOf(this.services[i].toLowerCase()) === -1){
 					return false
 				}
 			}

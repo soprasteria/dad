@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -137,10 +138,10 @@ func (u *FunctionalServices) GetAllFunctionalServicesDeployByProject(project typ
 	servicesDeployed := []string{}
 	for _, container := range docktorGroup.Containers {
 		// Trick for monitoring indicator to get deploy status if you have intools1
-		if container.ServiceTitle == "intools" {
+		if strings.ToLower(container.ServiceTitle) == "intools" {
 			servicesDeployed = append(servicesDeployed, "intools2")
 		} else {
-			servicesDeployed = append(servicesDeployed, container.ServiceTitle)
+			servicesDeployed = append(servicesDeployed, strings.ToLower(container.ServiceTitle))
 		}
 	}
 	// Find all deployed functional services

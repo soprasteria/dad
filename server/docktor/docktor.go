@@ -12,7 +12,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-const timeout = time.Duration(5 * time.Second)
+const timeout = time.Duration(15 * time.Second)
 
 // ExternalAPI expose methods of Docktor API
 // For instance, it exposes method to get the group name from an ID of a Docktor group

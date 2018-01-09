@@ -29,9 +29,17 @@ func jobDeploy(scheduler cron.Schedule) {
 
 	for _, project := range projects {
 
-		// Default not deployed
-		for keyMatrix := range project.Matrix {
-			project.Matrix[keyMatrix].Deployed = types.Deployed[-1]
+		// check if declarative and default not deployed
+		for key, MatrixLine := range project.Matrix {
+			// get the functionnal service info
+			functionalService, err := database.FunctionalServices.FindByID(MatrixLine.Service.Hex())
+			if err != nil {
+				continue
+			}
+			// check if declarative
+			if !functionalService.DeclarativeDeployment {
+				project.Matrix[key].Deployed = types.Deployed[-1]
+			}
 		}
 
 		// Get all functional services deployed

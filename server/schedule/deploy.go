@@ -31,7 +31,7 @@ func jobDeploy(scheduler cron.Schedule) {
 
 		// check if declarative and default not deployed
 		for key, MatrixLine := range project.Matrix {
-			// get the functionnal service info
+			// get the functional service info
 			functionalService, err := database.FunctionalServices.FindByID(MatrixLine.Service.Hex())
 			if err != nil {
 				continue

@@ -1,4 +1,9 @@
 .matrix-component {
+
+  .ui.form .datepicker.isreached  {
+    color: red; 
+  }
+
   .status-label {
     margin-right: .7em;
     min-width: 1em !important;

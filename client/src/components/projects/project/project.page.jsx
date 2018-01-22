@@ -239,7 +239,7 @@ export class ProjectComponent extends React.Component {
       <Table key={pckg} celled striped compact>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell width='8'>{pckg}</Table.HeaderCell>
+            <Table.HeaderCell width='7'>{pckg}</Table.HeaderCell>
             <Table.HeaderCell width='1'>Deployed</Table.HeaderCell>
             <Table.HeaderCell width='2'>Progress</Table.HeaderCell>
             <Table.HeaderCell width='2'>Goal</Table.HeaderCell>
@@ -351,7 +351,7 @@ export class ProjectComponent extends React.Component {
 
               <Form.Input
                 className='flex projectName' value={project.name || ''} onChange={this.handleChange} type='text' name='name'
-                placeholder='Project Name' error={errors.fields['name']} readOnly={isPM || isDeputy}
+                placeholder='Project Name' error={errors.fields['name']} readOnly={isPM ||  isDeputy}
               />
 
               {/*Only admins and RIs can delete a project*/}
@@ -375,13 +375,13 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Project Data</h3>
 
-                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, (isAdmin ||  isRI))}
 
-                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', (isAdmin || isRI))}
+                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', (isAdmin ||  isRI))}
 
                     <Form.Input
                       label='Client' value={project.client || ''} onChange={this.handleChange} type='text' name='client'
-                      autoComplete='on' placeholder='Project Client' error={errors.fields['client']} readOnly={isPM || isDeputy}
+                      autoComplete='on' placeholder='Project Client' error={errors.fields['client']} readOnly={isPM ||  isDeputy}
                     />
 
                     {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
@@ -394,9 +394,9 @@ export class ProjectComponent extends React.Component {
                       </Popup.Content>
                     </Popup>
 
-                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, (isAdmin ||  isRI))}
 
-                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, (isAdmin ||  isRI))}
 
                     {/*Only admins are allowed to set the Docktor URL*/}
                     <Form.Input
@@ -408,24 +408,24 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', (isAdmin || isRI))}
+                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', (isAdmin ||  isRI))}
 
                     {/*The deployment is editable by the users only if the Docktor URL is not present*/}
-                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, (isAdmin || (!isAdmin && !project.docktorGroupURL)))}
+                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, (isAdmin ||  (!isAdmin && !project.docktorGroupURL)))}
 
                     <h4>Version Control</h4>
 
-                    <Form.Checkbox readOnly={isPM || isDeputy} label='Deliverables' name='deliverables' checked={Boolean(project.deliverables)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM ||  isDeputy} label='Deliverables' name='deliverables' checked={Boolean(project.deliverables)} onChange={this.handleChange} />
 
-                    <Form.Checkbox readOnly={isPM || isDeputy} label='Source Code' name='sourceCode' checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM ||  isDeputy} label='Source Code' name='sourceCode' checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
 
-                    <Form.Checkbox readOnly={isPM || isDeputy} label='Specifications' name='specifications' checked={Boolean(project.specifications)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM ||  isDeputy} label='Specifications' name='specifications' checked={Boolean(project.specifications)} onChange={this.handleChange} />
 
-                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin || isRI))}
-                   <div className='ui divider'/>
-                   <h4>Applicability of CDK</h4>
-                   <div className='ui segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} disabled={projectId} onChange={this.handleChange} /> </div>
-                   <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' disabled={projectId} onChange={this.handleChange} />
+                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin ||  isRI))}
+                    <div className='ui divider' />
+                    <h4>Applicability of CDK</h4>
+                    <div className='ui segment' title='WARNING: The entire matrix will be disabled'> <Form.Checkbox readOnly={isPM ||  isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} disabled={projectId} onChange={this.handleChange} /> </div>
+                    <Form.TextArea readOnly={isPM ||  isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' disabled={projectId} onChange={this.handleChange} />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>

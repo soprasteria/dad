@@ -147,8 +147,8 @@ func New(version string) {
 		log.Error("Error initialization of the SMTP configuration", errorMail)
 	}
 
-	// Launch a back-end update task.
-	go schedule.Deploy()
+	// Launch back-end tasks.
+	go schedule.RunBackgroundJobs()
 
 	if err := engine.Start(":8080"); err != nil {
 		engine.Logger.Fatal(err.Error())

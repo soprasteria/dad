@@ -1,8 +1,8 @@
 package types
 
 import (
-	"encoding/json"
 	"errors"
+	"strings"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -16,6 +16,19 @@ type FunctionalService struct {
 	Position              int           `bson:"position" json:"position"`
 	Services              []string      `bson:"services" json:"services"`
 	DeclarativeDeployment bool          `bson:"declarativeDeployement" json:"declarativeDeployement"`
+}
+
+// isAssociatedWithAtLeastGivenService return true when at least one service in given parameter is found in the functional service.
+// Search is executed by ignoring case.
+func (fs FunctionalService) isAssociatedWithAtLeastGivenService(serviceNames []string) bool {
+	for _, service := range fs.Services {
+		for _, name := range serviceNames {
+			if strings.ToLower(name) == strings.ToLower(service) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // FunctionalServiceRepo wraps all requests to database for accessing functional services
@@ -65,30 +78,21 @@ func (r *FunctionalServiceRepo) FindAll() ([]FunctionalService, error) {
 	return functionalServices, nil
 }
 
-// FindFunctionalServicesDeployByServices find all deploy functional services by an array of deployed services
+// FindFunctionalServicesDeployByServices find all functional services associated to
 func (r *FunctionalServiceRepo) FindFunctionalServicesDeployByServices(services []string) ([]FunctionalService, error) {
 
 	functionalServices := []FunctionalService{}
 
-	jsonServices, err := json.Marshal(services)
+	allFunctionalServices, err := r.FindAll()
 	if err != nil {
-		return []FunctionalService{}, errors.New("Unable to parse json docktorGroup container")
+		return nil, errors.New("Unable to get all functional services from database")
 	}
 
-	err = r.col().Find(bson.M{
-		`$where`: `function () {
-			if(this.services.length === 0){
-				return false;
-			}
-			var servicesAvailable = ` + string(jsonServices) + `
-			for (var i = 0; i < this.services.length; i++) {
-				if(servicesAvailable.indexOf(this.services[i].toLowerCase()) === -1){
-					return false
-				}
-			}
-			return true
-		}`,
-	}).All(&functionalServices)
+	for _, s := range allFunctionalServices {
+		if s.isAssociatedWithAtLeastGivenService(services) {
+			functionalServices = append(functionalServices, s)
+		}
+	}
 
 	return functionalServices, err
 }

@@ -137,13 +137,9 @@ func (u *FunctionalServices) GetAllFunctionalServicesDeployByProject(project typ
 	// Formatting to an array of services
 	servicesDeployed := []string{}
 	for _, container := range docktorGroup.Containers {
-		// Trick for monitoring indicator to get deploy status if you have intools1
-		if strings.ToLower(container.ServiceTitle) == "intools" {
-			servicesDeployed = append(servicesDeployed, "intools2")
-		} else {
-			servicesDeployed = append(servicesDeployed, strings.ToLower(container.ServiceTitle))
-		}
+		servicesDeployed = append(servicesDeployed, strings.ToLower(container.ServiceTitle))
 	}
+
 	// Find all deployed functional services
 	functionalServicesDeployed, err := database.FunctionalServices.FindFunctionalServicesDeployByServices(servicesDeployed)
 	if err != nil {

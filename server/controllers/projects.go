@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
-	"net/url"
 	"strings"
 	"time"
 
@@ -314,7 +313,9 @@ func (p *Projects) Save(c echo.Context) error {
 			database, err := mongo.Get()
 			if err != nil {
 				log.WithField("database", database).WithError(err).Error("Unable to open a connection to the database")
+				return
 			}
+			defer database.Session.Close()
 
 			err = p.updateDocktorGroupName(database, projectSaved.ID, projectSaved.DocktorGroupURL)
 			if err != nil {
@@ -408,17 +409,17 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, proj
 // It gets the Group name from Docktor Group URL by fetching Docktor API directly
 func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bson.ObjectId, docktorGroupURL string) error {
 
-	// Parse Docktor URL to get the Docktor group ID
-	idDocktorGroup, err := p.GetGroupIDFromURL(docktorGroupURL)
-	if err != nil {
-		return err
-	}
 	// Call Docktor API to get the real name of the group
 	docktorAPI, err := docktor.NewExternalAPI(
 		viper.GetString("docktor.addr"),
 		viper.GetString("docktor.user"),
 		viper.GetString("docktor.password"),
 	)
+	if err != nil {
+		return err
+	}
+	// Parse Docktor URL to get the Docktor group ID
+	idDocktorGroup, err := docktorAPI.GetGroupIDFromURL(docktorGroupURL)
 	if err != nil {
 		return err
 	}
@@ -433,24 +434,6 @@ func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bs
 	}
 
 	return nil
-}
-
-// GetGroupIDFromURL returns the Docktor group ID from its URL
-// URL is expected to be format : http://<docktor-host>/groups/<id>
-func (p *Projects) GetGroupIDFromURL(docktorURL string) (string, error) {
-	u, err := url.ParseRequestURI(docktorURL)
-	if err != nil {
-		return "", fmt.Errorf("docktorGroupURL is not a valid URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", docktorURL)
-	}
-	path := strings.Split(u.Path, "/")
-	if len(path) == 0 {
-		return "", fmt.Errorf("Unable to get project id from URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", u.Path)
-	}
-	id := path[len(path)-1]
-	if id == "" {
-		return "", fmt.Errorf("Unable to get project id from URL parsed path : %v. URL=%v", path, u.Path)
-	}
-	return id, nil
 }
 
 // UpdateDocktorInfo updates docktor info of a specific project

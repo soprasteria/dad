@@ -71,9 +71,10 @@ func createToken(username, secret string, expiresAt time.Time) (string, error) {
 
 // AuthenticateUser authenticates a user
 func (a *Authentication) AuthenticateUser(query *LoginUserQuery) error {
+	log.WithField("username", query.Username).Debug("Trying to fetch user from database for authentication")
 	user, err := a.Users.FindByUsername(query.Username)
 	if err != nil || user.ID.Hex() == "" {
-		log.WithError(err).WithField("username", query.Username).Warn("Cannot authenticate user, username not found in DB")
+		log.WithError(err).WithField("username", query.Username).Warn("Cannot authenticate user, username not found in DB. Will create it")
 		return a.authenticateWhenUserNotFound(query)
 	}
 	log.WithField("username", query.Username).Debug("User found in DB")

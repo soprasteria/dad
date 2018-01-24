@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -153,4 +154,22 @@ func (api *ExternalAPI) GetGroup(groupID string) (GroupDocktor, error) {
 
 	return docktorGroup, nil
 
+}
+
+// GetGroupIDFromURL returns the Docktor group ID from its URL
+// URL is expected to be format : http://<docktor-host>/groups/<id>
+func (api *ExternalAPI) GetGroupIDFromURL(docktorURL string) (string, error) {
+	u, err := url.ParseRequestURI(docktorURL)
+	if err != nil {
+		return "", fmt.Errorf("docktorGroupURL is not a valid URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", docktorURL)
+	}
+	path := strings.Split(u.Path, "/")
+	if len(path) == 0 {
+		return "", fmt.Errorf("Unable to get project id from URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", u.Path)
+	}
+	id := path[len(path)-1]
+	if id == "" {
+		return "", fmt.Errorf("Unable to get project id from URL parsed path : %v. URL=%v", path, u.Path)
+	}
+	return id, nil
 }

@@ -107,10 +107,10 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		// Get all functional services deployed
 		functionalServices, err := getAllFunctionalServicesDeployByProject(project)
 		if err != nil {
-			// When an error occured, it's often because of
+			// When an error occurred, it's often because of
 			projectsInError = append(projectsInError, fmt.Sprintf("%v (docktor:%v)", project.Name, project.DocktorGroupName))
 			log.WithError(err).WithField("project", project.ID).Warn("Error when getting all functional services")
-			time.Sleep(1 * time.Second) // Let Docktor catch his breath when an error occured.
+			time.Sleep(1 * time.Second) // Let Docktor catch his breath when an error occurred.
 			continue
 		}
 
@@ -156,7 +156,7 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		updatedProjects++
 	}
 	log.Infof("Computing deployment status analytics is over.")
-	return fmt.Sprintf("%v projects updated, %v not updated because an error occured. List of projects in error [%v].",
+	return fmt.Sprintf("%v projects updated, %v not updated because an error occurred. List of projects in error [%v].",
 		updatedProjects, len(projectsInError), strings.Join(projectsInError, ",")), nil
 }
 

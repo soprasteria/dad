@@ -46,6 +46,7 @@ func getAllFunctionalServicesDeployByProject(project types.Project) ([]types.Fun
 	database, err := mongo.Get()
 	if err != nil {
 		log.WithError(err).Error("Unable to connect to the database")
+		return nil, err
 	}
 	defer database.Session.Close()
 

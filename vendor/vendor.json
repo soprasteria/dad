@@ -165,7 +165,7 @@
 			"revisionTime": "2017-01-13T09:48:12Z"
 		},
 		{
-			"checksumSHA1": "nrB/GmDxc8vUJGYJl3dB4ZREtOA=",
+			"checksumSHA1": "8Vdlgc3FSrZPJLi/qubimF/XmB8=",
 			"path": "github.com/matcornic/hermes",
 			"revision": "377cc7e34f13533db0c3352b4fc7513c3b64522d",
 			"revisionTime": "2017-06-18T15:14:58Z"
@@ -211,6 +211,12 @@
 			"path": "github.com/pelletier/go-toml",
 			"revision": "a1f048ba24490f9b0674a67e1ce995d685cddf4a",
 			"revisionTime": "2017-01-16T02:49:11Z"
+		},
+		{
+			"checksumSHA1": "bOUCnFlRuGN/E633R/lFuiWVrkk=",
+			"path": "github.com/robfig/cron",
+			"revision": "2315d5715e36303a941d907f038da7f7c44c773b",
+			"revisionTime": "2017-11-01T20:10:47Z"
 		},
 		{
 			"checksumSHA1": "OZpv1QDSDG23bzSk/7auPQRB2Qg=",
@@ -387,7 +393,7 @@
 			"revisionTime": "2017-08-08T06:06:21Z"
 		},
 		{
-			"checksumSHA1": "00eQaGynDYrv3tL+C7l9xH0IDZg=",
+			"checksumSHA1": "z79z5msRzgU48FCZxSuxfU8b4rs=",
 			"path": "golang.org/x/net/html/atom",
 			"revision": "090ebbdfc2aff44cc6674372b72e02e731f7f0ef",
 			"revisionTime": "2017-08-08T06:06:21Z"

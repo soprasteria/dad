@@ -57,6 +57,7 @@ func (a *Auth) Login(c echo.Context) error {
 	// Log in the application
 	var err error
 	if viper.GetBool("ldap.enable") {
+		log.Debug("Authenticating to LDAP...")
 		err = login.AuthenticateUser(&auth.LoginUserQuery{
 			Username: username,
 			Password: password,
@@ -69,6 +70,7 @@ func (a *Auth) Login(c echo.Context) error {
 		}
 		return c.JSON(http.StatusInternalServerError, types.NewErr(err.Error()))
 	}
+	log.Debug("Authenticated to LDAP [OK]")
 
 	// Generates a valid token
 	token, err := login.CreateLoginToken(username)
@@ -78,12 +80,14 @@ func (a *Auth) Login(c echo.Context) error {
 	}
 
 	// Get the user from database
+	log.Debug("Getting user from database...")
 	database := c.Get("database").(*mongo.DadMongo)
 	user, err := database.Users.FindByUsername(username)
 	if err != nil {
 		log.WithError(err).WithField("username", username).Error("User retrieval failed")
 		return c.JSON(http.StatusInternalServerError, types.NewErr(err.Error()))
 	}
+	log.Debug("Got user from database [OK]")
 
 	return c.JSON(http.StatusOK, Token{ID: token, User: user})
 }

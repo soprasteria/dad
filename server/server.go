@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
-
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/soprasteria/dad/server/auth"
 	"github.com/soprasteria/dad/server/controllers"
 	"github.com/soprasteria/dad/server/email"
+	"github.com/soprasteria/dad/server/jobs"
 	"github.com/soprasteria/dad/server/types"
 	"github.com/spf13/viper"
 )
@@ -28,6 +28,7 @@ func New(version string) {
 	projectsC := controllers.Projects{}
 	technologiesC := controllers.Technologies{}
 	exportC := controllers.Export{}
+	adminC := controllers.Admin{}
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
@@ -132,6 +133,13 @@ func New(version string) {
 			exportAPI.Use(getAuthenticatedUser)
 			exportAPI.GET("", exportC.ExportAll)
 		}
+
+		adminAPI := api.Group("/admin")
+		{
+			adminAPI.Use(hasRole(types.AdminRole))
+			jobsAPI := adminAPI.Group("/jobs")
+			jobsAPI.POST("/deployment-indicators", adminC.ExecuteDeploymentJobAnalytics)
+		}
 	}
 
 	engine.Static("/js", "client/js")
@@ -146,6 +154,9 @@ func New(version string) {
 	if errorMail != nil {
 		log.Error("Error initialization of the SMTP configuration", errorMail)
 	}
+
+	// Launch back-end tasks.
+	go jobs.RunBackgroundJobs()
 
 	if err := engine.Start(":8080"); err != nil {
 		engine.Logger.Fatal(err.Error())

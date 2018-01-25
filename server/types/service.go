@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"strings"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -9,11 +10,25 @@ import (
 
 // FunctionalService represents the service
 type FunctionalService struct {
-	ID       bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
-	Name     string        `bson:"name" json:"name"`
-	Package  string        `bson:"package" json:"package"`
-	Position int           `bson:"position" json:"position"`
-	Services []string      `bson:"services" json:"services"`
+	ID                    bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
+	Name                  string        `bson:"name" json:"name"`
+	Package               string        `bson:"package" json:"package"`
+	Position              int           `bson:"position" json:"position"`
+	Services              []string      `bson:"services" json:"services"`
+	DeclarativeDeployment bool          `bson:"declarativeDeployement" json:"declarativeDeployement"`
+}
+
+// isAssociatedWithAtLeastGivenService return true when at least one service in given parameter is found in the functional service.
+// Search is executed by ignoring case.
+func (fs FunctionalService) isAssociatedWithAtLeastGivenService(serviceNames []string) bool {
+	for _, service := range fs.Services {
+		for _, name := range serviceNames {
+			if strings.ToLower(name) == strings.ToLower(service) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // FunctionalServiceRepo wraps all requests to database for accessing functional services
@@ -61,6 +76,25 @@ func (r *FunctionalServiceRepo) FindAll() ([]FunctionalService, error) {
 		return []FunctionalService{}, errors.New("Can't retrieve all functional services")
 	}
 	return functionalServices, nil
+}
+
+// FindFunctionalServicesDeployByServices find all functional services associated to
+func (r *FunctionalServiceRepo) FindFunctionalServicesDeployByServices(services []string) ([]FunctionalService, error) {
+
+	functionalServices := []FunctionalService{}
+
+	allFunctionalServices, err := r.FindAll()
+	if err != nil {
+		return nil, errors.New("Unable to get all functional services from database")
+	}
+
+	for _, s := range allFunctionalServices {
+		if s.isAssociatedWithAtLeastGivenService(services) {
+			functionalServices = append(functionalServices, s)
+		}
+	}
+
+	return functionalServices, err
 }
 
 // Exists checks if a functional service (name and package) already exists

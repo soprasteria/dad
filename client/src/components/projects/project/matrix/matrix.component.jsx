@@ -9,11 +9,12 @@ import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { options, priorities, status } from '../../../../modules/services/services.constants';
+import { options, priorities, status, deployed, getDeployedOptions } from '../../../../modules/services/services.constants';
 
 import './matrix.component.scss';
 
-// Matrix Component Component
+
+// Matrix Component
 class Matrix extends React.Component {
 
   handleChange = (e, { name, value }) => {
@@ -29,33 +30,36 @@ class Matrix extends React.Component {
   }
 
   render = () => {
-    const { service, matrix, indicators, readOnly } = this.props;
+    const { service, matrix, indicators, readOnly, isConnectedUserAdmin } = this.props;
     return (
       <Table.Row className='matrix-component'>
-        {this.renderCells(service, matrix, indicators.items, readOnly)}
+        {this.renderCells(service, matrix, indicators.items, readOnly, isConnectedUserAdmin)}
       </Table.Row>
     );
   }
 
-  renderCells = (service, matrix, indicators, readOnly) => {
+  renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin) => {
+    matrix.deployed = typeof matrix.deployed === 'string' && matrix.priority !== '' ? matrix.deployed : 'no';
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
     matrix.priority = typeof matrix.priority === 'string' && matrix.priority !== '' ? matrix.priority : 'N/A';
 
+    const optionsForDeployed = getDeployedOptions(deployed, matrix.deployed, isConnectedUserAdmin);
     const serviceStatus = this.getServiceStatus(service, indicators);
     const progressOption = options.find((elm) => elm.value === matrix.progress);
     const priorityOption = priorities.find((elm) => elm.value === matrix.priority);
+    const deployedOption = deployed.find((elm) => elm.value === matrix.deployed);
     const goalOption = options.find((elm) => elm.value === matrix.goal);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
     const serviceNameCell = (
-      <Table.Cell key='service'>
+      <Table.Cell key='service' width='seven'>
         {/* If serviceStatus is in an unknown status, the label indicator will not be visible for users */}
         <Label
           className={classNames({ invisible: !serviceStatus }, 'status-label')} circular
           title={serviceStatus ? serviceStatus.title : ''}
           color={serviceStatus ? serviceStatus.color : 'grey'}
-          />
+        />
         <span>
           {service.name}
         </span>
@@ -69,6 +73,8 @@ class Matrix extends React.Component {
       };
     });
 
+    const dueDateIsReached = dueDate && dueDate.isBefore(moment(new Date()));
+
     if (expandComment) {
       // When the comment is expanded, the only 2 cells are the service name and the comment
       return [
@@ -78,20 +84,30 @@ class Matrix extends React.Component {
             <DebounceInput autoFocus readOnly={readOnly} debounceTimeout={600} element={Form.TextArea} autoHeight
               placeholder={readOnly ? '' : 'Add a comment'} name='comment' value={matrix.comment}
               onChange={this.handleChangeComment} onBlur={() => setExpandComment(false)}
-              />
+            />
           </Form>
         </Table.Cell>)
       ];
     } else {
       return [
         serviceNameCell,
+        (<Table.Cell key='deployed'>
+          <Form>
+            {readOnly || !service.declarativeDeployement
+              ? (<div className='layout horizontal center-center' title={deployedOption.title}>{deployedOption.text}</div>)
+              : (<Form.Dropdown placeholder='Deployed' fluid selection name='deployed' title={deployedOption.title}
+                options={optionsForDeployed} value={matrix.deployed} onChange={this.handleChange}
+              />)
+            }
+          </Form>
+        </Table.Cell>),
         (<Table.Cell key='progress'>
           <Form>
             {readOnly
               ? (<div>{progressOption.text}</div>)
               : (<Form.Dropdown placeholder='Progress' fluid selection name='progress' title={progressOption.title}
                 options={options} value={matrix.progress} onChange={this.handleChange} className={progressOption.label.color}
-                />)
+              />)
             }
           </Form>
         </Table.Cell>),
@@ -101,7 +117,7 @@ class Matrix extends React.Component {
               ? (<div>{goalOption.text}</div>)
               : (<Form.Dropdown placeholder='Goal' fluid selection name='goal' title={goalOption.title}
                 options={options} value={matrix.goal} onChange={this.handleChange} className={goalOption.label.color}
-                />)
+              />)
             }
           </Form>
         </Table.Cell>),
@@ -111,13 +127,13 @@ class Matrix extends React.Component {
               ? (<div>{priorityOption.text}</div>)
               : (<Form.Dropdown placeholder='Priority' fluid selection name='priority' title={priorityOption.title}
                 options={priorities} value={matrix.priority} onChange={this.handleChange}
-                />)
+              />)
             }
           </Form>
         </Table.Cell>),
         (<Table.Cell key='dueDate'>
           <Form>
-            <ReactDatePicker dateFormat='DD/MM/YYYY' placeholderText='DD/MM/YYYY' selected={dueDate} onChange={this.handleChangeDueDate} />
+            <ReactDatePicker className={classNames('datepicker', { isreached: dueDateIsReached })} dateFormat='DD/MM/YYYY' placeholderText='DD/MM/YYYY' selected={dueDate} onChange={this.handleChangeDueDate} />
           </Form>
         </Table.Cell>),
         (<Table.Cell key='comment' className={classNames(readOnly, 'comment', 'center')}>
@@ -131,7 +147,7 @@ class Matrix extends React.Component {
               content={matrix.comment ? matrix.comment : 'Click to add a comment'}
               header={matrix.comment ? 'Click to edit' : null}
               inverted
-              />
+            />
           </Form>
         </Table.Cell>)
       ];
@@ -141,7 +157,7 @@ class Matrix extends React.Component {
   // Method used to get the status indicator for a functional service. It can determine which service has the best status to display only this one
   getServiceStatus = (service, indicators) => {
     let serviceStatus = undefined;
-    // Condition used to test if the functionnal service has some technical services associated
+    // Condition used to test if the functional service has some technical services associated
     if (service.services) {
       const indicatorsTable = Object.values(indicators);
       let matchingIndicators = service.services.map((technicalServiceName) =>
@@ -169,6 +185,7 @@ Matrix.propTypes = {
   serviceId: PropTypes.string,
   indicators: PropTypes.object,
   matrix: PropTypes.object,
+  isConnectedUserAdmin: PropTypes.bool,
   service: PropTypes.object,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool

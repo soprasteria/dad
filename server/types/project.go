@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -20,6 +20,12 @@ var Progress = map[int]string{
 	5:  "100%",
 }
 
+// Deployed maps the progress codes to their string representation
+var Deployed = map[int]string{
+	-1: "no",
+	0:  "yes",
+}
+
 // Priority maps the progress codes to their string representation
 var Priority = map[int]string{
 	-1: "N/A",
@@ -31,6 +37,7 @@ var Priority = map[int]string{
 // MatrixLine represents information of a depending on the functional service
 type MatrixLine struct {
 	Service  bson.ObjectId `bson:"service" json:"service"`
+	Deployed string        `bson:"deployed,omitempty" json:"deployed,omitempty"`
 	Progress int           `bson:"progress" json:"progress"`
 	Goal     int           `bson:"goal" json:"goal"`
 	Priority string        `bson:"priority,omitempty" json:"priority,omitempty"`
@@ -49,6 +56,8 @@ type TechnicalData struct {
 	SpecificationsInVersionControl bool     `bson:"specifications" json:"specifications"`
 	SourceCodeInVersionControl     bool     `bson:"sourceCode" json:"sourceCode"`
 	VersionControlSystem           string   `bson:"versionControlSystem" json:"versionControlSystem"`
+	IsCDKApplicable                bool     `bson:"isCDKApplicable" json:"isCDKApplicable"`
+	Explanation                    string   `bson:"explanation" json:"explanation"`
 }
 
 // DocktorURL represents the url of the Docktor project linked to the DAD project
@@ -199,6 +208,17 @@ func (r *ProjectRepo) FindForUser(user User) (Projects, error) {
 		return nil, fmt.Errorf("Invalid role %s for user %s", user.Role, user.Username)
 	}
 
+	return projects, err
+}
+
+// FindWithDocktorGroupURL returns the projects with a no empty docktor group url
+func (r *ProjectRepo) FindWithDocktorGroupURL() ([]Project, error) {
+	projects := []Project{}
+	err := r.col().Find(bson.M{
+		"$and": []bson.M{
+			{"docktorURL.docktorGroupURL": bson.M{"$exists": true, "$ne": ""}},
+		},
+	}).All(&projects)
 	return projects, err
 }
 

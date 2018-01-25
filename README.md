@@ -60,6 +60,9 @@ addr = "http://<DocktorUrl>/#!/"
 user = "<DocktorUsername>"
 password = "<DocktorPassword>"
 
+[tasks]
+recurrence = "@every 20m"
+
 ```
 
 You can see all the available settings with:
@@ -97,6 +100,14 @@ npm run dist
 ```
 
 The relevant files are in the `dist` folder.
+
+## Run deployment analytics job
+
+In order to run the routine to analyses which functional services of projects are deployed or not, you can POST a request to the endpoint API `/api/admin/jobs/deployment-indicators` with an admin account.
+
+Every project with Docktor URL will be updated with data from Docktor.
+
+This kind of routine is also executed at regular time (default to 23:00 everyday, can be overridden with `--tasks-recurrence` option)
 
 ## License
 

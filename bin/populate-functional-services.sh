@@ -12,7 +12,8 @@
 # - Name: the name of the functional service to insert
 # - Package: the package of the functional service (ie. Build, OPS, etc.)
 # - Position: the relative position of the package on display (a service with position "10" will be displayed before another service with position "20")
-# - services: technical services comma separated (eg. jenkins,gitlabci,tfs)
+# - Services: technical services comma separated (eg. jenkins,gitlabci,tfs)
+# - DeclarativeDeployement: if the service is declarative (the deployed field in the matrix will be manual) or not
 
 set -u
 
@@ -22,7 +23,7 @@ FILE=${3:-functional-services.csv}
 
 (
     IFS=$';\n'
-    while read -r package name position services; do
+    while read -r package name position declarativeDeployement services ; do
         IFS=',' read -r -a servicesArray <<< "$services"
         if [ ${#servicesArray[@]} -eq 0 ]; then
             services="[]"
@@ -36,7 +37,7 @@ FILE=${3:-functional-services.csv}
             services="${services::-1}]" # ${string::-1} removes the last character as of bash 4.2
         fi
 
-        fs=$(printf '{"name": "%s", "package": "%s", "position": %s, "services": %s}' "$name" "$package" "$position" "$services")
+        fs=$(printf '{"name": "%s", "package": "%s", "position": %s, "services": %s, "declarativeDeployement": %s}' "$name" "$package" "$position" "$services" "$declarativeDeployement")
         echo "Sending: $fs"
         curl -sH "Authorization:Bearer $DAD_JWT_TOKEN" -H 'Content-Type: application/json;charset=UTF-8' -d "$fs" "$DAD_URL/api/services/new"
         echo

@@ -62,9 +62,9 @@ describe('<ProjectComponent />', () => {
       });
     });
 
-    describe('with isRI set to true', () => {
+    describe('with !isAdmin set to true', () => {
       it('should display the docktorGroupURL as readOnly', () => {
-        const { wrapper } = setup({ isRI: true });
+        const { wrapper } = setup({ isAdmin: false });
         expect(wrapper.find('[name="docktorGroupURL"]').props().readOnly).toBeTruthy();
       });
     });
@@ -72,7 +72,7 @@ describe('<ProjectComponent />', () => {
     describe('with no rights management', () => {
       it('should display no <Form.Dropdown />', () => {
         const { wrapper } = setup();
-        expect(wrapper.find('FormDropdown').length).toEqual(0);
+        expect(wrapper.find('FormDropdown').length).toEqual(1);
       });
     });
   });

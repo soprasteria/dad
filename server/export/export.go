@@ -174,7 +174,9 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		"Source Code in VCS",
 		"Specifications in VCS",
 		"Creation Date",
-		"Last Update"}
+		"Last Update",
+		"IsCDKApplicable",
+		"Explanation"}
 
 	createMergedCell(servicePkgRow, "Matrix Maturity", len(matrixMaturityColumns))
 
@@ -200,7 +202,7 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 	allServiceIndicatorMap := getServiceIndicatorMap(projects, servicesMapSortedKeys, servicesMap, projectToUsageIndicators)
 
 	// Number of columns by service
-	const nbColsService = 6
+	const nbColsService = 7
 
 	// Header generation: package and associated functional services
 	for _, pkg := range servicesMapSortedKeys {
@@ -210,6 +212,7 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		for _, service := range services {
 			nameCell := createMergedCell(serviceNameRow, service.Name, nbColsService)
 			rotateCell(nameCell, 90)
+			createCell(serviceMaturityRow, "Deployed")
 			createCell(serviceMaturityRow, "Progress")
 			createCell(serviceMaturityRow, "Goal")
 			createCell(serviceMaturityRow, "Priority")
@@ -264,6 +267,8 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		createBoolCell(projectRow, project.SpecificationsInVersionControl)
 		createDateCell(projectRow, project.Created)
 		createDateCell(projectRow, project.Updated)
+		createBoolCell(projectRow, project.IsCDKApplicable)
+		createCell(projectRow, project.Explanation)
 
 		// Iterate on each service in the correct order
 		for _, pkg := range servicesMapSortedKeys {
@@ -273,6 +278,7 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 				// Iterate on the project matrix and print the data for the current service
 				for _, line := range project.Matrix {
 					if line.Service == service.ID {
+						createCell(projectRow, line.Deployed)
 						createFormattedValueCell(projectRow, types.Progress[line.Progress])
 						createFormattedValueCell(projectRow, types.Progress[line.Goal])
 						createCell(projectRow, line.Priority)
@@ -290,6 +296,7 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 				}
 
 				if !applicable {
+					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")
 					createCell(projectRow, "N/A")

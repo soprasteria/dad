@@ -7,12 +7,13 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
 )
 
-const timeout = time.Duration(5 * time.Second)
+const timeout = time.Duration(15 * time.Second)
 
 // ExternalAPI expose methods of Docktor API
 // For instance, it exposes method to get the group name from an ID of a Docktor group
@@ -89,8 +90,11 @@ func (api *ExternalAPI) authenticate() ([]*http.Cookie, error) {
 
 // GroupDocktor is a group fetched from Docktor API
 type GroupDocktor struct {
-	ID    string `json:"_id,omitempty"`
-	Title string `json:"title,omitempty"`
+	ID         string `json:"_id,omitempty"`
+	Title      string `json:"title,omitempty"`
+	Containers []struct {
+		ServiceTitle string `json:"serviceTitle"`
+	} `json:"containers"`
 }
 
 // GetGroup gets a Docktor group name from its ID
@@ -150,4 +154,22 @@ func (api *ExternalAPI) GetGroup(groupID string) (GroupDocktor, error) {
 
 	return docktorGroup, nil
 
+}
+
+// GetGroupIDFromURL returns the Docktor group ID from its URL
+// URL is expected to be format : http://<docktor-host>/groups/<id>
+func (api *ExternalAPI) GetGroupIDFromURL(docktorURL string) (string, error) {
+	u, err := url.ParseRequestURI(docktorURL)
+	if err != nil {
+		return "", fmt.Errorf("docktorGroupURL is not a valid URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", docktorURL)
+	}
+	path := strings.Split(u.Path, "/")
+	if len(path) == 0 {
+		return "", fmt.Errorf("Unable to get project id from URL. Expected 'http://<docktor>/groups/<id>', Got '%v'", u.Path)
+	}
+	id := path[len(path)-1]
+	if id == "" {
+		return "", fmt.Errorf("Unable to get project id from URL parsed path : %v. URL=%v", path, u.Path)
+	}
+	return id, nil
 }

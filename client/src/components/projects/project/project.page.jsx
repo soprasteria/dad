@@ -36,7 +36,7 @@ import './project.page.scss';
 
 const Legend = ({ options, status }) => (
   <Box icon='help circle' title='Color Legend'>
-    <Divider horizontal>Maturity Legend</Divider>
+    <Divider horizontal>Progress & Goal</Divider>
     <Grid columns={2} relaxed>
       <Grid.Column>
         {/*Next line is used to separate options list in two parts, we use Math.ceil to make the left side bigger than the right one*/}
@@ -57,7 +57,7 @@ const Legend = ({ options, status }) => (
       </Grid.Column>
     </Grid>
 
-    <Divider horizontal>Indicator Legend</Divider>
+    <Divider horizontal>Indicator</Divider>
     <Grid columns={2} relaxed>
       <Grid.Column>
         {status.slice(0, Math.ceil(status.length / 2)).map((stat) => (
@@ -117,11 +117,13 @@ export class ProjectComponent extends React.Component {
     docktorGroupURL: Joi.string().trim().empty('').label('Docktor URL'),
     mode: Joi.string().trim().empty('').label('Mode'),
     deliverables: Joi.boolean().label('Deliverables'),
+    isCDKApplicable: Joi.boolean().label('The CDK is not applicable globally'),
     sourceCode: Joi.boolean().label('Source Code'),
     specifications: Joi.boolean().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
     serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
-    businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit')
+    businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit'),
+    explanation: Joi.string().trim().empty('').label('Explanation'),
   }).or('serviceCenter', 'businessUnit').label('Service Center or Business Unit');
 
   componentWillMount = () => {
@@ -228,7 +230,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderPackages = (packages, indicators, isFetching) => {
+  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -237,7 +239,8 @@ export class ProjectComponent extends React.Component {
       <Table key={pckg} celled striped compact>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell width='8'>{pckg}</Table.HeaderCell>
+            <Table.HeaderCell width='7'>{pckg}</Table.HeaderCell>
+            <Table.HeaderCell width='1'>Deployed</Table.HeaderCell>
             <Table.HeaderCell width='2'>Progress</Table.HeaderCell>
             <Table.HeaderCell width='2'>Goal</Table.HeaderCell>
             <Table.HeaderCell width='1'>Priority</Table.HeaderCell>
@@ -248,7 +251,7 @@ export class ProjectComponent extends React.Component {
         <Table.Body>
           {servicesList.map((service) => (
             <Matrix
-              key={service.id} serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix}
+              key={service.id} readOnly={readonly} isConnectedUserAdmin={isConnectedUserAdmin} serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix}
             />
           ))}
         </Table.Body>
@@ -348,11 +351,11 @@ export class ProjectComponent extends React.Component {
 
               <Form.Input
                 className='flex projectName' value={project.name || ''} onChange={this.handleChange} type='text' name='name'
-                placeholder='Project Name' error={errors.fields['name']} readOnly={isPM || isDeputy}
+                placeholder='Project Name' error={errors.fields['name']} readOnly={isPM || isDeputy}
               />
 
               {/*Only admins and RIs can delete a project*/}
-              {((isAdmin || isRI) && projectId !== null) && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
+              {((isAdmin || isRI) && typeof projectId !== 'undefined') && <Button color='red' icon='trash' labelPosition='left' title='Delete project' content='Delete Project' onClick={this.handleRemove} />}
             </h1>
 
             <Divider hidden />
@@ -372,13 +375,13 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Project Data</h3>
 
-                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderDropdown('projectManager', 'Project Manager', project.projectManager, 'Select Project Manager...', users, isEntitiesFetching, errors, (isAdmin || isRI))}
 
-                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', (isAdmin || isRI))}
+                    {this.renderMultipleSearchSelectionDropdown('deputies', 'Deputies', project.deputies || [], usersWithoutNone, 'Add deputy...', (isAdmin || isRI))}
 
                     <Form.Input
                       label='Client' value={project.client || ''} onChange={this.handleChange} type='text' name='client'
-                      autoComplete='on' placeholder='Project Client' error={errors.fields['client']} readOnly={isPM || isDeputy}
+                      autoComplete='on' placeholder='Project Client' error={errors.fields['client']} readOnly={isPM || isDeputy}
                     />
 
                     {/*The field Domain was renamed Consolidation criteria only in the GUI. All references named Domain in code is corresponding to the Consolidation criteria field*/}
@@ -391,13 +394,13 @@ export class ProjectComponent extends React.Component {
                       </Popup.Content>
                     </Popup>
 
-                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, (isAdmin || isRI))}
 
-                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, (isAdmin || isRI))}
 
                     {/*Only admins are allowed to set the Docktor URL*/}
                     <Form.Input
-                      label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange} type='text' name='docktorGroupURL' autoComplete='on' 
+                      label='Docktor Group URL' value={project.docktorGroupURL || ''} onChange={this.handleChange} type='text' name='docktorGroupURL' autoComplete='on'
                       placeholder='http://<DocktorURL>/#!/groups/<GroupId>' error={errors.fields['docktorGroupURL']} readOnly={!isAdmin}
                     />
                   </Grid.Column>
@@ -405,20 +408,26 @@ export class ProjectComponent extends React.Component {
                   <Grid.Column>
                     <h3>Technical Data</h3>
 
-                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', (isAdmin || isRI))}
+                    {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', (isAdmin || isRI))}
 
-                    {/*The deployment is editable by the RIs only if the Docktor URL is not present*/}
-                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, (isAdmin || (isRI && !project.docktorGroupURL)))}
+                    {/*The deployment is editable by the users only if the Docktor URL is not present*/}
+                    {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, (isAdmin || (!isAdmin && !project.docktorGroupURL)))}
 
                     <h4>Version Control</h4>
 
-                    <Form.Checkbox readOnly={isPM || isDeputy} label='Deliverables' name='deliverables' checked={Boolean(project.deliverables)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM || isDeputy} label='Deliverables' name='deliverables' checked={Boolean(project.deliverables)} onChange={this.handleChange} />
 
-                    <Form.Checkbox readOnly={isPM || isDeputy} label='Source Code' name='sourceCode' checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM || isDeputy} label='Source Code' name='sourceCode' checked={Boolean(project.sourceCode)} onChange={this.handleChange} />
 
-                    <Form.Checkbox readOnly={isPM || isDeputy} label='Specifications' name='specifications' checked={Boolean(project.specifications)} onChange={this.handleChange} />
+                    <Form.Checkbox readOnly={isPM || isDeputy} label='Specifications' name='specifications' checked={Boolean(project.specifications)} onChange={this.handleChange} />
 
-                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin || isRI))}
+                    {this.renderDropdown('versionControlSystem', 'Version Control System', project.versionControlSystem, 'SVN, Git...', this.state.versionControlSystems, false, errors, (isAdmin || isRI))}
+                    <div className='ui divider' />
+                    <h4>Applicability of CDK</h4>
+                    <div className='ui segment' title='WARNING: The entire matrix will be disabled'>
+                      <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} disabled={typeof projectId !== 'undefined'} onChange={this.handleChange} />
+                    </div>
+                    <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' disabled={typeof projectId !== 'undefined'} onChange={this.handleChange} />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
@@ -430,8 +439,8 @@ export class ProjectComponent extends React.Component {
           <Legend options={options} status={status} />
 
           <Divider hidden />
-          
-          {this.renderPackages(services, indicators, fetching)}
+
+          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.explanation)}
 
           <Button
             color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'
@@ -449,6 +458,7 @@ ProjectComponent.propTypes = {
   isFetching: PropTypes.bool,
   businessUnits: PropTypes.array,
   serviceCenters: PropTypes.array,
+  explanation: PropTypes.array,
   indicators: PropTypes.object,
   isEntitiesFetching: PropTypes.bool,
   users: PropTypes.array,
@@ -466,6 +476,7 @@ ProjectComponent.propTypes = {
   onDelete: PropTypes.func.isRequired,
   isAdmin: PropTypes.bool,
   isRI: PropTypes.bool,
+  isCDKApplicable: PropTypes.bool,
   isPM: PropTypes.bool,
   isDeputy: PropTypes.bool
 };

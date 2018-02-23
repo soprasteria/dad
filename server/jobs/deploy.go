@@ -13,35 +13,45 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getAllFunctionalServicesDeployByProject(project types.Project) ([]types.FunctionalService, error) {
-
-	// Connect to docktor api
+func getDocktorGroupData(project types.Project) (docktor.GroupDocktor, error) {
 	docktorAPI, err := docktor.NewExternalAPI(
 		viper.GetString("docktor.addr"),
 		viper.GetString("docktor.user"),
 		viper.GetString("docktor.password"),
 	)
 	if err != nil {
-		log.WithError(err).Error("Unable to connect to docktor")
-		return nil, err
+		log.WithFields(log.Fields{
+			"address":  viper.GetString("docktor.addr"),
+			"username": viper.GetString("docktor.user"),
+		}).WithError(err).Error("Unable to connect to Docktor")
+		return docktor.GroupDocktor{}, err
 	}
 
-	// Get the docktor group id
 	idDocktorGroup, err := docktorAPI.GetGroupIDFromURL(project.DocktorGroupURL)
 	if err != nil {
-		log.WithError(err).Error("Error when parse group id")
-		return nil, err
+		log.WithField("docktorGroupURL", project.DocktorGroupURL).WithError(err).Error("Error when parsing Docktor group ID")
+		return docktor.GroupDocktor{}, err
 	}
 
-	// Connect to docktor to get group info here Containers.ServiceTitle
 	docktorGroup, err := docktorAPI.GetGroup(idDocktorGroup)
 	if err != nil {
 		log.WithError(err).Error("Error when getting containers services")
-		return nil, err
+		return docktor.GroupDocktor{}, err
 	}
 
-	log.Infof("Services availables : %s", docktorGroup.Containers)
+	return docktorGroup, nil
+}
 
+func isIsolatedNetwork(docktorGroupData docktor.GroupDocktor) bool {
+	for _, container := range docktorGroupData.Containers {
+		if container.ServiceTitle == "ISOLATED_NETWORK" {
+			return true
+		}
+	}
+	return false
+}
+
+func getAllFunctionalServicesDeployByProject(docktorGroupData docktor.GroupDocktor) ([]types.FunctionalService, error) {
 	// Connect to mongo
 	database, err := mongo.Get()
 	if err != nil {
@@ -52,7 +62,7 @@ func getAllFunctionalServicesDeployByProject(project types.Project) ([]types.Fun
 
 	// Formatting to an array of services
 	servicesDeployed := []string{}
-	for _, container := range docktorGroup.Containers {
+	for _, container := range docktorGroupData.Containers {
 		servicesDeployed = append(servicesDeployed, strings.ToLower(container.ServiceTitle))
 	}
 
@@ -63,7 +73,7 @@ func getAllFunctionalServicesDeployByProject(project types.Project) ([]types.Fun
 		return nil, err
 	}
 
-	return functionalServicesDeployed, err
+	return functionalServicesDeployed, nil
 }
 
 // constructFullMatrix updates the matrix of a project to make it exhaustive
@@ -134,13 +144,18 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 			}
 		}
 
-		// Get all functional services deployed
-		functionalServices, err := getAllFunctionalServicesDeployByProject(project)
+		docktorGroupData, err := getDocktorGroupData(project)
 		if err != nil {
-			// When an error occurred, it's often because of
-			projectsInError = append(projectsInError, fmt.Sprintf("%v (docktor:%v)", project.Name, project.DocktorGroupName))
-			log.WithError(err).WithField("project", project.ID).Warn("Error when getting all functional services")
+			log.WithError(err).Error("Error while retrieving Docktor data")
 			time.Sleep(1 * time.Second) // Let Docktor catch his breath when an error occurred.
+			continue
+		}
+
+		// Get all functional services deployed
+		functionalServices, err := getAllFunctionalServicesDeployByProject(docktorGroupData)
+		if err != nil {
+			projectsInError = append(projectsInError, fmt.Sprintf("%v (docktor:%v)", project.Name, project.DocktorGroupName))
+			log.WithError(err).WithField("project", project.ID).Warn("Error while retrieving functional services")
 			continue
 		}
 
@@ -150,10 +165,13 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		constructFullMatrix(&project, functionalServices)
 
 		// Put all the no deployed services to a progress of 0
+		// If the project is isolated, don't touch anything
+		if !isIsolatedNetwork(docktorGroupData) {
 		for key, matrixLine := range project.Matrix {
 			if matrixLine.Deployed == types.Deployed[-1] {
 				project.Matrix[key].Progress = 0
 			}
+		}
 		}
 
 		// Save

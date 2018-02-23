@@ -96,13 +96,13 @@ func constructFullMatrix(project *types.Project, functionalServices []types.Func
 
 		// If the line is not present, create it with default values
 		if !found {
-		project.Matrix = append(project.Matrix, types.MatrixLine{
-			Service:  functionalService.ID,
-			Deployed: types.Deployed[0],
-			Progress: 1,
-		})
+			project.Matrix = append(project.Matrix, types.MatrixLine{
+				Service:  functionalService.ID,
+				Deployed: types.Deployed[0],
+				Progress: 1,
+			})
+		}
 	}
-}
 }
 
 // ExecuteDeploymentStatusAnalytics calculates whether a functional service are deployed or not for all projects.
@@ -167,11 +167,11 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		// Put all the no deployed services to a progress of 0
 		// If the project is isolated, don't touch anything
 		if !isIsolatedNetwork(docktorGroupData) {
-		for key, matrixLine := range project.Matrix {
-			if matrixLine.Deployed == types.Deployed[-1] {
-				project.Matrix[key].Progress = 0
+			for key, matrixLine := range project.Matrix {
+				if matrixLine.Deployed == types.Deployed[-1] {
+					project.Matrix[key].Progress = 0
+				}
 			}
-		}
 		}
 
 		// Save
@@ -183,8 +183,8 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		}
 		updatedProjects++
 	}
-	log.Infof("Computing deployment status analytics is over.")
-	return fmt.Sprintf("%v projects updated, %v not updated because an error occurred. List of projects in error [%v].",
+	log.Info("Computing deployment status analytics is over")
+	return fmt.Sprintf("%v projects updated, %v not updated because an error occurred. List of projects in error [%v]",
 		updatedProjects, len(projectsInError), strings.Join(projectsInError, ",")), nil
 }
 

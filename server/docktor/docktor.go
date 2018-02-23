@@ -15,55 +15,62 @@ import (
 
 const timeout = time.Duration(15 * time.Second)
 
-// ExternalAPI expose methods of Docktor API
-// For instance, it exposes method to get the group name from an ID of a Docktor group
+// ExternalAPI exposes methods to query the Docktor API
 type ExternalAPI struct {
-	docktorAddr     string
-	docktorUser     string
-	docktorPassword string
+	address  string
+	username string
+	password string
 }
 
 // NewExternalAPI create a new ExternalAPI from authentication information
-// addr is the address of the Docktor instance
-// user is the username used to authenticate to Docktor instance
-// password is the password used in association to user
-func NewExternalAPI(addr, user, password string) (ExternalAPI, error) {
-	if addr == "" || user == "" || password == "" {
-		return ExternalAPI{}, fmt.Errorf("Docktor address, user and password are mandatory. Addr=%v User=%v", addr, user)
+func NewExternalAPI(address, username, password string) (ExternalAPI, error) {
+	if address == "" {
+		return ExternalAPI{}, fmt.Errorf("Docktor address is empty")
+	} else if username == "" {
+		return ExternalAPI{}, fmt.Errorf("Docktor username is empty")
+	} else if password == "" {
+		return ExternalAPI{}, fmt.Errorf("Docktor password is empty")
 	}
+
 	return ExternalAPI{
-		docktorAddr:     addr,
-		docktorUser:     user,
-		docktorPassword: password,
+		address:  address,
+		username: username,
+		password: password,
 	}, nil
 }
 
 // authenticate authenticates user to Docktor through its login API
 // It updates self object with the generated JWT Token, used to authenticate through all protected API routes
 func (api *ExternalAPI) authenticate() ([]*http.Cookie, error) {
-
 	data := url.Values{}
-	data.Set("username", api.docktorUser)
-	data.Set("password", api.docktorPassword)
+	data.Set("username", api.username)
+	data.Set("password", api.password)
 
-	u, _ := url.ParseRequestURI(api.docktorAddr)
+	u, err := url.ParseRequestURI(api.address)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse Docktor URL: %v", err.Error())
+	}
 	u.Path = "/auth/signin"
 
 	client := &http.Client{Timeout: timeout}
-	req, _ := http.NewRequest("POST", u.String(), bytes.NewBufferString(data.Encode()))
+	req, err := http.NewRequest("POST", u.String(), bytes.NewBufferString(data.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("Failed to initiate HTTP request: %v", err.Error())
+	}
+
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
 
 	log.WithFields(log.Fields{
-		"DocktorURL": api.docktorAddr,
-		"user":       api.docktorUser,
-	}).Debug("Authenticating to Docktor...")
+		"address":  api.address,
+		"username": api.username,
+	}).Debug("Authenticating to Docktor")
 
 	resp, err := client.Do(req)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"DocktorURL": api.docktorAddr,
-			"user":       api.docktorUser,
+			"address":  api.address,
+			"username": api.username,
 		}).WithError(err).Error("Failed to authenticate to Docktor")
 		return nil, fmt.Errorf("Failed to authenticate to Docktor: %v", err.Error())
 	}
@@ -71,21 +78,20 @@ func (api *ExternalAPI) authenticate() ([]*http.Cookie, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		log.WithFields(log.Fields{
-			"DocktorURL":  api.docktorAddr,
-			"user":        api.docktorUser,
-			"HTTP_STATUS": resp.StatusCode,
-			"Status":      resp.Status,
+			"address":    api.address,
+			"username":   api.username,
+			"statusCode": resp.StatusCode,
+			"status":     resp.Status,
 		}).Error("Failed to authenticate to Docktor because server did not return OK")
 		return nil, fmt.Errorf("Failed to authenticate to Docktor because server did not return OK: %v", resp.Status)
 	}
 
 	log.WithFields(log.Fields{
-		"DocktorURL": api.docktorAddr,
-		"user":       api.docktorUser,
-	}).Debug("Authenticating to Docktor [OK]")
+		"address":  api.address,
+		"username": api.username,
+	}).Debug("Docktor authentication successful")
 
 	return resp.Cookies(), nil
-
 }
 
 // GroupDocktor is a group fetched from Docktor API
@@ -104,7 +110,7 @@ func (api *ExternalAPI) GetGroup(groupID string) (GroupDocktor, error) {
 		return GroupDocktor{}, err
 	}
 
-	u, _ := url.ParseRequestURI(api.docktorAddr)
+	u, _ := url.ParseRequestURI(api.address)
 	u.Path = fmt.Sprintf("/groups/%v", groupID)
 
 	client := &http.Client{Timeout: timeout}
@@ -113,13 +119,16 @@ func (api *ExternalAPI) GetGroup(groupID string) (GroupDocktor, error) {
 		req.AddCookie(cookie)
 	}
 
-	log.WithField("url", u.String()).Debugf("Getting group from Docktor with id=%v ...", groupID)
+	log.WithFields(log.Fields{
+		"url":     u.String(),
+		"groupID": groupID,
+	}).Debugf("Getting group from Docktor")
 
 	resp, err := client.Do(req)
 	if err != nil {
 		log.WithError(err).WithFields(log.Fields{
 			"docktorURL": u.String(),
-			"user":       api.docktorUser,
+			"user":       api.username,
 		}).Error("Failed to get group from Docktor")
 		return GroupDocktor{}, err
 	}
@@ -127,10 +136,10 @@ func (api *ExternalAPI) GetGroup(groupID string) (GroupDocktor, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		log.WithFields(log.Fields{
-			"docktorURL":  api.docktorAddr,
-			"user":        api.docktorUser,
-			"HTTP_STATUS": resp.StatusCode,
-			"Status":      resp.Status,
+			"address":    api.address,
+			"username":   api.username,
+			"statusCode": resp.StatusCode,
+			"status":     resp.Status,
 		}).Error("Failed to get group from Docktor because server did not return OK")
 		return GroupDocktor{}, fmt.Errorf("Failed to get group from Docktor because server did not return OK: %v", resp.Status)
 	}
@@ -140,16 +149,16 @@ func (api *ExternalAPI) GetGroup(groupID string) (GroupDocktor, error) {
 	err = json.NewDecoder(resp.Body).Decode(&docktorGroup)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"docktorURL": api.docktorAddr,
-			"user":       api.docktorUser,
+			"address":  api.address,
+			"username": api.username,
 		}).WithError(err).Error("Failed to get group from Docktor while decoding JSON result")
 		return GroupDocktor{}, fmt.Errorf("Failed to get group from Docktor while decoding JSON result: %v", err.Error())
 	}
 
 	log.WithFields(log.Fields{
-		"docktorURL":  api.docktorAddr,
-		"group.id":    docktorGroup.ID,
-		"group.title": docktorGroup.Title,
+		"address":    api.address,
+		"groupID":    docktorGroup.ID,
+		"groupTitle": docktorGroup.Title,
 	}).Debug("Fetch group from Docktor")
 
 	return docktorGroup, nil

@@ -21,8 +21,10 @@ func RunBackgroundJobs() {
 		return
 	}
 
-	log.Infof("Deployment indicators will be computed from following cron : %s", recurrenceCronString)
-	log.Infof("Deployment indicators will computed next at %s", scheduler.Next(time.Now()))
+	log.WithFields(log.Fields{
+		"cron":          recurrenceCronString,
+		"nextExecution": scheduler.Next(time.Now()),
+	}).Info("Cron configuration")
 
 	job.AddFunc(recurrenceCronString, func() {
 		jobDeploy(scheduler)

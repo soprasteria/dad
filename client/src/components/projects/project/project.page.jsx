@@ -427,7 +427,7 @@ export class ProjectComponent extends React.Component {
                     <div className='ui segment' title='WARNING: The entire matrix will be disabled'>
                       <Form.Checkbox readOnly={isPM || isDeputy} label='The CDK is not applicable globally' name='isCDKApplicable' checked={Boolean(project.isCDKApplicable)} disabled={typeof projectId !== 'undefined'} onChange={this.handleChange} />
                     </div>
-                    <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' disabled={typeof projectId !== 'undefined'} onChange={this.handleChange} />
+                    {project.isCDKApplicable && <Form.TextArea readOnly={isPM || isDeputy} label='Explanation' name='explanation' value={project.explanation || ''} placeholder='The CDK is not applicable because...' disabled={typeof projectId !== 'undefined'} onChange={this.handleChange} />}
                   </Grid.Column>
                 </Grid.Row>
               </Grid>

@@ -66,27 +66,33 @@ func getAllFunctionalServicesDeployByProject(project types.Project) ([]types.Fun
 	return functionalServicesDeployed, err
 }
 
+// constructFullMatrix updates the matrix of a project to make it exhaustive
 func constructFullMatrix(project *types.Project, functionalServices []types.FunctionalService) {
-OUTER:
 	for _, functionalService := range functionalServices {
-		// Check if the matrix already exist
+		found := false
+
 		for key, matrixLine := range project.Matrix {
+			// If the line is already present in the matrix, set its "Deployed" status
+			// to yes and updates its progress if needed
 			if matrixLine.Service == functionalService.ID {
-				// Found
 				project.Matrix[key].Deployed = types.Deployed[0]
 				if matrixLine.Progress < 1 {
 					project.Matrix[key].Progress = 1
 				}
-				continue OUTER
+				found = true
+				break
 			}
 		}
-		// Not found
+
+		// If the line is not present, create it with default values
+		if !found {
 		project.Matrix = append(project.Matrix, types.MatrixLine{
 			Service:  functionalService.ID,
 			Deployed: types.Deployed[0],
 			Progress: 1,
 		})
 	}
+}
 }
 
 // ExecuteDeploymentStatusAnalytics calculates whether a functional service are deployed or not for all projects.

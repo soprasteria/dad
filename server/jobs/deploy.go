@@ -66,6 +66,29 @@ func getAllFunctionalServicesDeployByProject(project types.Project) ([]types.Fun
 	return functionalServicesDeployed, err
 }
 
+func constructFullMatrix(project *types.Project, functionalServices []types.FunctionalService) {
+OUTER:
+	for _, functionalService := range functionalServices {
+		// Check if the matrix already exist
+		for key, matrixLine := range project.Matrix {
+			if matrixLine.Service == functionalService.ID {
+				// Found
+				project.Matrix[key].Deployed = types.Deployed[0]
+				if matrixLine.Progress < 1 {
+					project.Matrix[key].Progress = 1
+				}
+				continue OUTER
+			}
+		}
+		// Not found
+		project.Matrix = append(project.Matrix, types.MatrixLine{
+			Service:  functionalService.ID,
+			Deployed: types.Deployed[0],
+			Progress: 1,
+		})
+	}
+}
+
 // ExecuteDeploymentStatusAnalytics calculates whether a functional service are deployed or not for all projects.
 // Each fonctional services has some container which provide this service, if a proper container is deployed for a project, this service should be at 20% of progression at least.
 // Else, it should be at 0% or N/A if the administrator of the project has defined this fonctionnal service as N/A.
@@ -118,27 +141,7 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		// Waiting a little for Docktor to accept new incoming request
 		time.Sleep(50 * time.Millisecond)
 
-	OUTER:
-		for _, functionalService := range functionalServices {
-			log.Infof("%s - Functional service available : %s", project.Name, functionalService.Name)
-			// Check if the matrix already exist
-			for key, matrixLine := range project.Matrix {
-				if matrixLine.Service == functionalService.ID {
-					// Found
-					project.Matrix[key].Deployed = types.Deployed[0]
-					if matrixLine.Progress < 1 {
-						project.Matrix[key].Progress = 1
-					}
-					continue OUTER
-				}
-			}
-			// Not found
-			project.Matrix = append(project.Matrix, types.MatrixLine{
-				Service:  functionalService.ID,
-				Deployed: types.Deployed[0],
-				Progress: 1,
-			})
-		}
+		constructFullMatrix(&project, functionalServices)
 
 		// Put all the no deployed services to a progress of 0
 		for key, matrixLine := range project.Matrix {

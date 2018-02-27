@@ -72,7 +72,7 @@ describe('<ProjectComponent />', () => {
     describe('with no rights management', () => {
       it('should display no <Form.Dropdown />', () => {
         const { wrapper } = setup();
-        expect(wrapper.find('FormDropdown').length).toEqual(1);
+        expect(wrapper.find('FormDropdown').length).toEqual(0);
       });
     });
   });

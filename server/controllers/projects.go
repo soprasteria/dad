@@ -379,6 +379,10 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, proj
 			"existingProject.DocktorGroupURL": existingProject.DocktorGroupURL,
 		}).Warn("User isn't allowed to update the project")
 		return SaveProjectData{}, http.StatusBadRequest, errors.New("Project managers and deputies are not allowed to update project details")
+	} else if authUser.Role == types.RIRole {
+		if projectToSave.Mode != existingProject.Mode {
+			return SaveProjectData{}, http.StatusBadRequest, errors.New("RIs are not allowed to update deployment mode")
+		}
 	}
 
 	// Check rights to add entities to the project

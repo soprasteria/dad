@@ -230,7 +230,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly) => {
+  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly, isIsolatedNetwork) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -251,7 +251,9 @@ export class ProjectComponent extends React.Component {
         <Table.Body>
           {servicesList.map((service) => (
             <Matrix
-              key={service.id} readOnly={readonly} isConnectedUserAdmin={isConnectedUserAdmin} serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service} indicators={indicators} onChange={this.handleMatrix}
+              key={service.id} readOnly={readonly} isConnectedUserAdmin={isConnectedUserAdmin}
+              serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service}
+              indicators={indicators} onChange={this.handleMatrix} isIsolatedNetwork={isIsolatedNetwork}
             />
           ))}
         </Table.Body>
@@ -440,7 +442,7 @@ export class ProjectComponent extends React.Component {
 
           <Divider hidden />
 
-          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.explanation)}
+          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.mode === 'Isolated Network')}
 
           <Button
             color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'

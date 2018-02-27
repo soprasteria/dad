@@ -30,15 +30,15 @@ class Matrix extends React.Component {
   }
 
   render = () => {
-    const { service, matrix, indicators, readOnly, isConnectedUserAdmin } = this.props;
+    const { service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork } = this.props;
     return (
       <Table.Row className='matrix-component'>
-        {this.renderCells(service, matrix, indicators.items, readOnly, isConnectedUserAdmin)}
+        {this.renderCells(service, matrix, indicators.items, readOnly, isConnectedUserAdmin, isIsolatedNetwork)}
       </Table.Row>
     );
   }
 
-  renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin) => {
+  renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork) => {
     matrix.deployed = typeof matrix.deployed === 'string' && matrix.priority !== '' ? matrix.deployed : 'no';
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
@@ -93,11 +93,16 @@ class Matrix extends React.Component {
         serviceNameCell,
         (<Table.Cell key='deployed'>
           <Form>
-            {readOnly || !service.declarativeDeployement
-              ? (<div className='layout horizontal center-center' title={deployedOption.title}>{deployedOption.text}</div>)
-              : (<Form.Dropdown placeholder='Deployed' fluid selection name='deployed' title={deployedOption.title}
-                options={optionsForDeployed} value={matrix.deployed} onChange={this.handleChange}
-              />)
+            {(service.declarativeDeployement || isIsolatedNetwork) && !readOnly
+              ? (
+                <Form.Dropdown placeholder='Deployed' fluid selection name='deployed' title={deployedOption.title}
+                  options={optionsForDeployed} value={matrix.deployed} onChange={this.handleChange}
+                />
+              ) : (
+                <div className='layout horizontal center-center' title={deployedOption.title}>
+                  {deployedOption.text}
+                </div>
+              )
             }
           </Form>
         </Table.Cell>),
@@ -188,7 +193,8 @@ Matrix.propTypes = {
   isConnectedUserAdmin: PropTypes.bool,
   service: PropTypes.object,
   onChange: PropTypes.func,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  isIsolatedNetwork: PropTypes.bool
 };
 
 export default Matrix;

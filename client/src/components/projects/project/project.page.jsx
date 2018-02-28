@@ -412,7 +412,7 @@ export class ProjectComponent extends React.Component {
 
                     {this.renderMultipleSearchSelectionDropdown('technologies', 'Technologies', project.technologies || [], technologiesOptions, 'Java, .NET...', (isAdmin || isRI))}
 
-                    {/*The deployment is editable by the users only if the Docktor URL is not present*/}
+                    {/*The deployment mode is editable by the admins only*/}
                     {this.renderDropdown('mode', 'Deployment Mode', project.mode, 'SaaS, DMZ...', this.state.modes, false, errors, isAdmin)}
 
                     <h4>Version Control</h4>

@@ -103,6 +103,7 @@ export class ProjectComponent extends React.Component {
       { text: '', value: '' },
       { text: 'SVN', value: 'SVN' },
       { text: 'Git', value: 'Git' },
+      { text: 'Git avec GitLab', value: 'GitLab' },
       { text: 'Mercurial', value: 'Mercurial' },
       { text: 'CVS', value: 'CVS' },
       { text: 'TFS', value: 'TFS' },

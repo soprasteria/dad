@@ -156,13 +156,6 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 			}
 		}
 
-		docktorGroupData, err := getDocktorGroupData(project)
-		if err != nil {
-			log.WithError(err).Error("Error while retrieving Docktor data")
-			time.Sleep(1 * time.Second) // Let Docktor catch his breath when an error occurred.
-			continue
-		}
-
 		// Get all functional services deployed
 		functionalServices, err := getAllFunctionalServicesDeployByProject(docktorGroupData)
 		if err != nil {

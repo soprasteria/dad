@@ -102,7 +102,8 @@ export class ProjectComponent extends React.Component {
     versionControlSystems: [
       { text: '', value: '' },
       { text: 'SVN', value: 'SVN' },
-      { text: 'Git', value: 'Git' },
+      { text: 'Git (GitLab)', value: 'GitLab' },
+      { text: 'Git (Other)', value: 'Git' },
       { text: 'Mercurial', value: 'Mercurial' },
       { text: 'CVS', value: 'CVS' },
       { text: 'TFS', value: 'TFS' },

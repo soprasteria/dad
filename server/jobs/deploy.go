@@ -131,7 +131,19 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 	projectsInError := []string{}
 	for _, project := range projects {
 
-		// check if declarative and default not deployed
+		docktorGroupData, err := getDocktorGroupData(project)
+		if err != nil {
+			log.WithError(err).Error("Error while retrieving Docktor data")
+			time.Sleep(1 * time.Second) // Let Docktor catch his breath when an error occurred.
+			continue
+		}
+
+		// In the case of an isolated network, all services are declarative, so we don't check anything in deploy and progress status.
+		if isIsolatedNetwork(docktorGroupData) {
+			continue
+		}
+
+		// check if declarative and default not deployed, unless we are in isolated network
 		for key, MatrixLine := range project.Matrix {
 			// get the functional service info
 			functionalService, err := database.FunctionalServices.FindByID(MatrixLine.Service.Hex())
@@ -142,13 +154,6 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 			if !functionalService.DeclarativeDeployment {
 				project.Matrix[key].Deployed = types.Deployed[-1]
 			}
-		}
-
-		docktorGroupData, err := getDocktorGroupData(project)
-		if err != nil {
-			log.WithError(err).Error("Error while retrieving Docktor data")
-			time.Sleep(1 * time.Second) // Let Docktor catch his breath when an error occurred.
-			continue
 		}
 
 		// Get all functional services deployed
@@ -165,12 +170,9 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		constructFullMatrix(&project, functionalServices)
 
 		// Put all the no deployed services to a progress of 0
-		// If the project is isolated, don't touch anything
-		if !isIsolatedNetwork(docktorGroupData) {
-			for key, matrixLine := range project.Matrix {
-				if matrixLine.Deployed == types.Deployed[-1] {
-					project.Matrix[key].Progress = 0
-				}
+		for key, matrixLine := range project.Matrix {
+			if matrixLine.Deployed == types.Deployed[-1] {
+				project.Matrix[key].Progress = 0
 			}
 		}
 

@@ -51,6 +51,15 @@ func isIsolatedNetwork(docktorGroupData docktor.GroupDocktor) bool {
 	return false
 }
 
+func isCloud(docktorGroupData docktor.GroupDocktor) bool {
+	for _, container := range docktorGroupData.Containers {
+		if container.ServiceTitle == "CLOUD" {
+			return true
+		}
+	}
+	return false
+}
+
 func getAllFunctionalServicesDeployByProject(docktorGroupData docktor.GroupDocktor) ([]types.FunctionalService, error) {
 	// Connect to mongo
 	database, err := mongo.Get()
@@ -138,8 +147,8 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 			continue
 		}
 
-		// In the case of an isolated network, all services are declarative, so we don't check anything in deploy and progress status.
-		if isIsolatedNetwork(docktorGroupData) {
+		// In the case of an isolated network or on the cloud, all services are declarative, so we don't check anything in deploy and progress status.
+		if isIsolatedNetwork(docktorGroupData) || !isCloud(docktorGroupData) {
 			continue
 		}
 
@@ -170,8 +179,8 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		constructFullMatrix(&project, functionalServices)
 
 		// Put all the no deployed services to a progress of 0
-		// If the project is isolated, don't touch anything
-		if !isIsolatedNetwork(docktorGroupData) {
+		// If the project is isolated or on the cloud, don't touch anything
+		if !isIsolatedNetwork(docktorGroupData) || !isCloud(docktorGroupData) {
 			for key, matrixLine := range project.Matrix {
 				if matrixLine.Deployed == types.Deployed[-1] {
 					project.Matrix[key].Progress = 0

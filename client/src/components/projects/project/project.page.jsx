@@ -97,6 +97,7 @@ export class ProjectComponent extends React.Component {
       { text: '', value: '' },
       { text: 'SaaS', value: 'SaaS' },
       { text: 'DMZ', value: 'DMZ' },
+      { text: 'Cloud', value: 'Cloud' },
       { text: 'Isolated Network', value: 'Isolated Network' }
     ],
     versionControlSystems: [
@@ -231,7 +232,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly, isIsolatedNetwork) => {
+  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly, isIsolatedNetwork, isCloud) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -255,6 +256,7 @@ export class ProjectComponent extends React.Component {
               key={service.id} readOnly={readonly} isConnectedUserAdmin={isConnectedUserAdmin}
               serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service}
               indicators={indicators} onChange={this.handleMatrix} isIsolatedNetwork={isIsolatedNetwork}
+              indicators={indicators} onChange={this.handleMatrix} isCloud={isCloud}
             />
           ))}
         </Table.Body>
@@ -443,7 +445,7 @@ export class ProjectComponent extends React.Component {
 
           <Divider hidden />
 
-          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.mode === 'Isolated Network')}
+          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.mode === 'Isolated Network', this.state.project.mode === 'Cloud')}
 
           <Button
             color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'

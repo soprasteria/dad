@@ -35,8 +35,15 @@ class Projects extends React.Component {
       return (
         <Card.Group className='centered'>
           {projects.map((project) => {
+            // Retrieve service centers
+            let serviceCenter = { name: '' };
+            for (let i = 0; i < project.serviceCenter.length; i++) {
+              if (typeof entities[project.serviceCenter[i]] !== 'undefined') {
+                serviceCenter.name += entities[project.serviceCenter[i]].name + ' ';
+              }
+            }
             return (
-              <ProjectCard project={project} key={project.id} businessUnit={entities[project.businessUnit] || {}} serviceCenter={entities[project.serviceCenter] || {}} />
+              <ProjectCard project={project} key={project.id} businessUnit={entities[project.businessUnit] || {}} serviceCenter={serviceCenter || {}} />
             );
           })}
         </Card.Group>

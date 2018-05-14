@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+	"reflect"
 	"strings"
 	"time"
 
@@ -106,7 +107,10 @@ func sendEmail(project types.Project, to types.User, userRepo types.UserRepo, na
 		}}
 
 	// Add the RI as email receiver
-	entityIDs := []bson.ObjectId{bson.ObjectIdHex(project.BusinessUnit), bson.ObjectIdHex(project.ServiceCenter)}
+	entityIDs := []bson.ObjectId{bson.ObjectIdHex(project.BusinessUnit)}
+	for _, sC := range project.ServiceCenter {
+		entityIDs[len(entityIDs)] = bson.ObjectIdHex(sC)
+	}
 	riUsers, err := userRepo.FindRIWithEntity(entityIDs)
 	if err != nil {
 		log.Error("Error while retrieving the users whose matching with serviceCenter/businessUnit IDs or with RI's role: ", err)
@@ -228,7 +232,7 @@ func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB strin
 }
 
 func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB types.Project, authUser types.User) (int, string) {
-	if projectToSave.BusinessUnit == "" && projectToSave.ServiceCenter == "" {
+	if projectToSave.BusinessUnit == "" && len(projectToSave.ServiceCenter) > 0 {
 		return http.StatusBadRequest, "At least one of the business unit and service center fields is mandatory"
 	}
 
@@ -238,11 +242,17 @@ func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB 
 	}
 
 	// If a service center is provided, check it exists in the entity collection
-	if statusCode, errMessage := validateEntity(entityRepo, projectToSave.ServiceCenter, projectFromDB.ServiceCenter, types.ServiceCenterType, authUser); errMessage != "" {
-		return statusCode, errMessage
+	var statusCode = http.StatusOK
+	var errMessage = ""
+	for _, sCSave := range projectToSave.ServiceCenter {
+		for _, sCDB := range projectFromDB.ServiceCenter {
+			if statusCode, errMessage = validateEntity(entityRepo, sCSave, sCDB, types.ServiceCenterType, authUser); errMessage == "" {
+				return http.StatusOK, ""
+			}
+		}
 	}
 
-	return http.StatusOK, ""
+	return statusCode, errMessage
 }
 
 // Save creates or update given project
@@ -354,7 +364,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, proj
 	modifiedDetails := projectToSave.Name != existingProject.Name ||
 		strings.Join(projectToSave.Domain, ";") != strings.Join(existingProject.Domain, ";") ||
 		projectToSave.ProjectManager != existingProject.ProjectManager ||
-		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
+		!reflect.DeepEqual(projectToSave.ServiceCenter, existingProject.ServiceCenter) ||
 		projectToSave.BusinessUnit != existingProject.BusinessUnit ||
 		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
 

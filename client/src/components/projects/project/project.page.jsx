@@ -123,7 +123,7 @@ export class ProjectComponent extends React.Component {
     sourceCode: Joi.boolean().label('Source Code'),
     specifications: Joi.boolean().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
-    serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
+    serviceCenter: Joi.array().empty('').label('Service Center'),
     businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit'),
     explanation: Joi.string().trim().empty('').label('Explanation'),
   }).or('serviceCenter', 'businessUnit').label('Service Center or Business Unit');
@@ -399,7 +399,7 @@ export class ProjectComponent extends React.Component {
                       </Popup.Content>
                     </Popup>
 
-                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderMultipleSearchSelectionDropdown('serviceCenter', 'Service Center', project.serviceCenter || [], serviceCenters, 'Select Service Center...', (isAdmin || isRI))}
 
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, (isAdmin || isRI))}
 

@@ -226,15 +226,25 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 	for _, project := range projects {
 		projectRow := sheet.AddRow()
 
-		var businessUnit, serviceCenter types.Entity
+		var businessUnit types.Entity
 		businessUnit, err = e.Database.Entities.FindByID(project.BusinessUnit)
 		if err != nil {
 			businessUnit = types.Entity{Name: "N/A"}
 		}
 
-		serviceCenter, err = e.Database.Entities.FindByID(project.ServiceCenter)
-		if err != nil {
-			serviceCenter = types.Entity{Name: "N/A"}
+		var serviceCenter string
+		if len(project.ServiceCenter) > 0 {
+			for key, sC := range project.ServiceCenter {
+				s, err := e.Database.Entities.FindByID(sC)
+				if err == nil {
+					serviceCenter += s.Name
+					if key < len(project.ServiceCenter)-1 {
+						serviceCenter += ","
+					}
+				}
+			}
+		} else {
+			serviceCenter = "N/A"
 		}
 
 		var projectManager types.User
@@ -252,7 +262,7 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		createCell(projectRow, project.Name)
 		createCell(projectRow, project.Description)
 		createCell(projectRow, businessUnit.Name)
-		createCell(projectRow, serviceCenter.Name)
+		createCell(projectRow, serviceCenter)
 		createCell(projectRow, strings.Join(project.Domain, "; "))
 		createCell(projectRow, project.Client)
 		createCell(projectRow, projectManager.DisplayName)

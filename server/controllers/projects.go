@@ -242,17 +242,15 @@ func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB 
 	}
 
 	// If a service center is provided, check it exists in the entity collection
-	var statusCode = http.StatusOK
-	var errMessage = ""
 	for _, sCSave := range projectToSave.ServiceCenter {
 		for _, sCDB := range projectFromDB.ServiceCenter {
-			if statusCode, errMessage = validateEntity(entityRepo, sCSave, sCDB, types.ServiceCenterType, authUser); errMessage == "" {
-				return http.StatusOK, ""
+			if statusCode, errMessage := validateEntity(entityRepo, sCSave, sCDB, types.ServiceCenterType, authUser); errMessage != "" {
+				return statusCode, errMessage
 			}
 		}
 	}
 
-	return statusCode, errMessage
+	return http.StatusOK, ""
 }
 
 // Save creates or update given project

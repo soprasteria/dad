@@ -190,7 +190,7 @@ func (p *Projects) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func canAddEntityToProject(entityToSet, entityFromDB string, authUser types.User) bool {
+func canAddEntityToProject(entityToSet bson.ObjectId, entityFromDB []bson.ObjectId, authUser types.User) bool {
 	if authUser.Role == types.AdminRole {
 		return true
 	}
@@ -198,34 +198,45 @@ func canAddEntityToProject(entityToSet, entityFromDB string, authUser types.User
 	// If the user is a RI, he can only add an entity if:
 	// * it's one of his own assigned entities
 	// * it's the currently assigned entity of the project
-	allowedEntities := make([]bson.ObjectId, len(authUser.Entities))
+	allowedEntities := make([]bson.ObjectId, len(authUser.Entities)+len(entityFromDB))
 	copy(allowedEntities, authUser.Entities)
-	if bson.IsObjectIdHex(entityFromDB) {
-		allowedEntities = append(allowedEntities, bson.ObjectIdHex(entityFromDB))
-	}
+	copy(allowedEntities, entityFromDB)
 	for _, allowedEntity := range allowedEntities {
-		if bson.ObjectIdHex(entityToSet) == allowedEntity {
+		if entityToSet == allowedEntity {
 			return true
 		}
 	}
 	return false
 }
 
-func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB string, entityType types.EntityType, authUser types.User) (int, string) {
-	if entityToSet != "" {
-		entity, err := entityRepo.FindByID(entityToSet)
-		if err == mgo.ErrNotFound {
-			return http.StatusBadRequest, fmt.Sprintf("The %s %s does not exist", entityType, entityToSet)
-		} else if err != nil {
-			return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve %s %s from database: %v", entityType, entityToSet, err)
+func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB []string, entityType types.EntityType, authUser types.User) (int, string) {
+	if len(entityToSet) > 0 {
+
+		// Convert to object ID
+		var entityFromDBID []bson.ObjectId
+		for _, eDB := range entityToSet {
+			if bson.IsObjectIdHex(eDB) {
+				entityFromDBID = append(entityFromDBID, bson.ObjectIdHex(eDB))
+			}
 		}
 
-		if !canAddEntityToProject(entityToSet, entityFromDB, authUser) {
-			return http.StatusBadRequest, fmt.Sprintf("You can't add the entity %s to a project", entityToSet)
-		}
+		for _, eS := range entityToSet {
+			// Retrieve entity check if exist
+			entity, err := entityRepo.FindByID(eS)
+			if err == mgo.ErrNotFound {
+				return http.StatusBadRequest, fmt.Sprintf("The %s %s does not exist", entityType, eS)
+			} else if err != nil {
+				return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve %s %s from database: %v", entityType, eS, err)
+			}
+			// Check type if BU or service center ...
+			if entity.Type != entityType {
+				return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not of type %s but  %s", entity.Name, eS, entityType, entity.Type)
+			}
 
-		if entity.Type != entityType {
-			return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not of type %s but  %s", entity.Name, entityToSet, entityType, entity.Type)
+			// Check if you have the access to change the entity
+			if bson.IsObjectIdHex(eS) && !canAddEntityToProject(bson.ObjectIdHex(eS), entityFromDBID, authUser) {
+				return http.StatusBadRequest, fmt.Sprintf("You can't add the entities %s to a project", entityToSet)
+			}
 		}
 	}
 	return http.StatusOK, ""
@@ -237,17 +248,13 @@ func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB 
 	}
 
 	// If a business unit is provided, check it exists in the entity collection
-	if statusCode, errMessage := validateEntity(entityRepo, projectToSave.BusinessUnit, projectFromDB.BusinessUnit, types.BusinessUnitType, authUser); errMessage != "" {
+	if statusCode, errMessage := validateEntity(entityRepo, []string{projectToSave.BusinessUnit}, []string{projectFromDB.BusinessUnit}, types.BusinessUnitType, authUser); errMessage != "" {
 		return statusCode, errMessage
 	}
 
 	// If a service center is provided, check it exists in the entity collection
-	for _, sCSave := range projectToSave.ServiceCenter {
-		for _, sCDB := range projectFromDB.ServiceCenter {
-			if statusCode, errMessage := validateEntity(entityRepo, sCSave, sCDB, types.ServiceCenterType, authUser); errMessage != "" {
-				return statusCode, errMessage
-			}
-		}
+	if statusCode, errMessage := validateEntity(entityRepo, projectToSave.ServiceCenter, projectFromDB.ServiceCenter, types.ServiceCenterType, authUser); errMessage != "" {
+		return statusCode, errMessage
 	}
 
 	return http.StatusOK, ""

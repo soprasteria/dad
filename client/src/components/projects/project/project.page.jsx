@@ -123,7 +123,7 @@ export class ProjectComponent extends React.Component {
     sourceCode: Joi.boolean().label('Source Code'),
     specifications: Joi.boolean().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
-    serviceCenter: Joi.array().items(Joi.string().trim().alphanum()).label('Service Center'),
+    serviceCenter: Joi.array().items(Joi.string().trim().alphanum().empty('')).label('Service Center'),
     businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit'),
     explanation: Joi.string().trim().empty('').label('Explanation'),
   }).or('serviceCenter', 'businessUnit').label('Service Center or Business Unit');

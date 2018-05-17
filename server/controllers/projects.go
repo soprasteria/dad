@@ -190,19 +190,25 @@ func (p *Projects) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func canAddEntityToProject(entityToSet bson.ObjectId, entityFromDB []bson.ObjectId, authUser types.User) bool {
+func canAddEntityToProject(entityToSet string, entityFromDB []string, authUser types.User) bool {
 	if authUser.Role == types.AdminRole {
 		return true
 	}
 
+	if !bson.IsObjectIdHex(entityToSet) {
+		return false
+	}
+
 	// If the user is a RI, he can only add an entity if:
-	// * it's one of his own assigned entities
 	// * it's the currently assigned entity of the project
-	allowedEntities := make([]bson.ObjectId, len(authUser.Entities)+len(entityFromDB))
-	copy(allowedEntities, authUser.Entities)
-	copy(allowedEntities, entityFromDB)
-	for _, allowedEntity := range allowedEntities {
-		if entityToSet == allowedEntity {
+	for _, eDB := range entityFromDB {
+		if bson.IsObjectIdHex(eDB) && bson.ObjectIdHex(entityToSet) == bson.ObjectIdHex(eDB) {
+			return true
+		}
+	}
+	// * it's one of his own assigned entities
+	for _, allowedEntity := range authUser.Entities {
+		if bson.ObjectIdHex(entityToSet) == allowedEntity {
 			return true
 		}
 	}
@@ -211,15 +217,6 @@ func canAddEntityToProject(entityToSet bson.ObjectId, entityFromDB []bson.Object
 
 func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB []string, entityType types.EntityType, authUser types.User) (int, string) {
 	if len(entityToSet) > 0 {
-
-		// Convert to object ID
-		var entityFromDBID []bson.ObjectId
-		for _, eDB := range entityToSet {
-			if bson.IsObjectIdHex(eDB) {
-				entityFromDBID = append(entityFromDBID, bson.ObjectIdHex(eDB))
-			}
-		}
-
 		for _, eS := range entityToSet {
 			// Retrieve entity check if exist
 			entity, err := entityRepo.FindByID(eS)
@@ -234,7 +231,7 @@ func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB []str
 			}
 
 			// Check if you have the access to change the entity
-			if bson.IsObjectIdHex(eS) && !canAddEntityToProject(bson.ObjectIdHex(eS), entityFromDBID, authUser) {
+			if !canAddEntityToProject(eS, entityFromDB, authUser) {
 				return http.StatusBadRequest, fmt.Sprintf("You can't add the entity %s to a project", eS)
 			}
 		}

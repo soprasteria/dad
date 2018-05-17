@@ -235,7 +235,7 @@ func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB []str
 
 			// Check if you have the access to change the entity
 			if bson.IsObjectIdHex(eS) && !canAddEntityToProject(bson.ObjectIdHex(eS), entityFromDBID, authUser) {
-				return http.StatusBadRequest, fmt.Sprintf("You can't add the entities %s to a project", entityToSet)
+				return http.StatusBadRequest, fmt.Sprintf("You can't add the entity %s to a project", eS)
 			}
 		}
 	}

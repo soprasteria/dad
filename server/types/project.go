@@ -76,7 +76,7 @@ type Project struct {
 	ProjectManager string                         `bson:"projectManager" json:"projectManager"`
 	Deputies       []string                       `bson:"deputies" json:"deputies"`
 	BusinessUnit   string                         `bson:"businessUnit" json:"businessUnit"`
-	ServiceCenter  string                         `bson:"serviceCenter" json:"serviceCenter"`
+	ServiceCenter  []string                       `bson:"serviceCenter" json:"serviceCenter"`
 	DocktorURL     `bson:"docktorURL" json:""`    // json is an empty string because we want to flatten the object to avoid client-side null-checks
 	TechnicalData  `bson:"technicalData" json:""` // json is an empty string because we want to flatten the object to avoid client-side null-checks
 	Matrix         Matrix                         `bson:"matrix" json:"matrix"`
@@ -318,7 +318,7 @@ func (r *ProjectRepo) RemoveEntity(id string) error {
 
 	_, err = r.col().UpdateAll(
 		bson.M{"serviceCenter": id},
-		bson.M{"$set": bson.M{"serviceCenter": ""}},
+		bson.M{"$set": bson.M{"serviceCenter": bson.M{}}},
 	)
 	return err
 }

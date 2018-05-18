@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+	"reflect"
 	"strings"
 	"time"
 
@@ -106,7 +107,10 @@ func sendEmail(project types.Project, to types.User, userRepo types.UserRepo, na
 		}}
 
 	// Add the RI as email receiver
-	entityIDs := []bson.ObjectId{bson.ObjectIdHex(project.BusinessUnit), bson.ObjectIdHex(project.ServiceCenter)}
+	entityIDs := []bson.ObjectId{bson.ObjectIdHex(project.BusinessUnit)}
+	for _, sC := range project.ServiceCenter {
+		entityIDs[len(entityIDs)] = bson.ObjectIdHex(sC)
+	}
 	riUsers, err := userRepo.FindRIWithEntity(entityIDs)
 	if err != nil {
 		log.Error("Error while retrieving the users whose matching with serviceCenter/businessUnit IDs or with RI's role: ", err)
@@ -186,20 +190,24 @@ func (p *Projects) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func canAddEntityToProject(entityToSet, entityFromDB string, authUser types.User) bool {
+func canAddEntityToProject(entityToSet string, entityFromDB []string, authUser types.User) bool {
 	if authUser.Role == types.AdminRole {
 		return true
 	}
 
-	// If the user is a RI, he can only add an entity if:
-	// * it's one of his own assigned entities
-	// * it's the currently assigned entity of the project
-	allowedEntities := make([]bson.ObjectId, len(authUser.Entities))
-	copy(allowedEntities, authUser.Entities)
-	if bson.IsObjectIdHex(entityFromDB) {
-		allowedEntities = append(allowedEntities, bson.ObjectIdHex(entityFromDB))
+	if !bson.IsObjectIdHex(entityToSet) {
+		return false
 	}
-	for _, allowedEntity := range allowedEntities {
+
+	// If the user is a RI, he can only add an entity if:
+	// * it's the currently assigned entity of the project
+	for _, eDB := range entityFromDB {
+		if bson.IsObjectIdHex(eDB) && bson.ObjectIdHex(entityToSet) == bson.ObjectIdHex(eDB) {
+			return true
+		}
+	}
+	// * it's one of his own assigned entities
+	for _, allowedEntity := range authUser.Entities {
 		if bson.ObjectIdHex(entityToSet) == allowedEntity {
 			return true
 		}
@@ -207,33 +215,37 @@ func canAddEntityToProject(entityToSet, entityFromDB string, authUser types.User
 	return false
 }
 
-func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB string, entityType types.EntityType, authUser types.User) (int, string) {
-	if entityToSet != "" {
-		entity, err := entityRepo.FindByID(entityToSet)
-		if err == mgo.ErrNotFound {
-			return http.StatusBadRequest, fmt.Sprintf("The %s %s does not exist", entityType, entityToSet)
-		} else if err != nil {
-			return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve %s %s from database: %v", entityType, entityToSet, err)
-		}
+func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB []string, entityType types.EntityType, authUser types.User) (int, string) {
+	if len(entityToSet) > 0 {
+		for _, eS := range entityToSet {
+			// Retrieve entity check if exist
+			entity, err := entityRepo.FindByID(eS)
+			if err == mgo.ErrNotFound {
+				return http.StatusBadRequest, fmt.Sprintf("The %s %s does not exist", entityType, eS)
+			} else if err != nil {
+				return http.StatusInternalServerError, fmt.Sprintf("Failed to retrieve %s %s from database: %v", entityType, eS, err)
+			}
+			// Check type if BU or service center ...
+			if entity.Type != entityType {
+				return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not of type %s but  %s", entity.Name, eS, entityType, entity.Type)
+			}
 
-		if !canAddEntityToProject(entityToSet, entityFromDB, authUser) {
-			return http.StatusBadRequest, fmt.Sprintf("You can't add the entity %s to a project", entityToSet)
-		}
-
-		if entity.Type != entityType {
-			return http.StatusBadRequest, fmt.Sprintf("The entity %s (%s) is not of type %s but  %s", entity.Name, entityToSet, entityType, entity.Type)
+			// Check if you have the access to change the entity
+			if !canAddEntityToProject(eS, entityFromDB, authUser) {
+				return http.StatusBadRequest, fmt.Sprintf("You can't add the entity %s to a project", eS)
+			}
 		}
 	}
 	return http.StatusOK, ""
 }
 
 func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB types.Project, authUser types.User) (int, string) {
-	if projectToSave.BusinessUnit == "" && projectToSave.ServiceCenter == "" {
+	if projectToSave.BusinessUnit == "" && len(projectToSave.ServiceCenter) > 0 {
 		return http.StatusBadRequest, "At least one of the business unit and service center fields is mandatory"
 	}
 
 	// If a business unit is provided, check it exists in the entity collection
-	if statusCode, errMessage := validateEntity(entityRepo, projectToSave.BusinessUnit, projectFromDB.BusinessUnit, types.BusinessUnitType, authUser); errMessage != "" {
+	if statusCode, errMessage := validateEntity(entityRepo, []string{projectToSave.BusinessUnit}, []string{projectFromDB.BusinessUnit}, types.BusinessUnitType, authUser); errMessage != "" {
 		return statusCode, errMessage
 	}
 
@@ -354,7 +366,7 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, proj
 	modifiedDetails := projectToSave.Name != existingProject.Name ||
 		strings.Join(projectToSave.Domain, ";") != strings.Join(existingProject.Domain, ";") ||
 		projectToSave.ProjectManager != existingProject.ProjectManager ||
-		projectToSave.ServiceCenter != existingProject.ServiceCenter ||
+		!reflect.DeepEqual(projectToSave.ServiceCenter, existingProject.ServiceCenter) ||
 		projectToSave.BusinessUnit != existingProject.BusinessUnit ||
 		projectToSave.DocktorGroupURL != existingProject.DocktorGroupURL
 

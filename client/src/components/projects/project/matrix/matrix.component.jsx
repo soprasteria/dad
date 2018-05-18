@@ -30,15 +30,15 @@ class Matrix extends React.Component {
   }
 
   render = () => {
-    const { service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork } = this.props;
+    const { service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud } = this.props;
     return (
       <Table.Row className='matrix-component'>
-        {this.renderCells(service, matrix, indicators.items, readOnly, isConnectedUserAdmin, isIsolatedNetwork)}
+        {this.renderCells(service, matrix, indicators.items, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud)}
       </Table.Row>
     );
   }
 
-  renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork) => {
+  renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud) => {
     matrix.deployed = typeof matrix.deployed === 'string' && matrix.priority !== '' ? matrix.deployed : 'no';
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
@@ -93,7 +93,7 @@ class Matrix extends React.Component {
         serviceNameCell,
         (<Table.Cell key='deployed'>
           <Form>
-            {(service.declarativeDeployement || isIsolatedNetwork) && !readOnly
+            {(service.declarativeDeployement || isIsolatedNetwork || isCloud) && !readOnly
               ? (
                 <Form.Dropdown placeholder='Deployed' fluid selection name='deployed' title={deployedOption.title}
                   options={optionsForDeployed} value={matrix.deployed} onChange={this.handleChange}
@@ -194,7 +194,8 @@ Matrix.propTypes = {
   service: PropTypes.object,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
-  isIsolatedNetwork: PropTypes.bool
+  isIsolatedNetwork: PropTypes.bool,
+  isCloud: PropTypes.bool
 };
 
 export default Matrix;

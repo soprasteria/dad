@@ -37,9 +37,11 @@ class Projects extends React.Component {
           {projects.map((project) => {
             // Retrieve service centers
             let serviceCenter = { name: '' };
-            for (let i = 0; i < project.serviceCenter.length; i++) {
-              if (typeof entities[project.serviceCenter[i]] !== 'undefined') {
-                serviceCenter.name += entities[project.serviceCenter[i]].name + ' ';
+            if (typeof serviceCenter !== 'undefined') {
+              for (let i = 0; i < project.serviceCenter.length; i++) {
+                if (typeof entities[project.serviceCenter[i]] !== 'undefined') {
+                  serviceCenter.name += entities[project.serviceCenter[i]].name + ' ';
+                }
               }
             }
             return (

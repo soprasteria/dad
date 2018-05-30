@@ -97,6 +97,7 @@ export class ProjectComponent extends React.Component {
       { text: '', value: '' },
       { text: 'SaaS', value: 'SaaS' },
       { text: 'DMZ', value: 'DMZ' },
+      { text: 'Cloud', value: 'Cloud' },
       { text: 'Isolated Network', value: 'Isolated Network' }
     ],
     versionControlSystems: [
@@ -122,7 +123,7 @@ export class ProjectComponent extends React.Component {
     sourceCode: Joi.boolean().label('Source Code'),
     specifications: Joi.boolean().label('Specifications'),
     projectManager: Joi.string().trim().alphanum().empty('').label('Project Manager'),
-    serviceCenter: Joi.string().trim().alphanum().empty('').label('Service Center'),
+    serviceCenter: Joi.array().items(Joi.string().trim().alphanum().empty('')).empty('').label('Service Center'),
     businessUnit: Joi.string().trim().alphanum().empty('').label('Business Unit'),
     explanation: Joi.string().trim().empty('').label('Explanation'),
   }).or('serviceCenter', 'businessUnit').label('Service Center or Business Unit');
@@ -231,7 +232,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly, isIsolatedNetwork) => {
+  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly, isIsolatedNetwork, isCloud) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -255,6 +256,7 @@ export class ProjectComponent extends React.Component {
               key={service.id} readOnly={readonly} isConnectedUserAdmin={isConnectedUserAdmin}
               serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service}
               indicators={indicators} onChange={this.handleMatrix} isIsolatedNetwork={isIsolatedNetwork}
+              indicators={indicators} onChange={this.handleMatrix} isCloud={isCloud}
             />
           ))}
         </Table.Body>
@@ -397,7 +399,7 @@ export class ProjectComponent extends React.Component {
                       </Popup.Content>
                     </Popup>
 
-                    {this.renderDropdown('serviceCenter', 'Service Center', project.serviceCenter, 'Select Service Center...', serviceCenters, isEntitiesFetching, errors, (isAdmin || isRI))}
+                    {this.renderMultipleSearchSelectionDropdown('serviceCenter', 'Service Center', project.serviceCenter || [], serviceCenters, 'Select Service Center...', (isAdmin || isRI))}
 
                     {this.renderDropdown('businessUnit', 'Business Unit', project.businessUnit, 'Select Business Unit...', businessUnits, isEntitiesFetching, errors, (isAdmin || isRI))}
 
@@ -443,7 +445,7 @@ export class ProjectComponent extends React.Component {
 
           <Divider hidden />
 
-          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.mode === 'Isolated Network')}
+          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.mode === 'Isolated Network', this.state.project.mode === 'Cloud')}
 
           <Button
             color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'

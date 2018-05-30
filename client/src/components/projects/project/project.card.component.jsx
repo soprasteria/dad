@@ -21,8 +21,8 @@ class ProjectCard extends React.Component {
 
     const consolidationCriteria = project.domain && project.domain.join('; ');
     const domainClassnames = classNames({ filled: consolidationCriteria }, 'domain');
-    const serviceCenterClassnames = classNames({ filled: serviceCenter.name }, 'left floated service-center');
-    const businessUnitClassnames = classNames({ filled: businessUnit.name }, 'right floated business-unit');
+    const serviceCenterClassnames = classNames({ filled: serviceCenter.name }, 'service-center');
+    const businessUnitClassnames = classNames({ filled: businessUnit.name }, 'business-unit');
     return (
       <Card className='project-card' raised>
         <Card.Content>
@@ -40,11 +40,11 @@ class ProjectCard extends React.Component {
           </Card.Meta>
         </Card.Content>
         <Card.Content extra >
-          <div className={serviceCenterClassnames} title={serviceCenter.name}>
-            {serviceCenter.name || 'No Service Center'}
-          </div>
           <div className={businessUnitClassnames} title={businessUnit.name}>
             {businessUnit.name || 'No Business Unit'}
+          </div>
+          <div className={serviceCenterClassnames} title={serviceCenter.name}>
+            {serviceCenter.name || 'No Service Center'}
           </div>
         </Card.Content>
       </Card>

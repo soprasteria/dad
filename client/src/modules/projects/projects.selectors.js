@@ -12,7 +12,13 @@ export const getFilteredProjects = (projects, entities, filterValue) => {
       .filter((project) => {
         const projectContains = containsWithoutAccents(JSON.stringify([project.name, project.domain]), filterValue);
         const businessUnit = entities[project.businessUnit] && entities[project.businessUnit].name;
-        const serviceCenter = entities[project.serviceCenter] && entities[project.serviceCenter].name;
+        let serviceCenter = false;
+        for (let i = 0; i < project.serviceCenter.length; i++) {
+          serviceCenter = entities[project.serviceCenter[i]] && entities[project.serviceCenter[i]].name;
+          if (serviceCenter) {
+            break;
+          }
+        }
         const businessUnitContains = containsWithoutAccents(JSON.stringify(businessUnit || ''), filterValue);
         const serviceCenterContains = containsWithoutAccents(JSON.stringify(serviceCenter || ''), filterValue);
         let matchingProjects = false;

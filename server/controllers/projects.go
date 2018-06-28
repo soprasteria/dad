@@ -240,13 +240,16 @@ func validateEntity(entityRepo types.EntityRepo, entityToSet, entityFromDB []str
 }
 
 func validateEntities(entityRepo types.EntityRepo, projectToSave, projectFromDB types.Project, authUser types.User) (int, string) {
-	if projectToSave.BusinessUnit == "" && len(projectToSave.ServiceCenter) > 0 {
+	if projectToSave.BusinessUnit == "" && len(projectToSave.ServiceCenter) == 0 {
 		return http.StatusBadRequest, "At least one of the business unit and service center fields is mandatory"
 	}
 
-	// If a business unit is provided, check it exists in the entity collection
-	if statusCode, errMessage := validateEntity(entityRepo, []string{projectToSave.BusinessUnit}, []string{projectFromDB.BusinessUnit}, types.BusinessUnitType, authUser); errMessage != "" {
-		return statusCode, errMessage
+	// Check if BusinessUnit is set because if projectToSave.BusinessUnit is nil, len([]string{projectToSave.BusinessUnit}) will return 1
+	if projectToSave.BusinessUnit != "" {
+		// If a business unit is provided, check it exists in the entity collection
+		if statusCode, errMessage := validateEntity(entityRepo, []string{projectToSave.BusinessUnit}, []string{projectFromDB.BusinessUnit}, types.BusinessUnitType, authUser); errMessage != "" {
+			return statusCode, errMessage
+		}
 	}
 
 	// If a service center is provided, check it exists in the entity collection

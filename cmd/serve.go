@@ -66,7 +66,7 @@ func init() {
 	serveCmd.Flags().String("docktor-user", "user", "Docktor user to connect with")
 	serveCmd.Flags().String("docktor-password", "password", "Docktor password to connect with")
 	serveCmd.Flags().StringP("tasks-recurrence", "", "0 0 23 * * *", "Recurrence of back-end update tasks, like updating the deployment indicator (see https://godoc.org/github.com/robfig/cron)")
-	serveCmd.Flags().BoolP("task-recurrence-removeProgress", "", false, "Remove or not the progress during the recurrence task.")
+	serveCmd.Flags().BoolP("tasks-recurrence-removeProgress", "", false, "Remove or not the progress during the recurrence tasks.")
 
 	// Bind env variables.
 	_ = viper.BindPFlag("server.mongo.addr", serveCmd.Flags().Lookup("mongo-addr"))
@@ -99,7 +99,7 @@ func init() {
 	_ = viper.BindPFlag("docktor.user", serveCmd.Flags().Lookup("docktor-user"))
 	_ = viper.BindPFlag("docktor.password", serveCmd.Flags().Lookup("docktor-password"))
 	_ = viper.BindPFlag("tasks.recurrence", serveCmd.Flags().Lookup("tasks-recurrence"))
-	_ = viper.BindPFlag("task.recurrence.removeProgress", serveCmd.Flags().Lookup("task-recurrence-removeProgress"))
+	_ = viper.BindPFlag("tasks.recurrence.removeProgress", serveCmd.Flags().Lookup("tasks-recurrence-removeProgress"))
 	RootCmd.AddCommand(serveCmd)
 
 }

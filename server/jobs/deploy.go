@@ -112,7 +112,7 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 
 	log.Info("Starting to compute deployment status analytics...")
 	// Check if we have to remove the progress value during the task
-	removeProgress := viper.GetBool("task.recurrence.removeProgress")
+	removeProgress := viper.GetBool("tasks.recurrence.removeProgress")
 	// Connect to mongo
 	database, err := mongo.Get()
 	if err != nil {

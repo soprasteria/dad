@@ -1,5 +1,5 @@
 FROM ubuntu:16.04
-LABEL Name=dad Authors="@gwleclerc,@matcornic,@Thiht"
+LABEL Name=dad Authors="@gwleclerc,@matcornic,@Thiht,@TheCampagnards"
 
 ENV TERM=linux
 

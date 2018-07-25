@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"time"
 
 	mgo "gopkg.in/mgo.v2"
@@ -150,7 +151,7 @@ func (r *ProjectRepo) FindByName(name string) (Project, error) {
 		return Project{}, ErrDatabaseNotInitialized
 	}
 	result := Project{}
-	regex := "^" + name + "$"
+	regex := "^" + regexp.QuoteMeta(name) + "$"
 	err := r.col().Find(bson.M{"name": bson.RegEx{Pattern: regex, Options: "i"}}).One(&result)
 	return result, err
 }

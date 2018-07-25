@@ -62,7 +62,7 @@ password = "<DocktorPassword>"
 
 [tasks]
 recurrence = "@every 20m"
-
+recurrence.remove.progress = false
 ```
 
 You can see all the available settings with:

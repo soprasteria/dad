@@ -111,6 +111,8 @@ func constructFullMatrix(project *types.Project, functionalServices []types.Func
 func ExecuteDeploymentStatusAnalytics() (string, error) {
 
 	log.Info("Starting to compute deployment status analytics...")
+	// Check if we have to remove the progress value during the task
+	removeProgress := viper.GetBool("tasks.recurrence.removeProgress")
 	// Connect to mongo
 	database, err := mongo.Get()
 	if err != nil {
@@ -170,9 +172,11 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		constructFullMatrix(&project, functionalServices)
 
 		// Put all the no deployed services to a progress of 0
-		for key, matrixLine := range project.Matrix {
-			if matrixLine.Deployed == types.Deployed[-1] {
-				project.Matrix[key].Progress = 0
+		if removeProgress {
+			for key, matrixLine := range project.Matrix {
+				if matrixLine.Deployed == types.Deployed[-1] {
+					project.Matrix[key].Progress = 0
+				}
 			}
 		}
 

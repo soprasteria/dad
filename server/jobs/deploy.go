@@ -78,6 +78,10 @@ func getAllFunctionalServicesDeployByProject(docktorGroupData docktor.GroupDockt
 
 // constructFullMatrix updates the matrix of a project to make it exhaustive
 func constructFullMatrix(project *types.Project, functionalServices []types.FunctionalService) {
+
+	// Check if we have to update the progress value during the task
+	updateProgress := viper.GetBool("tasks.recurrence.updateProgress")
+
 	for _, functionalService := range functionalServices {
 		found := false
 
@@ -86,7 +90,7 @@ func constructFullMatrix(project *types.Project, functionalServices []types.Func
 			// to yes and updates its progress if needed
 			if matrixLine.Service == functionalService.ID {
 				project.Matrix[key].Deployed = types.Deployed[0]
-				if matrixLine.Progress < 1 {
+				if updateProgress && matrixLine.Progress < 1 {
 					project.Matrix[key].Progress = 1
 				}
 				found = true
@@ -99,8 +103,10 @@ func constructFullMatrix(project *types.Project, functionalServices []types.Func
 			project.Matrix = append(project.Matrix, types.MatrixLine{
 				Service:  functionalService.ID,
 				Deployed: types.Deployed[0],
-				Progress: 1,
 			})
+			if updateProgress {
+				project.Matrix[len(project.Matrix)-1].Progress = 1
+			}
 		}
 	}
 }
@@ -111,8 +117,8 @@ func constructFullMatrix(project *types.Project, functionalServices []types.Func
 func ExecuteDeploymentStatusAnalytics() (string, error) {
 
 	log.Info("Starting to compute deployment status analytics...")
-	// Check if we have to remove the progress value during the task
-	removeProgress := viper.GetBool("tasks.recurrence.removeProgress")
+	// Check if we have to update the progress value during the task
+	updateProgress := viper.GetBool("tasks.recurrence.updateProgress")
 	// Connect to mongo
 	database, err := mongo.Get()
 	if err != nil {
@@ -172,7 +178,7 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		constructFullMatrix(&project, functionalServices)
 
 		// Put all the no deployed services to a progress of 0
-		if removeProgress {
+		if updateProgress {
 			for key, matrixLine := range project.Matrix {
 				if matrixLine.Deployed == types.Deployed[-1] {
 					project.Matrix[key].Progress = 0

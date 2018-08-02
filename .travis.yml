@@ -1,47 +1,40 @@
 language: go
-
 go:
 - 1.7
-
 env:
 - GO_VENDOR=1
-
 before_install:
 - nvm --version
 - nvm install 7.2.0
 - node --version && npm --version
 - npm install -g codecov
 - go version
-
 install:
 - go get -u -v github.com/alecthomas/gometalinter
 - go get -u -v github.com/kardianos/govendor
 - gometalinter --install --update --force
 - govendor sync -v
 - npm install
-
 script:
 - npm run lint:client
 - npm run lint:server
 - npm run test:client
 - npm run test:server
 - npm run test:coverage && codecov
-
 before_deploy:
 - git config --global user.email "github@travis-ci.org"
 - git config --global user.name "Travis CI"
 - git reset --hard
 - npm version ${TRAVIS_TAG}
 - npm run dist
-
 deploy:
   provider: releases
   api_key:
-    secure: f8LLhkmihUSbbYndqdD9y+h1MzIu0Hm54BBF9Z08rEfKtT3UqiaPKmAdFW8Qth2RnjG9Ds+JZ6L6Zr9FaMprAZWfaO0UrHF9lUleVflsPESlhIFQ4tynnW/WRWhN/+4txdKn5KhXn/Pgu5uu772XtWtZTaBDbGblTY8d7bSrPYdOPO1+ZhJJZxk4A3rylGPC9e+CD+rJIyhlPic0Pj9OGjS6Z0xiZXI4Q/jfH0cIRFm1UcWFJFjRl6suVtRPSdW5lVvLtfkfF2UuKqPzhAwlcOmCqS97z+/LOsCV/Ic9hC6L42aGkyjTnlQXCOktnk3eEGFgqjaDNTE2sHnvyZsL0h1hVw31HM3cZsdTQvUSyMU0HfITwbfXpILFssuGblMwEYCjjvUDi9IZt+wHVmX8qmn0XLOwfqyLlpPswjYHFGjI+IDNDujdiuS2pNaBYRQ83U1SJ+a6mc4EvgQra3r5Ht8rIj27Pzwv9j7AsZe7OiFtmElHNrWgJ9rNGn6luwZz423b0bSYprYS56AWknq/ESkh8TKBYh45yEOCK7uexAoD9UvvqgOaozOLQO+VQaKDRdnvxpenG7hFgItDGNl6fiUEm2/WBCyuPDDwLNMfyK0iDrRhCrplfrcUQnwz8YwRh58UznsoDtMaFscxiEUtp/ELob10wXW7Euh6Cpg34bs=
+    secure: V+ASX9/WYognEbarYwj8IZ2K+TMVSFNNEsuFPkOLHPwaCQYLNVy5QO/tACZPgbzJpS82lRV2v3+yFF6Pd7EBiUhWH65AQvMnnPIPJRK7BtMS91qheuSnDVYkJmR/DzjFCOdIqceapElIt+AtX5a0kUUEaFcPBt1PoGztDaDiMzSgtu4/kdYENSNaDcggDDayBW12Ar7dze3Rtx/h6KdH08frgPvcQtA9gsdtojJpdy/AtmjZWRDbQQPkvs7PZ9jLYfkbvXVs7vFTJ6uZOz48fRbTzDc5ZX5Yk00/Epx5XqgWIf60dgBZaek9LvqVMKRVWvq/NCqOdYznLovIE/XwAUn7/dYyTZRlltUU4TlWBLU1e6lSyd5cl9hZno0uJC5Z60GPv+ER46/v7aJFOnLhz3fmQ362dy/lztHaASuRtgHGt53hz0Mm43WBYk4GtKPQ6Ot+C8WCoW8571QN5HWSHDFF5bunp7+VPVkKF4+i98/y78lerWVhDQzMDHlzkfinj5e/ldRxrepVQyTY0wR34aCMS+Nkur0wetjAqnD+w2KbjJ6jMJ18eIWwNlJxASiD0kXCOOLAeDD0U92jIVtgG/vlmfTBv/WALXAU0ie2wVy7wE5FPxfMRafKbHTs08AHPzfWnYl6hTtbjgacCE+CXNMNq5ah+4SgKMTxtv4EJqc=
   file: dist/dad-${TRAVIS_TAG}.zip
   skip_cleanup: true
   on:
     tags: true
-
 after_deploy:
-- "curl -H 'Content-Type: application/json' --data \"{\\\"source_type\\\": \\\"Tag\\\", \\\"source_name\\\": \\\"${TRAVIS_TAG}\\\"}\" -X POST https://registry.hub.docker.com/u/soprasteria/dad/trigger/${DOCKER_HUB_TOKEN}/"
+- 'curl -H ''Content-Type: application/json'' --data "{\"source_type\": \"Tag\", \"source_name\":
+  \"${TRAVIS_TAG}\"}" -X POST https://registry.hub.docker.com/u/soprasteria/dad/trigger/${DOCKER_HUB_TOKEN}/'

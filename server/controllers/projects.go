@@ -366,10 +366,13 @@ func (p *Projects) createProjectToSave(database *mongo.DadMongo, id string, proj
 		return SaveProjectData{}, http.StatusBadRequest, fmt.Errorf("Another project already exists with the same name %q", existingProject.Name)
 	}
 
-	existingProject, err = database.Projects.FindByIDBson(projectToSave.ID)
-	if err != nil {
-		if err != mgo.ErrNotFound {
-			return SaveProjectData{}, http.StatusInternalServerError, fmt.Errorf("Can't check whether the project exist in database: %v", err)
+	// check if id is valid (for project creation)
+	if projectToSave.ID.Valid() {
+		existingProject, err = database.Projects.FindByIDBson(projectToSave.ID)
+		if err != nil {
+			if err != mgo.ErrNotFound {
+				return SaveProjectData{}, http.StatusInternalServerError, fmt.Errorf("Can't check whether the project exist in database: %v", err)
+			}
 		}
 	}
 

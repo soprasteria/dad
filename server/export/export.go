@@ -235,8 +235,8 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 		var serviceCenter string
 		if len(project.ServiceCenter) > 0 {
 			for key, sC := range project.ServiceCenter {
-				s, err := e.Database.Entities.FindByID(sC)
-				if err == nil {
+				s, r := e.Database.Entities.FindByID(sC)
+				if r == nil {
 					serviceCenter += s.Name
 					if key < len(project.ServiceCenter)-1 {
 						serviceCenter += ","

@@ -7,22 +7,22 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Translation
+// Language object which contain the language code (as id)
 type Language struct {
 	ID           bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
 	LanguageCode string        `bson:"languagecode" json:"languagecode"`
 }
 
-// Translations
+// Languages slice of Language
 type Languages []Language
 
-// Translation
+// Translation object contain the language code (as id) and the translation
 type Translation struct {
 	LanguageCode string `bson:"languagecode" json:"languagecode"`
 	Translation  string `bson:"translation" json:"translation"`
 }
 
-// Translations
+// Translations slice of Translation
 type Translations []Translation
 
 // LanguageRepo wraps all requests to database for accessing languages

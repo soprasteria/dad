@@ -20,6 +20,7 @@ type DadMongo struct {
 	Projects           types.ProjectRepo           // Repo for accessing projects methods
 	Technologies       types.TechnologyRepo        // Repo for accessing technologies methods
 	UsageIndicators    types.UsageIndicatorRepo    // Repo for accessing usage indicators methods
+	Languages          types.LanguageRepo          // Repo for accessing languages methods
 	Session            *mgo.Session                // Cloned session
 	collections        []types.IsCollection        // Cache for listing all collections. Useful when doing operations on all collections at once (e.g. index creation at startup)
 }
@@ -90,6 +91,7 @@ func Get() (*DadMongo, error) {
 	usageIndicators := types.NewUsageIndicatorRepo(database)
 	projects := types.NewProjectRepo(database)
 	technologies := types.NewTechnologyRepo(database)
+	languages := types.NewLanguageRepo(database)
 
 	collections = append(collections, &users)
 	collections = append(collections, &entities)
@@ -97,6 +99,7 @@ func Get() (*DadMongo, error) {
 	collections = append(collections, &usageIndicators)
 	collections = append(collections, &projects)
 	collections = append(collections, &technologies)
+	collections = append(collections, &languages)
 
 	return &DadMongo{
 		Users:              users,
@@ -105,6 +108,7 @@ func Get() (*DadMongo, error) {
 		UsageIndicators:    usageIndicators,
 		Projects:           projects,
 		Technologies:       technologies,
+		Languages:          languages,
 		Session:            s,
 		collections:        collections,
 	}, nil

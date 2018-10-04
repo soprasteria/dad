@@ -10,6 +10,7 @@ import moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { options, priorities, status, deployed, getDeployedOptions } from '../../../../modules/services/services.constants';
+import LanguagesConstants from '../../../../modules/languages/languages.constants';
 
 import './matrix.component.scss';
 
@@ -30,15 +31,15 @@ class Matrix extends React.Component {
   }
 
   render = () => {
-    const { service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud } = this.props;
+    const { service, language, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud } = this.props;
     return (
       <Table.Row className='matrix-component'>
-        {this.renderCells(service, matrix, indicators.items, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud)}
+        {this.renderCells(service, language, matrix, indicators.items, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud)}
       </Table.Row>
     );
   }
 
-  renderCells = (service, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud) => {
+  renderCells = (service, language, matrix, indicators, readOnly, isConnectedUserAdmin, isIsolatedNetwork, isCloud) => {
     matrix.deployed = typeof matrix.deployed === 'string' && matrix.priority !== '' ? matrix.deployed : 'no';
     matrix.progress = typeof matrix.progress === 'number' ? matrix.progress : -1;
     matrix.goal = typeof matrix.goal === 'number' ? matrix.goal : -1;
@@ -52,6 +53,9 @@ class Matrix extends React.Component {
     const goalOption = options.find((elm) => elm.value === matrix.goal);
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
+    // Check if there is a language and translation and it's not the default language
+    // If there is any error the default translation will be choosed
+    const serviceName = language && service.translations && LanguagesConstants.DEFAULT_LANGUAGE !== language ? service.translations.find((t) => t.languagecode === language).translation || service.name : service.name;
     const serviceNameCell = (
       <Table.Cell key='service' width='seven'>
         {/* If serviceStatus is in an unknown status, the label indicator will not be visible for users */}
@@ -61,7 +65,7 @@ class Matrix extends React.Component {
           color={serviceStatus ? serviceStatus.color : 'grey'}
         />
         <span>
-          {service.name}
+          {serviceName}
         </span>
       </Table.Cell>
     );
@@ -192,6 +196,7 @@ Matrix.propTypes = {
   matrix: PropTypes.object,
   isConnectedUserAdmin: PropTypes.bool,
   service: PropTypes.object,
+  language: PropTypes.string,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
   isIsolatedNetwork: PropTypes.bool,

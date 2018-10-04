@@ -15,9 +15,12 @@ import technologies from './modules/technologies/technologies.reducer';
 import toasts from './modules/toasts/toasts.reducer';
 import modal from './modules/modal/modal.reducer';
 import exportReducer from './modules/export/export.reducer';
+import languages from './modules/languages/languages.reducer';
 
 // Thunks
 import AuthThunks from './modules/auth/auth.thunk';
+import LanguagesThunks from './modules/languages/languages.thunks';
+import LanguagesConstants from './modules/languages/languages.constants';
 
 // Configure middlewares
 const rMiddleware = routerMiddleware(browserHistory);
@@ -41,6 +44,7 @@ const store = createStore(
       indicators,
       toasts,
       modal,
+      languages,
       export: exportReducer,
       routing: routerReducer,
     }
@@ -51,6 +55,11 @@ const store = createStore(
 const authToken = localStorage.getItem('id_token');
 if (authToken) {
   store.dispatch(AuthThunks.profile());
+}
+
+const language = localStorage.getItem('language') || LanguagesConstants.DEFAULT_LANGUAGE;
+if (language) {
+  store.dispatch(LanguagesThunks.selectLanguage(language));
 }
 
 export { store };

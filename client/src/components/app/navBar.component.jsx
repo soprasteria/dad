@@ -7,13 +7,19 @@ import { Dropdown, Header, Icon, Menu } from 'semantic-ui-react';
 
 import AuthThunks from '../../modules/auth/auth.thunk';
 import ExportThunks from '../../modules/export/export.thunk';
+import LanguagesThunks from '../../modules/languages/languages.thunks';
 import { isRoleAuthorized } from '../../modules/auth/auth.wrappers';
+import { flattenLanguages } from '../../modules/languages/languages.selectors';
 
 // Style
 import './navBar.component.scss';
 
 // NavBar Component
 class NavBarComponent extends React.Component {
+
+  componentDidMount = () => {
+    this.props.fetchLanguages();
+  }
 
   isAuthorized = (child, Roles) => {
     const authorized = this.props.auth.isAuthenticated && isRoleAuthorized(Roles, this.props.auth.user.role);
@@ -33,7 +39,7 @@ class NavBarComponent extends React.Component {
   }
 
   render = () => {
-    const { logout, exportData, isExportFetching } = this.props;
+    const { logout, exportData, languages, language, selectLanguage, isExportFetching } = this.props;
     const isAuthorized = this.isAuthorized;
     const userId = this.props.auth.user.id;
     return (
@@ -48,6 +54,13 @@ class NavBarComponent extends React.Component {
         {isAuthorized(<Menu.Item active={this.isActiveURL('/users')} as={Link} to='/users'>Users</Menu.Item>)}
         {isAuthorized(
           <Menu.Menu position='right'>
+            <Menu.Item as={Dropdown} text={language}>
+              <Dropdown.Menu>
+                {languages.map((language, index) => (
+                  <Dropdown.Item key={index} onClick={selectLanguage.bind(this, language)}>{language}</Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Menu.Item>
             <Menu.Item as={Dropdown} trigger={this.renderDropdown(isExportFetching)}>
               <Dropdown.Menu>
                 {isAuthorized(
@@ -69,14 +82,21 @@ NavBarComponent.propTypes = {
   auth: PropTypes.object.isRequired,
   logout: PropTypes.func.isRequired,
   exportData: PropTypes.func.isRequired,
-  isExportFetching: PropTypes.bool
+  isExportFetching: PropTypes.bool,
+  fetchLanguages: PropTypes.func.isRequired,
+  languages: PropTypes.array.isRequired,
+  language: PropTypes.string.isRequired,
+  selectLanguage: PropTypes.func.isRequired
 };
 
 // Function to map state to container props
 const mapStateToProps = (state) => {
+  const languages = state.languages;
   return {
     auth: state.auth,
     location: state.routing.locationBeforeTransitions,
+    languages: flattenLanguages(languages.items),
+    language: languages.language
     //isExportFetching: state.export.isFetching
   };
 };
@@ -87,8 +107,14 @@ const mapDispatchToProps = (dispatch) => {
     logout: () => {
       dispatch(AuthThunks.logoutUser());
     },
+    selectLanguage: (language) => {
+      dispatch(LanguagesThunks.selectLanguage(language));
+    },
     exportData: () => {
       dispatch(ExportThunks.exportAll());
+    },
+    fetchLanguages: () => {
+      dispatch(LanguagesThunks.fetchAll());
     }
   };
 };

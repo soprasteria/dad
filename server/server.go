@@ -29,6 +29,7 @@ func New(version string) {
 	technologiesC := controllers.Technologies{}
 	exportC := controllers.Export{}
 	adminC := controllers.Admin{}
+	languagesC := controllers.Languages{}
 
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.Recover())
@@ -126,6 +127,12 @@ func New(version string) {
 			// Therefore, only GetAll operation is available
 			usageIndicatorsAPI.GET("", usageIndicatorsC.GetAll, hasRole(types.AdminRole))
 			usageIndicatorsAPI.POST("/import", usageIndicatorsC.BulkImport, hasRole(types.AdminRole))
+		}
+
+		languageAPI := api.Group("/languages")
+		{
+			languageAPI.GET("", languagesC.GetAll)
+			languageAPI.POST("/new", languagesC.Save, hasRole(types.AdminRole))
 		}
 
 		exportAPI := api.Group("/export")

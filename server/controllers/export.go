@@ -20,6 +20,7 @@ type Export struct {
 
 // ExportAll exports all the data as a file
 func (a *Export) ExportAll(c echo.Context) error {
+	language := c.QueryParam("language")
 	database := c.Get("database").(*mongo.DadMongo)
 	exporter := export.Export{Database: database}
 
@@ -48,7 +49,7 @@ func (a *Export) ExportAll(c echo.Context) error {
 		projects[key].IsCDKApplicable = !project.IsCDKApplicable
 	}
 
-	data, err := exporter.Export(projects, projectToUsageIndicators)
+	data, err := exporter.Export(language, projects, projectToUsageIndicators)
 	if err != nil {
 		log.WithError(err).Error("Error occurred during the data export")
 		return c.JSON(http.StatusInternalServerError, types.NewErr("Cannot export DAD data in a file"))

@@ -8,13 +8,13 @@ import ExportActions from './export.actions';
 import moment from 'moment';
 
 // Calls the API to export data
-const exportAll = () => {
+const exportAll = (language) => {
 
   return (dispatch) => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(ExportActions.requestExportAll());
 
-    return fetch('/api/export', withAuth({ method: 'GET' }))
+    return fetch('/api/export?language=' + language, withAuth({ method: 'GET' }))
       .then(checkHttpStatus)
       .then((response) => {
         response.blob().then((blob) => {

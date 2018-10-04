@@ -232,7 +232,7 @@ export class ProjectComponent extends React.Component {
     this.props.onDelete(this.state.project);
   }
 
-  renderPackages = (packages, indicators, isFetching, isConnectedUserAdmin, readonly, isIsolatedNetwork, isCloud) => {
+  renderPackages = (packages, language, indicators, isFetching, isConnectedUserAdmin, readonly, isIsolatedNetwork, isCloud) => {
     if (isFetching) {
       return <p>Fetching Matrix...</p>;
     }
@@ -257,6 +257,7 @@ export class ProjectComponent extends React.Component {
               serviceId={service.id} matrix={this.state.matrix[service.id] || {}} service={service}
               indicators={indicators} onChange={this.handleMatrix} isIsolatedNetwork={isIsolatedNetwork}
               indicators={indicators} onChange={this.handleMatrix} isCloud={isCloud}
+              language={language}
             />
           ))}
         </Table.Body>
@@ -330,7 +331,7 @@ export class ProjectComponent extends React.Component {
     const {
       isFetching, serviceCenters, businessUnits, indicators,
       isEntitiesFetching, services, isServicesFetching,
-      users, projectId, isAdmin, isRI, isPM, isDeputy
+      users, projectId, isAdmin, isRI, isPM, isDeputy, language
     } = this.props;
     const { project, errors } = this.state;
     const fetching = isFetching || isServicesFetching;
@@ -445,7 +446,7 @@ export class ProjectComponent extends React.Component {
 
           <Divider hidden />
 
-          {this.renderPackages(services, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.mode === 'Isolated Network', this.state.project.mode === 'Cloud')}
+          {this.renderPackages(services, language, indicators, fetching, isAdmin, this.state.project.isCDKApplicable, this.state.project.mode === 'Isolated Network', this.state.project.mode === 'Cloud')}
 
           <Button
             color='green' icon='save' title='Save project' labelPosition='left' content='Save Project'
@@ -468,6 +469,7 @@ ProjectComponent.propTypes = {
   isEntitiesFetching: PropTypes.bool,
   users: PropTypes.array,
   services: PropTypes.object,
+  language: PropTypes.string,
   technologies: PropTypes.array,
   isServicesFetching: PropTypes.bool,
   projectId: PropTypes.string,
@@ -499,6 +501,7 @@ const mapStateToProps = (state, ownProps) => {
   const users = Object.values(state.users.items);
   const authUser = auth.user;
   const selectedProject = { ...emptyProject, ...projects.items[paramId] };
+  const language = state.languages.language;
 
   let entities = Object.values(state.entities.items);
 
@@ -529,6 +532,7 @@ const mapStateToProps = (state, ownProps) => {
     technologies: flattenTechnologies(technologies),
     isEntitiesFetching: state.entities.isFetching,
     services,
+    language,
     indicators,
     isServicesFetching,
     isAdmin,

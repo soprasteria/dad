@@ -1,7 +1,7 @@
 import { generateEntitiesThunks } from '../utils/entities';
 import LanguagesActions from './languages.actions';
 
-// Logs the user out
+// selectLanguage the language of the app
 const selectLanguage = (language) => {
   return (dispatch) => {
     dispatch(LanguagesActions.receiveLanguage(language));

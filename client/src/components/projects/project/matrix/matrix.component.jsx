@@ -54,7 +54,7 @@ class Matrix extends React.Component {
     const dueDate = matrix.dueDate ? moment(matrix.dueDate) : '';
     const expandComment = this.state && this.state.expandComment;
     // Check if there is a language and translation and it's not the default language
-    // If there is any error the default translation will be choosed
+    // If there is any error the default translation will be chosen
     const serviceName = language && service.translations && LanguagesConstants.DEFAULT_LANGUAGE !== language ? service.translations.find((t) => t.languagecode === language).translation || service.name : service.name;
     const serviceNameCell = (
       <Table.Cell key='service' width='seven'>

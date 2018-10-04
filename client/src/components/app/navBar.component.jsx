@@ -64,7 +64,7 @@ class NavBarComponent extends React.Component {
             <Menu.Item as={Dropdown} trigger={this.renderDropdown(isExportFetching)}>
               <Dropdown.Menu>
                 {isAuthorized(
-                  <Dropdown.Item onClick={exportData} disabled={isExportFetching}><Icon name='download' />Export</Dropdown.Item>,
+                  <Dropdown.Item onClick={exportData.bind(this, language)} disabled={isExportFetching}><Icon name='download' />Export</Dropdown.Item>,
                 )}
                 <Dropdown.Item as={Link} to={`/users/${userId}`} ><Icon name='settings' />Profile</Dropdown.Item>
                 <Dropdown.Item onClick={logout} ><Icon name='sign out' />Logout</Dropdown.Item>
@@ -110,8 +110,8 @@ const mapDispatchToProps = (dispatch) => {
     selectLanguage: (language) => {
       dispatch(LanguagesThunks.selectLanguage(language));
     },
-    exportData: () => {
-      dispatch(ExportThunks.exportAll());
+    exportData: (language) => {
+      dispatch(ExportThunks.exportAll(language));
     },
     fetchLanguages: () => {
       dispatch(LanguagesThunks.fetchAll());

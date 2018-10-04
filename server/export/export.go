@@ -141,7 +141,7 @@ func getServiceIndicatorMap(projects []types.Project, servicesMapSortedKeys []st
 	return serviceIndicatorMap
 }
 
-func (e *Export) generateXlsx(projects []types.Project, services []types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
+func (e *Export) generateXlsx(language string, projects []types.Project, services []types.FunctionalService, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
 
 	file := xlsx.NewFile()
 	sheet, err := file.AddSheet("Plan de déploiement")
@@ -210,7 +210,16 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 
 		createMergedCell(servicePkgRow, pkg, len(services)*nbColsService)
 		for _, service := range services {
-			nameCell := createMergedCell(serviceNameRow, service.Name, nbColsService)
+
+			// Find the translation of the service name, default service name value
+			var serviceTranslation = service.Name
+			for _, translation := range service.Translations {
+				if translation.LanguageCode == language {
+					serviceTranslation = translation.Translation
+				}
+			}
+
+			nameCell := createMergedCell(serviceNameRow, serviceTranslation, nbColsService)
 			rotateCell(nameCell, 90)
 			createCell(serviceMaturityRow, "Deployed")
 			createCell(serviceMaturityRow, "Progress")
@@ -339,10 +348,10 @@ func (e *Export) generateXlsx(projects []types.Project, services []types.Functio
 }
 
 //Export exports some business data as a file
-func (e *Export) Export(projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
+func (e *Export) Export(language string, projects []types.Project, projectToUsageIndicators map[string][]types.UsageIndicator) (*bytes.Reader, error) {
 	services, err := e.Database.FunctionalServices.FindAll()
 	if err != nil {
 		return nil, err
 	}
-	return e.generateXlsx(projects, services, projectToUsageIndicators)
+	return e.generateXlsx(language, projects, services, projectToUsageIndicators)
 }

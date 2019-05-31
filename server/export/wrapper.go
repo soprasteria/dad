@@ -32,6 +32,7 @@ func createFormattedValueCell(row *xlsx.Row, numberFormat string) *xlsx.Cell {
 	cell := row.AddCell()
 	cell.SetString(numberFormat)
 	cell.NumFmt = "0%"
+	//nolint:errcheck
 	cell.FormattedValue()
 	return cell
 }
@@ -128,5 +129,6 @@ func modifyCellBorder(cell *xlsx.Cell, left bool, right bool, top bool, bottom b
 }
 
 func setWidthCols(sheet *xlsx.Sheet, width float64) {
+	//nolint:errcheck
 	sheet.SetColWidth(0, len(sheet.Cols), width)
 }

@@ -134,7 +134,7 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 		return "", err
 	}
 
-	log.Infof("Found %s projects with a Docktor URL, target as potentially updatable with deployment status.")
+	log.Infof("Found %v projects with a Docktor URL, target as potentially updatable with deployment status.", len(projects))
 	updatedProjects := 0
 	projectsInError := []string{}
 	for _, project := range projects {

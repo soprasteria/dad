@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/soprasteria/dad/server"
 	"github.com/soprasteria/dad/server/email"
 	"github.com/soprasteria/dad/server/mongo"
@@ -28,7 +29,10 @@ var serveCmd = &cobra.Command{
 	Short: "Launch D.A.D server",
 	Long:  `D.A.D server will listen on 0.0.0.0:8080`,
 	Run: func(cmd *cobra.Command, args []string) {
-		email.InitSMTPConfiguration(viper.GetString("smtp.server"), viper.GetString("admin.name"), viper.GetString("smtp.user"), viper.GetString("smtp.identity"), viper.GetString("smtp.password"), viper.GetString("smtp.logo"))
+		err := email.InitSMTPConfiguration(viper.GetString("smtp.server"), viper.GetString("admin.name"), viper.GetString("smtp.user"), viper.GetString("smtp.identity"), viper.GetString("smtp.password"), viper.GetString("smtp.logo"))
+		if err != nil {
+			log.Warnf("Error when init smtp conf: %s", err)
+		}
 		mongo.Connect()
 		server.New(Version)
 	},

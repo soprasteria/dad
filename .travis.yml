@@ -1,8 +1,8 @@
 language: go
 go:
-- 1.7
+- 1.11.x
 env:
-- GO_VENDOR=1
+- GO111MODULE=on
 before_install:
 - nvm --version
 - nvm install 7.2.0
@@ -10,9 +10,8 @@ before_install:
 - npm install -g codecov
 - go version
 install:
-- go get -u -v github.com/alecthomas/gometalinter
+- go install github.com/golangci/golangci-lint/cmd/golangci-lint
 - go get -u -v github.com/kardianos/govendor
-- gometalinter --install --update --force
 - govendor sync -v
 - npm install
 script:

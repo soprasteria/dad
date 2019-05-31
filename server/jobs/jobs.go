@@ -26,10 +26,14 @@ func RunBackgroundJobs() {
 		"nextExecution": scheduler.Next(time.Now()),
 	}).Info("Cron configuration")
 
-	job.AddFunc(recurrenceCronString, func() {
+	err = job.AddFunc(recurrenceCronString, func() {
 		jobDeploy(scheduler)
 	})
-	job.Start()
 
-	return
+	if err != nil {
+		log.Warnf("Error when init background job: %s", err)
+		return
+	}
+
+	job.Start()
 }

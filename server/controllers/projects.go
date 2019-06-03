@@ -12,7 +12,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/matcornic/hermes"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/labstack/echo"
@@ -443,6 +443,7 @@ func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bs
 		viper.GetString("docktor.addr"),
 		viper.GetString("docktor.user"),
 		viper.GetString("docktor.password"),
+		viper.GetBool("docktor.ldap"),
 	)
 	if err != nil {
 		return err
@@ -457,7 +458,7 @@ func (p *Projects) updateDocktorGroupName(database *mongo.DadMongo, idProject bs
 		return err
 	}
 	// Update project in database
-	err = database.Projects.UpdateDocktorGroupURL(idProject, docktorGroupURL, group.Title)
+	err = database.Projects.UpdateDocktorGroupURL(idProject, docktorGroupURL, group.Name)
 	if err != nil {
 		return fmt.Errorf("Unable to update project in Mongo database because: %v", err.Error())
 	}

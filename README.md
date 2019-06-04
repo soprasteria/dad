@@ -10,10 +10,11 @@
 ## Development
 
 Tools and dependencies:
-* [Golang 1.7](https://golang.org/)
-  * [govendor](https://github.com/kardianos/govendor)
-* [NodeJS 8](https://nodejs.org/en/)
-* [Docker](https://www.docker.com/)
+
+- [Golang 1.7](https://golang.org/)
+  - [govendor](https://github.com/kardianos/govendor)
+- [NodeJS 8](https://nodejs.org/en/)
+- [Docker](https://www.docker.com/)
 
 **Don't forget to add $GOPATH/bin to your $PATH**
 
@@ -56,7 +57,7 @@ realname = ""
 email = ""
 
 [docktor]
-addr = "http://<DocktorUrl>/#!/"
+addr = "https://<DocktorUrl>/"
 user = "<DocktorUsername>"
 password = "<DocktorPassword>"
 
@@ -73,9 +74,9 @@ go run main.go serve --help
 
 **Note:** DAD allows three methods for the configuration:
 
-* Use a config file as described above
-* Use environment variables (`server.mongo.addr` becomes `DAD_SERVER_MONGO_ADDR`)
-* Use CLI parameters (`--server.mongo.addr`)
+- Use a config file as described above
+- Use environment variables (`server.mongo.addr` becomes `DAD_SERVER_MONGO_ADDR`)
+- Use CLI parameters (`--server.mongo.addr`)
 
 ## Run the project
 

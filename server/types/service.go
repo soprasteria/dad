@@ -2,9 +2,10 @@ package types
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -16,6 +17,7 @@ type FunctionalService struct {
 	Package               string        `bson:"package" json:"package"`
 	Position              int           `bson:"position" json:"position"`
 	Services              []string      `bson:"services" json:"services"`
+	Images                []string      `bson:"images" json:"images"`
 	DeclarativeDeployment bool          `bson:"declarativeDeployement" json:"declarativeDeployement"`
 }
 
@@ -25,6 +27,21 @@ func (fs FunctionalService) isAssociatedWithAtLeastGivenService(serviceNames []s
 	for _, service := range fs.Services {
 		for _, name := range serviceNames {
 			if strings.ToLower(name) == strings.ToLower(service) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// isAssociatedWithAtLeastGivenImage return true when at least one image in given parameter is found in the functional service.
+// Search is executed by ignoring case.
+func (fs FunctionalService) isAssociatedWithAtLeastGivenImage(images []string) bool {
+
+	for _, serviceImage := range fs.Images {
+		var reg = regexp.MustCompile(strings.ToLower(serviceImage))
+		for _, image := range images {
+			if reg.MatchString(strings.ToLower(image)) {
 				return true
 			}
 		}
@@ -91,6 +108,25 @@ func (r *FunctionalServiceRepo) FindFunctionalServicesDeployByServices(services 
 
 	for _, s := range allFunctionalServices {
 		if s.isAssociatedWithAtLeastGivenService(services) {
+			functionalServices = append(functionalServices, s)
+		}
+	}
+
+	return functionalServices, err
+}
+
+// FindFunctionalServicesDeployByImages find all functional services associated to the docker image
+func (r *FunctionalServiceRepo) FindFunctionalServicesDeployByImages(images []string) ([]FunctionalService, error) {
+
+	functionalServices := []FunctionalService{}
+
+	allFunctionalServices, err := r.FindAll()
+	if err != nil {
+		return nil, errors.New("Unable to get all functional services from database")
+	}
+
+	for _, s := range allFunctionalServices {
+		if s.isAssociatedWithAtLeastGivenImage(images) {
 			functionalServices = append(functionalServices, s)
 		}
 	}

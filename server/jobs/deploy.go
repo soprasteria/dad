@@ -18,6 +18,7 @@ func getDocktorGroupData(project types.Project) (docktor.GroupDocktor, error) {
 		viper.GetString("docktor.addr"),
 		viper.GetString("docktor.user"),
 		viper.GetString("docktor.password"),
+		viper.GetBool("docktor.ldap"),
 	)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -35,20 +36,11 @@ func getDocktorGroupData(project types.Project) (docktor.GroupDocktor, error) {
 
 	docktorGroup, err := docktorAPI.GetGroup(idDocktorGroup)
 	if err != nil {
-		log.WithError(err).Error("Error when getting containers services")
+		log.WithError(err).Error("Error when getting containers images")
 		return docktor.GroupDocktor{}, err
 	}
 
 	return docktorGroup, nil
-}
-
-func isDeclarative(docktorGroupData docktor.GroupDocktor) bool {
-	for _, container := range docktorGroupData.Containers {
-		if container.ServiceTitle == "ISOLATED_NETWORK" || container.ServiceTitle == "CLOUD" {
-			return true
-		}
-	}
-	return false
 }
 
 func getAllFunctionalServicesDeployByProject(docktorGroupData docktor.GroupDocktor) ([]types.FunctionalService, error) {
@@ -60,14 +52,14 @@ func getAllFunctionalServicesDeployByProject(docktorGroupData docktor.GroupDockt
 	}
 	defer database.Session.Close()
 
-	// Formatting to an array of services
-	servicesDeployed := []string{}
+	// Formatting to an array of image
+	imagesDeployed := []string{}
 	for _, container := range docktorGroupData.Containers {
-		servicesDeployed = append(servicesDeployed, strings.ToLower(container.ServiceTitle))
+		imagesDeployed = append(imagesDeployed, strings.ToLower(container.Image))
 	}
 
 	// Find all deployed functional services
-	functionalServicesDeployed, err := database.FunctionalServices.FindFunctionalServicesDeployByServices(servicesDeployed)
+	functionalServicesDeployed, err := database.FunctionalServices.FindFunctionalServicesDeployByImages(imagesDeployed)
 	if err != nil {
 		log.WithError(err).Error("Error when getting functional services")
 		return nil, err
@@ -146,8 +138,8 @@ func ExecuteDeploymentStatusAnalytics() (string, error) {
 			continue
 		}
 
-		// In the case of an isolated network or on the cloud, all services are declarative, so we don't check anything in deploy and progress status.
-		if isDeclarative(docktorGroupData) {
+		// In the case of an isolated network or on the cloud, etc, all services are declarative, so we don't check anything in deploy and progress status.
+		if project.Mode != "SaaS" {
 			continue
 		}
 
